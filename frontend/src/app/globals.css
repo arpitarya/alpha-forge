@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  /* AlphaForge Terminal Dark Theme */
+  --af-bg-primary: #0a0e17;
+  --af-bg-secondary: #111827;
+  --af-bg-tertiary: #1a2332;
+  --af-bg-card: #151d2b;
+  --af-border: #1e293b;
+  --af-text-primary: #e2e8f0;
+  --af-text-secondary: #94a3b8;
+  --af-text-muted: #64748b;
+  --af-accent-blue: #3b82f6;
+  --af-accent-cyan: #06b6d4;
+  --af-green: #22c55e;
+  --af-red: #ef4444;
+  --af-orange: #f59e0b;
+  --af-purple: #a855f7;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--af-bg-primary);
+  color: var(--af-text-primary);
+  font-family:
+    "JetBrains Mono",
+    "SF Mono",
+    "Fira Code",
+    ui-monospace,
+    monospace;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--af-bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--af-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--af-text-muted);
+}
+
+/* Utility classes */
+.text-green { color: var(--af-green); }
+.text-red { color: var(--af-red); }
+.text-muted { color: var(--af-text-muted); }
+.bg-card { background-color: var(--af-bg-card); }
+.border-subtle { border-color: var(--af-border); }

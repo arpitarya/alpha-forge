@@ -15,16 +15,20 @@ AlphaForge is an open-source, institutional-grade financial analysis and trading
 git clone https://github.com/your-username/alpha-forge.git
 cd alpha-forge
 
-# Option 1: Docker (recommended)
-cp backend/.env.example backend/.env   # edit with your keys
-docker compose up --build
+# Option 1: Native macOS (recommended for M-series Macs — zero Docker overhead)
+bash infra/setup-local.sh           # Install & start PostgreSQL + Redis via Homebrew
+cp backend/.env.example backend/.env
+cd backend && pdm install && pdm run dev    # API at :8000
+cd frontend && pnpm install && pnpm dev     # UI at :3000
 
-# Option 2: Local development
-make backend-install    # Python deps
-make frontend-install   # Node deps
-make db-up              # Start PostgreSQL & Redis
-make backend            # Start API at :8000
-make frontend           # Start UI at :3000
+# Option 2: All-in-one with process manager
+make db-local                       # Setup PostgreSQL + Redis via Homebrew
+make backend-install && make frontend-install
+make dev-local                      # Starts backend + frontend via Procfile
+
+# Option 3: Containers (OrbStack recommended over Docker Desktop)
+cp backend/.env.example backend/.env
+docker compose -f infra/docker-compose.yml up --build
 ```
 
 **Backend API docs:** http://localhost:8000/docs  
@@ -47,7 +51,7 @@ make frontend           # Start UI at :3000
 
 ```
 alpha-forge/
-├── backend/                 # Python/FastAPI API server
+├── backend/                 # Python/FastAPI API server (PDM + uv)
 │   ├── app/
 │   │   ├── core/            # Config, DB, security
 │   │   ├── models/          # SQLAlchemy ORM models
@@ -56,14 +60,21 @@ alpha-forge/
 │   ├── alembic/             # Database migrations
 │   ├── tests/               # Backend tests
 │   └── pyproject.toml
-├── frontend/                # Next.js / React / TypeScript UI
+├── frontend/                # Next.js / React / TypeScript UI (pnpm)
 │   ├── src/
 │   │   ├── app/             # Next.js app router pages
 │   │   ├── components/      # React components
 │   │   └── lib/             # API client, stores, utils
 │   └── package.json
+├── infra/                   # Infrastructure configs
+│   ├── docker-compose.yml   # Container orchestration (optional)
+│   └── setup-local.sh       # Native macOS setup (Homebrew)
+├── design/                  # Design system & Figma tokens
+├── .devcontainer/           # GitHub Codespaces config
+├── .github/                 # Copilot instructions
+├── CLAUDE.md                # Claude Code context
 ├── docs/                    # Project documentation
-├── docker-compose.yml       # Full-stack orchestration
+├── Procfile                 # Process manager (overmind/honcho)
 ├── Makefile                 # Dev commands
 └── LICENSE
 ```
@@ -75,7 +86,9 @@ alpha-forge/
 | Layer | Technology | Why |
 |-------|-----------|-----|
 | Backend API | Python 3.12 + FastAPI | Async, fast, great ML ecosystem |
+| Python Tooling | PDM + uv | Fast resolver, lockfile, reproducible |
 | Frontend | Next.js 15 + React 19 + TypeScript | Modern, fast, SSR support |
+| Node Tooling | pnpm | Fast, disk-efficient, strict |
 | Database | PostgreSQL 16 | Reliable, battle-tested |
 | Cache / Pub-Sub | Redis 7 | Real-time data, WebSocket backing |
 | AI / LLM | OpenAI + LangChain | Conversational AI, RAG |
@@ -83,7 +96,7 @@ alpha-forge/
 | Broker API | Zerodha Kite Connect | Most popular Indian broker API |
 | Task Queue | Celery | Background jobs (screeners, alerts) |
 | Styling | Tailwind CSS v4 | Utility-first, terminal aesthetic |
-| Containers | Docker Compose | One-command dev environment |
+| Local Infra | Homebrew (native) or OrbStack | Lightweight, M-series optimized |
 
 ---
 

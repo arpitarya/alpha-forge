@@ -18,6 +18,7 @@ env/
 .python-version
 *.pyo
 *.pyd
+.pdm-build/
 
 # ---------- Node / Frontend ----------
 node_modules/
@@ -28,6 +29,7 @@ out/
 .npm
 .yarn/cache
 .pnp.*
+.pnpm-store/
 
 # ---------- Environment & Secrets ----------
 .env

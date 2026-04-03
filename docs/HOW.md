@@ -71,6 +71,8 @@
 | `celery` | Distributed task queue for background jobs |
 | `httpx` | Async HTTP client for external APIs |
 
+**Package management**: PDM with uv as resolver/installer. Lockfile: `pdm.lock`.
+
 ### Frontend: Next.js 15 + React 19 + TypeScript
 
 **Why Next.js?**
@@ -89,6 +91,8 @@
 | `recharts` | Charts for portfolio/analytics views |
 | `tailwindcss` v4 | Utility-first CSS with terminal aesthetic |
 | `lucide-react` | Icon library |
+
+**Package management**: pnpm (strict, disk-efficient). Lockfile: `pnpm-lock.yaml`.
 
 ### Database: PostgreSQL 16
 
@@ -264,29 +268,48 @@ Frontend
 
 ## Development Workflow
 
+### Local (Recommended for macOS Apple Silicon)
+
 ```bash
-# 1. Start infrastructure
-make db-up                          # PostgreSQL + Redis
+# 1. Setup infrastructure (one-time)
+bash infra/setup-local.sh             # PostgreSQL + Redis via Homebrew
 
-# 2. Run migrations
-make db-migrate                     # Apply schema
+# 2. Install dependencies
+cd backend && pdm install             # Python deps (uses uv resolver)
+cd frontend && pnpm install           # Node deps
 
-# 3. Start backend
-cd backend && uvicorn app.main:app --reload
+# 3. Run migrations
+cd backend && pdm run migrate         # Apply schema
 
-# 4. Start frontend
-cd frontend && npm run dev
+# 4. Start backend
+cd backend && pdm run dev             # uvicorn --reload at :8000
 
-# 5. Run tests
+# 5. Start frontend
+cd frontend && pnpm dev               # Next.js at :3000
+
+# Or start both at once:
+make dev-local                        # Uses overmind/honcho + Procfile
+
+# 6. Run tests
 make test
 
-# 6. Create new migration after model changes
+# 7. Create new migration after model changes
 make db-revision msg="add watchlist table"
 ```
 
+### Container (OrbStack or Docker)
+
+```bash
+docker compose -f infra/docker-compose.yml up --build
+```
+
+### GitHub Codespaces
+
+The `.devcontainer/devcontainer.json` sets up a full cloud environment with PostgreSQL, Redis, and all dependencies pre-installed.
+
 ### Code Quality
-- **Backend**: `ruff` for linting + formatting, `mypy` for type checking, `pytest` for tests
-- **Frontend**: `eslint` + `next lint`, TypeScript strict mode
+- **Backend**: `ruff` for linting + formatting, `mypy` for type checking, `pytest` for tests — all via `pdm run`
+- **Frontend**: `eslint` + `next lint`, TypeScript strict mode — all via `pnpm`
 - **Pre-commit hooks** (planned): lint + format on every commit
 
 ---

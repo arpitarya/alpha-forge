@@ -5,86 +5,93 @@
 | Tool | Version | Install |
 |------|---------|---------|
 | Python | 3.11+ | `brew install python@3.12` |
+| PDM | Latest | `brew install pdm` or `pip install pdm` |
+| uv | Latest | `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 | Node.js | 22+ | `brew install node` |
-| Docker & Compose | Latest | [Docker Desktop](https://www.docker.com/products/docker-desktop) |
+| pnpm | 9+ | `corepack enable && corepack prepare pnpm@latest --activate` |
 | Git | Latest | `brew install git` |
+
+**Optional (for container workflow):**
+
+| Tool | Install | Notes |
+|------|---------|-------|
+| OrbStack | [orbstack.dev](https://orbstack.dev) | Lightweight Docker alternative for macOS (~6x less RAM than Docker Desktop) |
+| Docker Desktop | [docker.com](https://www.docker.com/products/docker-desktop) | Heavier but more established |
+
+> **For MacBook Air M4 (16GB RAM):** We recommend the **native local setup** (Option 1 below). It uses Homebrew to run PostgreSQL and Redis natively with zero container overhead. If you need containers, use **OrbStack** instead of Docker Desktop — it's purpose-built for Apple Silicon and uses a fraction of the memory.
 
 ---
 
-## Option 1: Docker (Recommended)
+## Option 1: Native Local Development (Recommended for macOS)
 
-The fastest way to get everything running:
+The fastest, lightest setup — no Docker at all:
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/your-username/alpha-forge.git
 cd alpha-forge
 
-# 2. Copy environment file and add your keys
-cp backend/.env.example backend/.env
-# Edit backend/.env with your API keys (at minimum, set a strong SECRET_KEY)
+# 2. Setup PostgreSQL & Redis via Homebrew
+bash infra/setup-local.sh
+# This installs & starts PostgreSQL 16 + Redis 7 and creates the alphaforge database
 
-# 3. Start everything
-docker compose up --build
+# 3. Backend setup
+cd backend
+cp .env.example .env       # Edit with your keys
+pdm install                # Installs Python deps using uv resolver
+pdm run migrate            # Apply database schema
+pdm run dev                # Start API at http://localhost:8000
 
-# Backend API: http://localhost:8000
-# API Docs:    http://localhost:8000/docs
-# Frontend:    http://localhost:3000
-# PostgreSQL:  localhost:5432
-# Redis:       localhost:6379
+# 4. Frontend setup (in another terminal)
+cd frontend
+pnpm install               # Install Node deps
+pnpm dev                   # Start UI at http://localhost:3000
+```
+
+**Or start everything at once** with a process manager:
+```bash
+brew install overmind       # or: pip install honcho
+make dev-local              # Starts backend + frontend from Procfile
 ```
 
 ---
 
-## Option 2: Local Development
+## Option 2: Containers (OrbStack or Docker)
 
-For a faster dev loop with hot reload:
-
-### 1. Start Infrastructure
+If you prefer containers, or are on Linux/Windows:
 
 ```bash
-# Start PostgreSQL and Redis via Docker
-make db-up
+# 1. Install OrbStack (macOS) or Docker Desktop
+# OrbStack: brew install orbstack  (recommended for Apple Silicon)
+# Docker:   brew install --cask docker
+
+# 2. Clone and configure
+git clone https://github.com/your-username/alpha-forge.git
+cd alpha-forge
+cp backend/.env.example backend/.env
+
+# 3. Start everything
+docker compose -f infra/docker-compose.yml up --build
+
+# Backend API: http://localhost:8000
+# API Docs:    http://localhost:8000/docs
+# Frontend:    http://localhost:3000
 ```
 
-### 2. Backend Setup
+---
 
-```bash
-cd backend
+## Option 3: GitHub Codespaces
 
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate
+This repo includes a `.devcontainer/devcontainer.json` for instant cloud development:
 
-# Install dependencies
-pip install -e ".[dev]"
-
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your configuration
-
-# Run database migrations
-alembic upgrade head
-
-# Start the backend server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Verify: Open http://localhost:8000/docs — you should see the Swagger UI.
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start the dev server
-npm run dev
-```
-
-Verify: Open http://localhost:3000 — you should see the AlphaForge dashboard.
+1. Go to the GitHub repo → Click **Code** → **Codespaces** → **Create codespace**
+2. Wait for the container to build (installs pdm + pnpm + all deps)
+3. Backend and frontend are ready to start:
+   ```bash
+   cd backend && pdm run dev      # Terminal 1
+   cd frontend && pnpm dev        # Terminal 2
+   ```
+4. Codespaces auto-forwards ports 8000 and 3000
 
 ---
 
@@ -121,12 +128,15 @@ KITE_API_SECRET=your_secret
 
 ```bash
 make help              # Show all available commands
-make dev               # Start everything with Docker
-make backend           # Run backend locally
-make frontend          # Run frontend locally
+make dev-local         # Start backend + frontend via Procfile
+make dev-docker        # Start everything with Docker/OrbStack
+make backend           # Run backend locally (pdm run dev)
+make frontend          # Run frontend locally (pnpm dev)
 make test              # Run all tests
 make lint              # Lint backend + frontend
 make format            # Auto-format backend code
+make db-local          # Setup PostgreSQL + Redis via Homebrew
+make db-up             # Start PostgreSQL + Redis via Docker
 make db-migrate        # Apply pending migrations
 make db-revision msg="description"  # Create new migration
 ```
@@ -163,7 +173,7 @@ backend/
 ├── alembic/                 # Database migrations
 ├── tests/                   # Pytest test suite
 ├── Dockerfile
-├── pyproject.toml
+├── pyproject.toml           # PDM config (uses uv resolver)
 └── .env.example
 
 frontend/
@@ -179,10 +189,14 @@ frontend/
 │   └── lib/
 │       ├── api.ts           # Axios API client
 │       └── store.ts         # Zustand state management
-├── package.json
+├── package.json             # pnpm managed
 ├── tsconfig.json
 ├── next.config.mjs
 └── Dockerfile
+
+infra/
+├── docker-compose.yml       # Container orchestration (optional)
+└── setup-local.sh           # Native macOS setup (Homebrew)
 ```
 
 ---
@@ -193,10 +207,13 @@ frontend/
 |---------|----------|
 | Port 8000 already in use | `lsof -ti:8000 \| xargs kill` |
 | Port 3000 already in use | `lsof -ti:3000 \| xargs kill` |
-| Docker PostgreSQL won't start | `docker compose down -v && docker compose up` |
+| `pdm install` fails | Ensure pdm + uv are installed: `brew install pdm uv` |
+| `pnpm` not found | Enable corepack: `corepack enable && corepack prepare pnpm@latest --activate` |
+| PostgreSQL won't start (brew) | `brew services restart postgresql@16` |
 | `ta-lib` install fails | Install system lib: `brew install ta-lib` |
 | Frontend can't reach backend | Check CORS config in `.env` and Next.js rewrite proxy |
-| Alembic migration fails | Ensure DB is running: `make db-up` |
+| Alembic migration fails | Ensure DB is running: `brew services list` or `make db-up` |
+| Docker too heavy on macOS | Use native setup: `bash infra/setup-local.sh` or install OrbStack |
 
 ---
 
@@ -208,4 +225,5 @@ Once the base setup is running:
 2. **Try the AI chat** (once you add an OpenAI key)
 3. **Connect a broker** (get Zerodha Kite API key from developers.kite.trade)
 4. **Check the roadmap** in [WHAT.md](WHAT.md) for upcoming features
-5. **Contribute** — pick an issue, create a PR!
+5. **Open in Codespaces** for zero-setup cloud development
+6. **Contribute** — pick an issue, create a PR!

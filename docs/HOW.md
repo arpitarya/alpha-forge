@@ -49,7 +49,7 @@
 
 ## Tech Stack Deep Dive
 
-### Backend: Python 3.12 + FastAPI
+### Backend: Python 3.14 + FastAPI
 
 **Why Python?**
 - Best-in-class ecosystem for financial analysis (pandas, numpy, ta-lib)
@@ -311,6 +311,33 @@ The `.devcontainer/devcontainer.json` sets up a full cloud environment with Post
 - **Backend**: `ruff` for linting + formatting, `mypy` for type checking, `pytest` for tests — all via `pdm run`
 - **Frontend**: `eslint` + `next lint`, TypeScript strict mode — all via `pnpm`
 - **Pre-commit hooks** (planned): lint + format on every commit
+
+### Logging
+
+Both backend and frontend use structured, file-based logging via **publishable logger packages** so you can check logs in the `logs/` directory.
+
+**Packages:**
+- `packages/logger-py/` — `alphaforge-logger` — Python rotating-file + console logger (zero dependencies)
+- `packages/logger-node/` — `@alphaforge/logger` — pino-based structured logger (ESM + CJS, built with tsup)
+
+**Backend** — wraps `alphaforge-logger` via `backend/app/core/logging.py`:
+- Initialised at app startup in `backend/app/main.py` (lifespan)
+- Get a scoped logger anywhere: `from app.core.logging import get_logger; logger = get_logger("routes.market")`
+- File output: `backend/logs/alphaforge.log` (10 MB per file, 5 backups)
+
+**Frontend** — wraps `@alphaforge/logger` via `frontend/src/lib/logger.ts`:
+- Get a scoped logger: `import { getLogger } from "@/lib/logger"; const log = getLogger("MyComponent")`
+- Server-side logs to `frontend/logs/alphaforge-frontend.log` + console (pretty in dev)
+- Client-side errors can be forwarded via `POST /api/log` (warn/error/fatal only)
+
+**Environment variables** (both stacks):
+| Variable | Backend Default | Frontend Default | Description |
+|----------|----------------|-----------------|-------------|
+| `LOG_LEVEL` | `INFO` | `info` | Minimum log level |
+| `LOG_DIR` | `logs` | `logs` | Directory for log files |
+| `LOG_FILE` | `alphaforge.log` | `alphaforge-frontend.log` | Log filename |
+| `LOG_MAX_BYTES` | `10485760` | — | Max file size before rotation (backend only) |
+| `LOG_BACKUP_COUNT` | `5` | — | Rotated file copies to keep (backend only) |
 
 ---
 

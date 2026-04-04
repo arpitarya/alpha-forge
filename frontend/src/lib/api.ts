@@ -1,4 +1,7 @@
 import axios from "axios";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("api");
 
 const api = axios.create({
   baseURL: "/api/v1",
@@ -13,6 +16,19 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Log errors on response
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    log.error(
+      { status: error.response?.status, url: error.config?.url },
+      "API request failed: %s",
+      error.message,
+    );
+    return Promise.reject(error);
+  },
+);
 
 // ── Market Data ─────────────────────────────────
 export const marketApi = {

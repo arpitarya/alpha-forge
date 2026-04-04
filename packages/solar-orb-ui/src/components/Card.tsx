@@ -1,23 +1,39 @@
 import { clsx } from "clsx";
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
-export interface CardProps {
+type CardVariant = "surface" | "glass" | "elevated";
+
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  className?: string;
+  variant?: CardVariant;
   hover?: boolean;
 }
 
-export function Card({ children, className, hover = false }: CardProps) {
+const variantStyles: Record<CardVariant, string> = {
+  surface: "bg-surface-container",
+  glass: "bg-white/[0.03] backdrop-blur-[40px] border border-white/5",
+  elevated: "bg-surface-bright",
+};
+
+export function Card({
+  children,
+  className,
+  variant = "surface",
+  hover = false,
+  ...props
+}: CardProps) {
   return (
     <div
       className={twMerge(
         clsx(
-          "floating-shard rounded-[2.5rem] p-8",
-          hover && "hover:scale-105 transition-all duration-700",
+          "p-6",
+          variantStyles[variant],
+          hover && "hover:bg-surface-bright transition-colors duration-700",
           className,
         ),
       )}
+      {...props}
     >
       {children}
     </div>

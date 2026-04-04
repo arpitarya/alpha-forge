@@ -7,7 +7,7 @@ Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend
 
 ## Architecture
 
-- **Backend** (`backend/`): Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL, Redis, Celery
+- **Backend** (`backend/`): Python 3.14, FastAPI, SQLAlchemy 2.0 async, PostgreSQL, Redis, Celery
 - **Frontend** (`frontend/`): Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS v4, TanStack React Query v5
 - **UI Package** (`packages/solar-orb-ui/`): Publishable component library (Button, Input, Card, Badge, Icon, Text) + design tokens + fonts. Built with tsup → ESM + CJS + DTS
 - **AI Layer**: OpenAI + LangChain for market analysis, RAG, conversational chat
@@ -16,8 +16,9 @@ Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend
 ## Code Style
 
 ### Python (backend/)
-- **Package manager**: PDM with uv as resolver/installer (`pdm install`, NOT pip)
-- **Formatter/Linter**: ruff (line-length=100, target py311)
+- **Package manager**: PDM with uv as resolver/installer (`pdm install`, NOT pip). Uses repo-root venv (`.venv/`) configured via `backend/pdm.toml`
+- **Python version**: Pinned via `.python-version` (pyenv) — currently 3.14.2
+- **Formatter/Linter**: ruff (line-length=100, target py314)
 - **Type hints**: Required on all function signatures
 - **Async**: Use `async def` for all route handlers and service methods
 - **Models**: SQLAlchemy 2.0 `mapped_column` style (see `backend/app/models/`)
@@ -25,7 +26,8 @@ Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend
 - **Imports**: Use absolute imports from `app.` (e.g., `from app.core.config import settings`)
 
 ### TypeScript (frontend/)
-- **Package manager**: pnpm (NOT npm or yarn)
+- **Package manager**: pnpm (NOT npm or yarn). Config in `.npmrc` (exact versions, engine-strict)
+- **Node version**: Pinned via `.nvmrc` (nvm)
 - **Strict mode**: enabled in tsconfig.json
 - **Components**: Functional components only, no class components
 - **State management**: Zustand stores in `frontend/src/lib/store.ts`
@@ -63,6 +65,7 @@ make dev-local
 - **Documentation**: Everytime a message is typed or change is made into the code update the documentation with the same
 - **API routes** live in `backend/app/routes/` — one file per domain (market, trade, ai, etc.)
 - **Services** live in `backend/app/services/` — business logic, never in route handlers
+- **Logging**: Backend uses `from app.core.logging import get_logger`; Frontend uses `import { getLogger } from "@/lib/logger"`. Logs write to `logs/` dir (gitignored). Configure via `LOG_LEVEL`, `LOG_DIR`, `LOG_FILE` env vars.
 - **New UI component?** Add to `packages/solar-orb-ui/src/components/`, export from `src/index.ts`, rebuild with `pnpm build`
 - **New broker?** Implement `BaseBroker` in `backend/app/services/broker_{name}.py`
 - **Database migrations**: `cd backend && pdm run alembic revision --autogenerate -m "description"`

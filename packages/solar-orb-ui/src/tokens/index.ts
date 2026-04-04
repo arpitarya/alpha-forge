@@ -20,6 +20,8 @@ export const color = {
     low: "#0e0e0e",
     DEFAULT: "#131313",
     container: "#1a1a1a",
+    containerHigh: "#222222",
+    containerHighest: "#282828",
     bright: "#2c2c2c",
     overlay: "rgba(0, 0, 0, 0.6)",
   },
@@ -64,11 +66,14 @@ export const font = {
     bold: 700,
   },
   size: {
+    displayLg: "3.5rem",
     display: "2.25rem",
     headline: "0.875rem",
     title: "1.25rem",
     body: "0.875rem",
+    bodySm: "0.75rem",
     label: "0.625rem",
+    labelSm: "0.6875rem",
     caption: "0.625rem",
     monoData: "0.8125rem",
   },
@@ -79,7 +84,9 @@ export const font = {
   },
   letterSpacing: {
     tighter: "-0.05em",
+    tight: "-0.04em",
     normal: "0em",
+    terminal: "0.1em",
     wide: "0.15em",
     wider: "0.2em",
     widest: "0.3em",
@@ -108,12 +115,12 @@ export const spacing = {
 
 export const radius = {
   none: "0px",
-  sm: "6px",
-  md: "8px",
-  lg: "16px",
-  xl: "24px",
-  "2xl": "2.5rem",
-  full: "9999px",
+  sm: "0px",
+  md: "0px",
+  lg: "0px",
+  xl: "0px",
+  "2xl": "0px",
+  full: "0px",
 } as const;
 
 // ── Shadows ─────────────────────────────────────────────────

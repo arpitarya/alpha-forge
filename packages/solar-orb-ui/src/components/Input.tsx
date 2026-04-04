@@ -39,7 +39,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             }}
             className={twMerge(
               clsx(
-                "w-full bg-surface-container text-sm text-on-surface placeholder:text-white/30 outline-none transition-all",
+                "w-full bg-surface-container-highest text-sm text-on-surface placeholder:text-white/30 outline-none transition-all",
                 "px-4 py-3",
                 icon && "pl-10",
                 focused && "border-b-2 border-b-primary",

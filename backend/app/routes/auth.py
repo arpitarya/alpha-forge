@@ -5,7 +5,10 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr
 
+from app.core.logging import get_logger
+
 router = APIRouter()
+logger = get_logger("routes.auth")
 
 
 class RegisterRequest(BaseModel):
@@ -26,11 +29,13 @@ class TokenResponse(BaseModel):
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: RegisterRequest):
+    logger.info("Registration attempt for email=%s", body.email)
     # TODO: persist user to DB, hash password, return token
     raise HTTPException(status_code=501, detail="Registration not yet implemented")
 
 
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest):
+    logger.info("Login attempt for email=%s", body.email)
     # TODO: verify credentials, return token
     raise HTTPException(status_code=501, detail="Login not yet implemented")

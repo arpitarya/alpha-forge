@@ -7,7 +7,10 @@ from enum import Enum
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from app.core.logging import get_logger
+
 router = APIRouter()
+logger = get_logger("routes.trade")
 
 
 class OrderSide(str, Enum):
@@ -48,6 +51,7 @@ class OrderResponse(BaseModel):
 @router.post("/order", response_model=OrderResponse)
 async def place_order(body: PlaceOrderRequest):
     """Place a new order via connected broker."""
+    logger.info("Order request: %s %s %s qty=%d", body.side, body.order_type, body.symbol, body.quantity)
     # TODO: send to broker API
     raise HTTPException(status_code=501, detail="Order placement not yet implemented")
 

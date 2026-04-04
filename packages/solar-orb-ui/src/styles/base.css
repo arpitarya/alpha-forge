@@ -54,5 +54,5 @@
 
 .solar-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
 .solar-scrollbar::-webkit-scrollbar-track { background: #000000; }
-.solar-scrollbar::-webkit-scrollbar-thumb { background: #484847; border-radius: 3px; }
+.solar-scrollbar::-webkit-scrollbar-thumb { background: #484847; }
 .solar-scrollbar::-webkit-scrollbar-thumb:hover { background: #666666; }

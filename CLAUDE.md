@@ -9,7 +9,7 @@ Built for personal use — not a SaaS product. Self-hosted, open-source, MIT lic
 
 ```
 alpha-forge/
-├── backend/          Python 3.12 + FastAPI + SQLAlchemy async
+├── backend/          Python 3.14 + FastAPI + SQLAlchemy async
 │   ├── app/core/     Config (pydantic-settings), DB engine, JWT/bcrypt security
 │   ├── app/models/   SQLAlchemy ORM: User, Holding, Order, Watchlist
 │   ├── app/routes/   FastAPI routers: health, auth, market, portfolio, ai, trade
@@ -17,6 +17,10 @@ alpha-forge/
 │   ├── alembic/      Database migrations
 │   └── tests/        Pytest suite
 ├── packages/
+│   ├── logger-py/    Publishable Python logger package (alphaforge-logger)
+│   │   └── src/alphaforge_logger/  setup_logging(), get_logger()
+│   ├── logger-node/  Publishable Node/TS logger package (@alphaforge/logger)
+│   │   └── src/      createLogger(), getLogger() — pino-based
 │   └── solar-orb-ui/ Publishable UI component library (@alphaforge/solar-orb-ui)
 │       ├── src/components/  Button, Input, Card, Badge, Icon, Text
 │       └── src/styles/      fonts.css, theme.css, base.css (design tokens + base styles)
@@ -36,10 +40,14 @@ alpha-forge/
 
 | Area | Choice | Notes |
 |------|--------|-------|
-| Python pkg mgr | PDM + uv | `pdm install` uses uv for resolution/install |
-| Node pkg mgr | pnpm | Lockfile: `pnpm-lock.yaml` |
+| Python pkg mgr | PDM + uv | `pdm install` uses uv; installs into repo-root `.venv` (see `backend/pdm.toml`) |
+| Python version | pyenv | Pinned in `.python-version` (3.14.2) |
+| Node pkg mgr | pnpm | Lockfile: `pnpm-lock.yaml`; config in `.npmrc` |
+| Node version | nvm | Pinned in `.nvmrc` |
 | Monorepo | pnpm workspaces | `pnpm-workspace.yaml` at root; `packages/*` + `frontend` |
 | UI library | @alphaforge/solar-orb-ui | Publishable package built with tsup (ESM + CJS + DTS) |
+| Logging (Python) | alphaforge-logger | Rotating file + console, env-configurable |
+| Logging (Node) | @alphaforge/logger | Pino-based, file + console, publishable tsup pkg |
 | DB | PostgreSQL 16 | Async via asyncpg + SQLAlchemy |
 | Cache | Redis 7 | Quotes cache, pub/sub, Celery broker |
 | AI | OpenAI + LangChain | RAG with market data context |
@@ -70,9 +78,13 @@ alpha-forge/
 ## Key Files
 - `backend/app/main.py` — FastAPI app factory
 - `backend/app/core/config.py` — All environment variables
+- `backend/app/core/logging.py` — Backend logging setup (wraps alphaforge-logger)
 - `backend/app/services/broker_base.py` — Abstract broker interface (implement this for new brokers)
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/lib/api.ts` — Backend API client
+- `frontend/src/lib/logger.ts` — Frontend logging setup (wraps @alphaforge/logger)
+- `packages/logger-py/src/alphaforge_logger/logger.py` — Python logger package core
+- `packages/logger-node/src/logger.ts` — Node/TS logger package core
 - `frontend/src/app/globals.css` — Theme variables (Solar Terminal design tokens)
 - `frontend/src/components/terminal/` — Terminal page component package
 - `packages/solar-orb-ui/src/index.ts` — UI library barrel export (Button, Input, Card, Badge, Icon, Text)
@@ -80,6 +92,11 @@ alpha-forge/
 - `packages/solar-orb-ui/src/tokens/index.ts` — Design tokens (TypeScript)
 - `packages/solar-orb-ui/src/tokens/tokens.json` — Design tokens (JSON, machine-readable)
 - `packages/solar-orb-ui/tsup.config.ts` — Package build config
+- `.python-version` — Python version for pyenv (3.14.2)
+- `.nvmrc` — Node.js version for nvm
+- `.npmrc` — pnpm/npm configuration (exact versions, engine-strict)
+- `backend/pdm.toml` — PDM project config (repo-root venv, uv backend)
+- `backend/pip.conf` — pip configuration (require-virtualenv)
 - `pnpm-workspace.yaml` — Workspace root definition
 - `.env.port` — All service ports in one file
 - `.env.example` — Root environment template
@@ -90,7 +107,7 @@ alpha-forge/
 
 ```bash
 # Backend
-cd backend && pdm install           # Install deps
+cd backend && pdm install           # Install deps (into repo-root .venv/)
 cd backend && pdm run dev           # Start server (uvicorn --reload)
 cd backend && pdm run pytest -v     # Tests
 cd backend && pdm run ruff check .  # Lint

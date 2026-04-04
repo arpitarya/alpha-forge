@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 export interface BadgeProps {
   children: ReactNode;
-  variant?: "default" | "success" | "danger" | "warning";
+  variant?: "default" | "success" | "danger" | "warning" | "info";
   className?: string;
 }
 
@@ -13,6 +13,7 @@ const variantStyles: Record<string, string> = {
   success: "bg-af-green/10 text-af-green",
   danger: "bg-af-red/10 text-af-red",
   warning: "bg-primary/10 text-primary",
+  info: "bg-af-blue/10 text-af-blue",
 };
 
 export function Badge({ children, variant = "default", className }: BadgeProps) {

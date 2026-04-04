@@ -2,14 +2,16 @@
 
 ## Prerequisites
 
-| Tool | Version | Install |
-|------|---------|---------|
-| Python | 3.11+ | `brew install python@3.12` |
-| PDM | Latest | `brew install pdm` or `pip install pdm` |
-| uv | Latest | `brew install uv` or `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| Node.js | 22+ | `brew install node` |
-| pnpm | 9+ | `corepack enable && corepack prepare pnpm@latest --activate` |
-| Git | Latest | `brew install git` |
+| Tool | Version | Install | Notes |
+|------|---------|---------|-------|
+| pyenv | Latest | `brew install pyenv` | Manages Python versions; reads `.python-version` |
+| Python | 3.14+ | `pyenv install 3.14.2` | Pinned in `.python-version` |
+| PDM | Latest | `brew install pdm` | Installs into repo-root `.venv/` (see `backend/pdm.toml`) |
+| uv | Latest | `brew install uv` | Fast resolver/installer for PDM |
+| nvm | Latest | [nvm-sh/nvm](https://github.com/nvm-sh/nvm) | Manages Node versions; reads `.nvmrc` |
+| Node.js | 22+ | `nvm install` | Pinned in `.nvmrc` |
+| pnpm | 9+ | `corepack enable && corepack prepare pnpm@latest --activate` | Config in `.npmrc` |
+| Git | Latest | `brew install git` | — |
 
 **Optional (for container workflow):**
 
@@ -31,21 +33,26 @@ The fastest, lightest setup — no Docker at all:
 git clone https://github.com/your-username/alpha-forge.git
 cd alpha-forge
 
-# 2. Setup PostgreSQL & Redis via Homebrew
+# 2. Pin runtime versions (pyenv reads .python-version, nvm reads .nvmrc)
+pyenv install               # Installs Python version from .python-version
+nvm install                 # Installs Node version from .nvmrc
+nvm use                     # Activates the pinned Node version
+
+# 3. Setup PostgreSQL & Redis via Homebrew
 bash infra/setup-local.sh
 # This installs & starts PostgreSQL 16 + Redis 7 and creates the alphaforge database
 
-# 3. Backend setup
+# 4. Backend setup
 cd backend
 cp .env.example .env              # Edit config values
 cp ../.env.cred.example ../.env.cred  # Fill in API keys & secrets
-pdm install                # Installs Python deps using uv resolver
+pdm install                # Installs deps into repo-root .venv/
 pdm run migrate            # Apply database schema
 pdm run dev                # Start API at http://localhost:8000
 
-# 4. Frontend setup (in another terminal)
+# 5. Frontend setup (in another terminal)
 cd frontend
-pnpm install               # Install Node deps
+pnpm install               # Install Node deps (uses .npmrc config)
 pnpm dev                   # Start UI at http://localhost:3000
 ```
 

@@ -15,7 +15,6 @@ build/
 .venv/
 venv/
 env/
-.python-version
 *.pyo
 *.pyd
 .pdm-build/

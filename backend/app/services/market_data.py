@@ -5,6 +5,9 @@ from __future__ import annotations
 import httpx
 
 from app.core.config import settings
+from app.core.logging import get_logger
+
+logger = get_logger("services.market_data")
 
 
 class MarketDataService:

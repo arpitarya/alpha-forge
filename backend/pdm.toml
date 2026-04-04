@@ -1,0 +1,6 @@
+[python]
+use_venv = true
+path = "../.venv"
+
+[venv]
+in_project = false

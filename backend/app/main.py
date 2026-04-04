@@ -8,14 +8,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.logging import setup_logging, get_logger
 from app.routes import api_router
+
+logger = get_logger("app")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: initialise connections, warm caches, etc.
+    # Startup: initialise logging, connections, warm caches, etc.
+    setup_logging()
+    logger.info("AlphaForge starting up (env=%s)", settings.app_env)
     yield
     # Shutdown: close connections, flush buffers, etc.
+    logger.info("AlphaForge shutting down")
 
 
 def create_app() -> FastAPI:

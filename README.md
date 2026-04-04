@@ -89,7 +89,7 @@ alpha-forge/
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
-| Backend API | Python 3.12 + FastAPI | Async, fast, great ML ecosystem |
+| Backend API | Python 3.14 + FastAPI | Async, fast, great ML ecosystem |
 | Python Tooling | PDM + uv | Fast resolver, lockfile, reproducible |
 | Frontend | Next.js 15 + React 19 + TypeScript | Modern, fast, SSR support |
 | Node Tooling | pnpm | Fast, disk-efficient, strict |

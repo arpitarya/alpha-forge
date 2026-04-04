@@ -1,0 +1,26 @@
+[project]
+name = "alphaforge-logger"
+version = "0.1.0"
+description = "Structured rotating-file + console logger for AlphaForge Python services"
+requires-python = ">=3.14"
+license = { text = "MIT" }
+authors = [{ name = "Arpit Arya" }]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "ruff>=0.6.0",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"

@@ -5,7 +5,10 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
+from app.core.logging import get_logger
+
 router = APIRouter()
+logger = get_logger("routes.market")
 
 
 class StockQuote(BaseModel):
@@ -29,6 +32,7 @@ class IndexSummary(BaseModel):
 @router.get("/quote/{symbol}", response_model=StockQuote)
 async def get_quote(symbol: str):
     """Fetch real-time quote for a given NSE/BSE symbol."""
+    logger.info("Quote requested for symbol=%s", symbol)
     # TODO: integrate with market data provider
     return StockQuote(
         symbol=symbol.upper(),

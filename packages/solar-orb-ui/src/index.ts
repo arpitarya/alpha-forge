@@ -24,6 +24,9 @@ export { Badge } from "./components/Badge";
 export { Icon } from "./components/Icon";
 export { Text } from "./components/Text";
 export { Logo } from "./components/Logo";
+export { ProgressBar } from "./components/ProgressBar";
+export { Chip } from "./components/Chip";
+export { Divider } from "./components/Divider";
 
 // Types
 export type { ButtonProps } from "./components/Button";
@@ -33,6 +36,9 @@ export type { BadgeProps } from "./components/Badge";
 export type { IconProps } from "./components/Icon";
 export type { TextProps } from "./components/Text";
 export type { LogoProps } from "./components/Logo";
+export type { ProgressBarProps } from "./components/ProgressBar";
+export type { ChipProps } from "./components/Chip";
+export type { DividerProps } from "./components/Divider";
 
 // Design tokens
 export { tokens, color, font, spacing, radius, shadow, blur, animation, layout, zIndex } from "./tokens";

@@ -18,7 +18,7 @@
         "GitHub.copilot-chat"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/app/backend/.venv/bin/python",
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
         "editor.formatOnSave": true,
         "[python]": {
           "editor.defaultFormatter": "charliermarsh.ruff"

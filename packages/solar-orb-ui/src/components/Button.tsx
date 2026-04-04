@@ -12,8 +12,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary hover:brightness-110 text-black font-bold shadow-lg shadow-primary/20 active:scale-95",
-  secondary: "bg-transparent border border-white/20 text-primary hover:bg-white/5 active:scale-95",
+    "bg-gradient-to-br from-primary-light to-primary text-black font-bold active:scale-95",
+  secondary:
+    "bg-transparent border border-outline/20 text-primary hover:bg-white/5 active:scale-95",
   ghost: "bg-transparent text-on-surface-variant hover:text-on-surface",
 };
 
@@ -30,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={twMerge(
           clsx(
-            "inline-flex items-center justify-center rounded-full font-bold uppercase transition-transform",
+            "inline-flex items-center justify-center font-bold uppercase transition-transform",
             variantStyles[variant],
             sizeStyles[size],
             className,

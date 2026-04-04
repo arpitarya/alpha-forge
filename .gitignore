@@ -39,7 +39,6 @@ secrets/
 .env.*.local
 
 # ---------- IDE ----------
-.vscode/settings.json
 .idea/
 *.swp
 *.swo

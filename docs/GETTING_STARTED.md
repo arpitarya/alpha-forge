@@ -152,6 +152,7 @@ make frontend          # Run frontend locally (pnpm dev)
 make test              # Run all tests
 make lint              # Lint backend + frontend
 make format            # Auto-format backend code
+make setup-mcp         # Install Playwright MCP for Copilot browser integration
 make db-local          # Setup PostgreSQL + Redis via Homebrew
 make db-up             # Start PostgreSQL + Redis via Docker
 make db-migrate        # Apply pending migrations
@@ -254,6 +255,36 @@ infra/
 
 ---
 
+## Copilot + Browser Integration (Playwright MCP)
+
+Copilot can connect to Chrome to review mockups, screenshot live pages, and iterate on UI:
+
+```bash
+make setup-mcp          # Install Playwright Chromium + configure MCP
+```
+
+This installs the Playwright Chromium browser and configures the MCP server in `.vscode/settings.json`. After installation:
+
+1. **Restart VS Code** to activate the MCP server
+2. Copilot can now open URLs, take screenshots, click elements, and inspect your running frontend
+3. Use it to compare mockups (e.g. `design/terminal aka landing page/code.html`) against the live dev server
+
+The MCP configuration lives in [`.vscode/settings.json`](../.vscode/settings.json):
+```json
+{
+  "mcp": {
+    "servers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"]
+      }
+    }
+  }
+}
+```
+
+---
+
 ## Next Steps
 
 Once the base setup is running:
@@ -261,6 +292,7 @@ Once the base setup is running:
 1. **Explore the API** at http://localhost:8000/docs
 2. **Try the AI chat** (once you add an OpenAI key)
 3. **Connect a broker** (get Zerodha Kite API key from developers.kite.trade)
-4. **Check the roadmap** in [WHAT.md](WHAT.md) for upcoming features
-5. **Open in Codespaces** for zero-setup cloud development
-6. **Contribute** — pick an issue, create a PR!
+4. **Set up Copilot browser integration** — `make setup-mcp` (see above)
+5. **Check the roadmap** in [WHAT.md](WHAT.md) for upcoming features
+6. **Open in Codespaces** for zero-setup cloud development
+7. **Contribute** — pick an issue, create a PR!

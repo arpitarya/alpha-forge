@@ -53,6 +53,7 @@ alpha-forge/
 | AI | OpenAI + LangChain | RAG with market data context |
 | Brokers | Abstract BaseBroker interface | Zerodha first, then Angel One, Upstox |
 | Local infra | brew services (Postgres, Redis) | Containers optional via OrbStack |
+| Browser MCP | Playwright MCP | Copilot can screenshot/inspect Chrome via `.vscode/settings.json` |
 | CI infra | devcontainer.json | GitHub Codespaces compatible |
 
 ## Coding Conventions
@@ -99,6 +100,7 @@ alpha-forge/
 - `backend/pip.conf` — pip configuration (require-virtualenv)
 - `pnpm-workspace.yaml` — Workspace root definition
 - `.env.port` — All service ports in one file
+- `.vscode/settings.json` — VS Code workspace settings (MCP server config for Playwright)
 - `.env.example` — Root environment template
 - `backend/.env.example` — Backend environment template
 - `frontend/.env.example` — Frontend environment template
@@ -121,6 +123,9 @@ cd frontend && pnpm type-check      # TypeScript check
 # UI Package
 cd packages/solar-orb-ui && pnpm build   # Build ESM + CJS + DTS
 cd packages/solar-orb-ui && pnpm dev     # Watch mode
+
+# Copilot Browser Integration
+make setup-mcp                           # Install Playwright Chromium + MCP config
 
 # Infrastructure
 brew services start postgresql@16 && brew services start redis  # macOS native

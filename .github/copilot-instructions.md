@@ -56,6 +56,9 @@ pnpm install              # Installs all workspace deps
 # Frontend
 cd frontend && pnpm dev
 
+# Copilot Browser Integration (Playwright MCP)
+make setup-mcp            # Install Playwright Chromium + configure .vscode/settings.json
+
 # All at once
 make dev-local
 ```

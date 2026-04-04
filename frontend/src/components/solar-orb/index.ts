@@ -15,6 +15,7 @@ export {
   Card,
   Icon,
   Input,
+  Logo,
   Text,
   tokens,
   color,
@@ -34,6 +35,7 @@ export type {
   CardProps,
   IconProps,
   InputProps,
+  LogoProps,
   TextProps,
   Tokens,
 } from "@alphaforge/solar-orb-ui";

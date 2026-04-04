@@ -2,7 +2,7 @@
 
 ## One-liner
 
-**An AI-powered Bloomberg Terminal for Indian investors** — combining market data, analysis, and trade execution in a single platform.
+**A personal AI-powered portfolio management & investment terminal for Indian markets** — combining market data, analysis, and trade execution in a single self-hosted platform.
 
 ---
 

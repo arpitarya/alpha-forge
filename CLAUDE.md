@@ -2,8 +2,8 @@
 
 ## Project
 
-**AlphaForge** — AI-powered financial analysis & trading terminal for Indian markets.
-Open-source Bloomberg Terminal alternative. MIT licensed.
+**AlphaForge** — Personal AI-powered portfolio management & investment terminal for Indian markets.
+Built for personal use — not a SaaS product. Self-hosted, open-source, MIT licensed.
 
 ## Repository Structure
 

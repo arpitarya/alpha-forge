@@ -1,10 +1,14 @@
 # AlphaForge
 
-**AI-Powered Financial Analysis & Trading Terminal for Indian Markets**
+<p align="center">
+  <img src="logo.png" alt="AlphaForge Logo" width="400" />
+</p>
+
+**Personal AI-Powered Portfolio Management & Investment Terminal for Indian Markets**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-AlphaForge is an open-source, institutional-grade financial analysis and trading platform — like a Bloomberg Terminal built for Indian retail & professional investors, supercharged with AI.
+AlphaForge is an open-source, AI-powered personal portfolio management and investment tool for Indian markets (NSE/BSE). Built for managing your own investments — combining market data, analysis, and trade execution in a single terminal interface.
 
 ---
 

@@ -2,35 +2,35 @@
 
 ## The Problem
 
-Indian retail investors face a **fragmented, expensive, and unintelligent** tooling landscape:
+As an Indian investor, managing a personal portfolio is **fragmented and frustrating**:
 
-### 1. Bloomberg & Refinitiv are inaccessible
-- Bloomberg Terminal costs **₹15-20 lakh/year** — designed for institutional desks, not retail
+### 1. Institutional tools are inaccessible
+- Bloomberg Terminal costs **₹15-20 lakh/year** — designed for institutions, not individuals
 - Refinitiv Eikon is similarly priced and enterprise-focused
-- Indian retail investors (18 crore+ demat accounts) have **zero access** to institutional-grade analytics
+- There's no affordable way to get institutional-grade analytics for personal investing
 
 ### 2. Existing Indian platforms are limited
 - **Zerodha Kite** — excellent for execution, but minimal analysis tools
 - **Groww** — good for beginners, but no depth for serious analysis
 - **TradingView** — great charts, but no trade execution and no India-specific intelligence
 - **Screener.in** — good fundamentals, but no real-time data or AI
-- No single platform combines **analysis + execution + AI guidance** for Indian markets
+- No single platform combines **analysis + execution + AI guidance** for personal use
 
-### 3. AI hasn't reached Indian retail trading yet
+### 3. AI hasn't reached personal investing yet
 - ChatGPT knows finance but has **no real-time market data**
 - Existing "AI trading" tools are mostly gimmicks — backtested signals, not true intelligence
-- No tool combines **conversational AI + live Indian market data + trade execution**
+- No tool combines **conversational AI + live Indian market data + trade execution** for personal portfolio management
 
 ### 4. Cross-border investing from India is painful
 - LRS (Liberalised Remittance Scheme) investing is clunky
-- No unified platform to manage Indian + international portfolios
+- No unified personal tool to manage Indian + international portfolios
 - Regulatory reporting is manual and error-prone
 
 ---
 
 ## The Vision
 
-**AlphaForge democratises institutional-grade financial intelligence for Indian investors.**
+**AlphaForge is a personal AI-powered investment terminal for managing your own portfolio in Indian markets.**
 
 Imagine a tool where you can:
 
@@ -59,25 +59,22 @@ Then with one click, place that trade through your connected Zerodha/Angel accou
 
 ---
 
-## Target Users
+## Who This Is For
 
-| Segment | Pain Point | AlphaForge Value |
-|---------|-----------|------------------|
-| **Active Retail Traders** (5M+) | Switching between 5+ tools for analysis | All-in-one terminal |
-| **Serious Investors** | No AI-powered fundamental + technical analysis | Comprehensive AI analysis |
-| **F&O Traders** | Options chain analysis is complex | AI-assisted options strategies |
-| **NRIs & Global Investors** | Managing India + global portfolios | Unified cross-border platform |
-| **Financial Advisors / RIAs** | Manual research for client portfolios | AI research assistant |
+AlphaForge is built for **personal use** — a self-hosted investment terminal for managing your own portfolio. It's ideal if you are:
+
+- An **active investor** tired of switching between 5+ tools for analysis
+- Someone who wants **AI-powered analysis** on your own holdings
+- An **F&O trader** who needs options chain analysis without paying for expensive platforms
+- An **NRI** managing India + global portfolios from a single interface
 
 ---
 
 ## Why Now?
 
 1. **AI maturity** — GPT-4o, Claude, and open models are genuinely capable of financial reasoning
-2. **Market timing** — India has 18 crore+ demat accounts (doubled in 3 years), massive unserved demand
-3. **API ecosystem** — Zerodha, Angel, Upstox all have mature broker APIs
-4. **Regulation** — SEBI is increasingly supportive of fintech innovation
-5. **Cost** — Cloud infrastructure costs have dropped; a Bloomberg-quality tool can be built for a fraction of the cost
+2. **API ecosystem** — Zerodha, Angel, Upstox all have mature broker APIs
+3. **Cost** — Cloud infrastructure costs have dropped; a Bloomberg-quality tool can be self-hosted for nearly nothing
 
 ---
 

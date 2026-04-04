@@ -1,7 +1,9 @@
+import { Logo } from "@/components/solar-orb";
+
 export function Header() {
   return (
     <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 flex justify-between items-center px-10 py-4 floating-shard rounded-full">
-      <div className="text-xl font-bold tracking-tighter text-primary uppercase">Alpha Forge</div>
+      <Logo variant="full" size="sm" theme="dark" />
       <nav className="hidden md:flex gap-10 text-xs font-bold tracking-[0.2em] uppercase">
         <button type="button" className="text-primary">
           Terminal

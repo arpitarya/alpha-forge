@@ -2,7 +2,7 @@
 
 ## What This Is
 
-AI-powered financial analysis & trading terminal for Indian markets (NSE/BSE).
+Personal AI-powered portfolio management & investment terminal for Indian markets (NSE/BSE). Built for personal use — not a SaaS product.
 Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend + `@alphaforge/solar-orb-ui` design system package.
 
 ## Architecture

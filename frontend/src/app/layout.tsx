@@ -3,9 +3,9 @@ import { QueryProvider } from "@/lib/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Alpha Forge | Weightless Terminal",
+  title: "AlphaForge | Personal Investment Terminal",
   description:
-    "AI-powered financial analysis and trading terminal for Indian markets. Institutional-grade tools for every investor.",
+    "Personal AI-powered portfolio management & investment terminal for Indian markets.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

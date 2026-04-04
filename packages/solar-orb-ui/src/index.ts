@@ -23,6 +23,7 @@ export { Card } from "./components/Card";
 export { Badge } from "./components/Badge";
 export { Icon } from "./components/Icon";
 export { Text } from "./components/Text";
+export { Logo } from "./components/Logo";
 
 // Types
 export type { ButtonProps } from "./components/Button";
@@ -31,6 +32,7 @@ export type { CardProps } from "./components/Card";
 export type { BadgeProps } from "./components/Badge";
 export type { IconProps } from "./components/Icon";
 export type { TextProps } from "./components/Text";
+export type { LogoProps } from "./components/Logo";
 
 // Design tokens
 export { tokens, color, font, spacing, radius, shadow, blur, animation, layout, zIndex } from "./tokens";

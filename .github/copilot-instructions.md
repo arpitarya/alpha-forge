@@ -3,12 +3,13 @@
 ## What This Is
 
 AI-powered financial analysis & trading terminal for Indian markets (NSE/BSE).
-Monorepo: Python/FastAPI backend + Next.js/TypeScript frontend.
+Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend + `@alphaforge/solar-orb-ui` design system package.
 
 ## Architecture
 
 - **Backend** (`backend/`): Python 3.12, FastAPI, SQLAlchemy 2.0 async, PostgreSQL, Redis, Celery
-- **Frontend** (`frontend/`): Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS v4
+- **Frontend** (`frontend/`): Next.js 15 (App Router), React 19, TypeScript strict, Tailwind CSS v4, TanStack React Query v5
+- **UI Package** (`packages/solar-orb-ui/`): Publishable component library (Button, Input, Card, Badge, Icon, Text) + design tokens + fonts. Built with tsup → ESM + CJS + DTS
 - **AI Layer**: OpenAI + LangChain for market analysis, RAG, conversational chat
 - **Broker Integration**: Abstract `BaseBroker` interface in `backend/app/services/broker_base.py` — all brokers implement this
 
@@ -29,8 +30,12 @@ Monorepo: Python/FastAPI backend + Next.js/TypeScript frontend.
 - **Components**: Functional components only, no class components
 - **State management**: Zustand stores in `frontend/src/lib/store.ts`
 - **API calls**: Use the typed API client in `frontend/src/lib/api.ts` (axios-based)
-- **Styling**: Tailwind utility classes; CSS variables for the AlphaForge dark theme (defined in `globals.css`)
+- **Styling**: Tailwind utility classes; CSS variables for the Solar Terminal dark theme (defined in `globals.css`). Font: Space Grotesk. Uses Material Symbols Outlined for icons.
+- **UI components**: Import from `@alphaforge/solar-orb-ui` or via re-export at `@/components/solar-orb`
+- **Linting**: Biome v2 for formatting + linting; ESLint v9 flat config for Next.js rules
+- **Data fetching**: TanStack React Query v5 — typed hooks in `frontend/src/lib/queries.ts`
 - **File naming**: PascalCase for components (`MarketOverview.tsx`), camelCase for utilities (`api.ts`)
+- **Terminal components**: Landing page components live in `frontend/src/components/terminal/` — barrel-exported from `index.ts`
 
 ## Build & Run
 
@@ -43,8 +48,11 @@ docker compose -f infra/docker-compose.yml up -d                  # Container (O
 # Backend
 cd backend && pdm install && pdm run dev
 
+# Workspace install (from repo root)
+pnpm install              # Installs all workspace deps
+
 # Frontend
-cd frontend && pnpm install && pnpm dev
+cd frontend && pnpm dev
 
 # All at once
 make dev-local
@@ -52,8 +60,10 @@ make dev-local
 
 ## Conventions
 
+- **Documentation**: Everytime a message is typed or change is made into the code update the documentation with the same
 - **API routes** live in `backend/app/routes/` — one file per domain (market, trade, ai, etc.)
 - **Services** live in `backend/app/services/` — business logic, never in route handlers
+- **New UI component?** Add to `packages/solar-orb-ui/src/components/`, export from `src/index.ts`, rebuild with `pnpm build`
 - **New broker?** Implement `BaseBroker` in `backend/app/services/broker_{name}.py`
 - **Database migrations**: `cd backend && pdm run alembic revision --autogenerate -m "description"`
 - **Environment variables**: Add to `backend/.env.example` with comments — never commit `.env`

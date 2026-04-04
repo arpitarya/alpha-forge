@@ -1,6 +1,6 @@
 # AlphaForge — Design System
 
-> For designers (Figma), AI design tools, and frontend developers.
+> For designers (Gemini Stitch), AI design tools, and frontend developers.
 > This file defines the visual language of AlphaForge.
 
 ## Brand Identity
@@ -183,9 +183,9 @@ Padding: 8px
 - All interactive elements keyboard-navigable
 - Screen reader support for price changes (aria-live regions)
 
-## Figma Setup Notes
-- Create a Figma library with all color tokens as styles
-- Use Auto Layout for all components
-- Set up component variants: Default, Hover, Active, Disabled
-- Create a "Data" page with realistic Indian stock data (RELIANCE, TCS, INFY, HDFCBANK, etc.)
+## Gemini Stitch Setup Notes
+- Define all color tokens as CSS custom properties and feed them into Gemini Stitch prompts
+- Use structured prompts with component variant descriptions: Default, Hover, Active, Disabled
+- Include realistic Indian stock data context (RELIANCE, TCS, INFY, HDFCBANK, etc.) in generation prompts
 - Use the monospace font for all financial data
+- See `design/GEMINI_STITCH.md` for detailed MCP/extension workflow

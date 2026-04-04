@@ -16,9 +16,7 @@ export function MarketOverview() {
           <div key={idx.name} className="rounded bg-[var(--af-bg-tertiary)] p-2">
             <p className="text-xs text-muted">{idx.name}</p>
             <p className="text-sm font-semibold">{idx.value}</p>
-            <p className={`text-xs ${idx.positive ? "text-green" : "text-red"}`}>
-              {idx.change}
-            </p>
+            <p className={`text-xs ${idx.positive ? "text-green" : "text-red"}`}>{idx.change}</p>
           </div>
         ))}
       </div>

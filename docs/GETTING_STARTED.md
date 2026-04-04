@@ -179,12 +179,20 @@ backend/
 frontend/
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx       # Root layout
-│   │   ├── page.tsx         # Dashboard page
-│   │   └── globals.css      # Global styles + theme
+│   │   ├── layout.tsx       # Root layout (dark theme, Space Grotesk font)
+│   │   ├── page.tsx         # Terminal landing page (Solar Terminal dashboard)
+│   │   └── globals.css      # Global styles, design tokens, Solar Terminal theme
 │   ├── components/
-│   │   ├── layout/          # Header, Sidebar
-│   │   ├── dashboard/       # MarketOverview, Watchlist
+│   │   ├── layout/          # Header (floating nav), Sidebar (expandable)
+│   │   ├── terminal/        # Terminal landing page components
+│   │   │   ├── index.ts         # Barrel export for all terminal components
+│   │   │   ├── SolarOrb.tsx     # Central glowing orb hero element
+│   │   │   ├── AlphaBrief.tsx   # Market sentiment & risk alert card
+│   │   │   ├── TerminalWatchlist.tsx # Floating watchlist shard
+│   │   │   ├── PortfolioCards.tsx   # Net Worth & Allocation cards
+│   │   │   ├── RiskAnalysis.tsx     # Risk analysis bar chart shard
+│   │   │   └── VoiceFooter.tsx      # Voice/text input footer bar
+│   │   ├── dashboard/       # MarketOverview, Watchlist (data views)
 │   │   └── ai/              # AIChat component
 │   └── lib/
 │       ├── api.ts           # Axios API client

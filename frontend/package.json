@@ -7,31 +7,38 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:biome": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@alphaforge/solar-orb-ui": "workspace:*",
+    "@tanstack/react-query": "^5.96.2",
+    "axios": "^1.7.0",
+    "clsx": "^2.1.0",
+    "lightweight-charts": "^4.2.0",
+    "lucide-react": "^0.460.0",
     "next": "^15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "lightweight-charts": "^4.2.0",
-    "zustand": "^5.0.0",
-    "axios": "^1.7.0",
-    "clsx": "^2.1.0",
-    "tailwind-merge": "^2.5.0",
-    "lucide-react": "^0.460.0",
     "recharts": "^2.13.0",
-    "socket.io-client": "^4.8.0"
+    "socket.io-client": "^4.8.0",
+    "tailwind-merge": "^2.5.0",
+    "zustand": "^5.0.0"
   },
   "packageManager": "pnpm@9.15.0",
   "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "^5.7.0",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "postcss": "^8.4.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "^15.1.0"
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
   }
 }

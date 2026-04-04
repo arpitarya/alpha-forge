@@ -31,6 +31,8 @@ export const portfolioApi = {
 };
 
 // ── AI ──────────────────────────────────────────
+// NOTE: Everytime a message is typed or change is made into the code update the
+// documentation with the same.
 export const aiApi = {
   chat: (messages: { role: string; content: string }[], context?: Record<string, unknown>) =>
     api.post("/ai/chat", { messages, context }),

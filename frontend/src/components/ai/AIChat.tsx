@@ -1,3 +1,9 @@
+/**
+ * AI Chat component — conversational interface for market analysis.
+ *
+ * NOTE: Everytime a message is typed or change is made into the code update the
+ * documentation with the same.
+ */
 "use client";
 
 import { useState } from "react";
@@ -12,7 +18,7 @@ export function AIChat() {
     {
       role: "assistant",
       content:
-        "Welcome to AlphaForge AI. Ask me about any stock, get portfolio insights, or request trade analysis. Try: \"Analyze RELIANCE\" or \"What are the best momentum stocks today?\"",
+        'Welcome to AlphaForge AI. Ask me about any stock, get portfolio insights, or request trade analysis. Try: "Analyze RELIANCE" or "What are the best momentum stocks today?"',
     },
   ]);
   const [input, setInput] = useState("");
@@ -27,7 +33,8 @@ export function AIChat() {
     // TODO: call /api/v1/ai/chat
     const assistantMessage: Message = {
       role: "assistant",
-      content: "AI service is not yet connected. This will provide real-time market analysis and trade recommendations.",
+      content:
+        "AI service is not yet connected. This will provide real-time market analysis and trade recommendations.",
     };
     setMessages((prev) => [...prev, assistantMessage]);
   };

@@ -1,43 +1,26 @@
 export function Header() {
   return (
-    <header className="flex h-12 items-center justify-between border-b border-subtle bg-card px-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-lg font-bold tracking-tight">
-          <span className="text-[var(--af-accent-cyan)]">Alpha</span>
-          <span className="text-[var(--af-accent-blue)]">Forge</span>
-        </h1>
-        <span className="text-muted text-xs">v0.1.0</span>
-      </div>
-
-      <nav className="flex items-center gap-6 text-sm">
-        <NavItem label="Dashboard" active />
-        <NavItem label="Markets" />
-        <NavItem label="Portfolio" />
-        <NavItem label="Trade" />
-        <NavItem label="AI Analysis" />
-      </nav>
-
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 text-xs">
-          <span className="h-2 w-2 rounded-full bg-[var(--af-green)]" />
-          <span className="text-muted">NSE Open</span>
-        </div>
-        <button className="rounded bg-[var(--af-accent-blue)] px-3 py-1 text-xs font-medium text-white hover:bg-blue-600">
-          Connect Broker
+    <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 flex justify-between items-center px-10 py-4 floating-shard rounded-full">
+      <div className="text-xl font-bold tracking-tighter text-primary uppercase">Alpha Forge</div>
+      <nav className="hidden md:flex gap-10 text-xs font-bold tracking-[0.2em] uppercase">
+        <button type="button" className="text-primary">
+          Terminal
         </button>
+        <button type="button" className="text-neutral-500 hover:text-white transition-colors">
+          Portfolio
+        </button>
+        <button type="button" className="text-neutral-500 hover:text-white transition-colors">
+          Markets
+        </button>
+      </nav>
+      <div className="flex items-center gap-6">
+        <span className="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-primary transition-colors">
+          notifications
+        </span>
+        <div className="w-8 h-8 rounded-full border border-white/10 bg-surface-container flex items-center justify-center">
+          <span className="material-symbols-outlined text-sm text-white/60">person</span>
+        </div>
       </div>
     </header>
-  );
-}
-
-function NavItem({ label, active = false }: { label: string; active?: boolean }) {
-  return (
-    <button
-      className={`transition-colors ${
-        active ? "text-[var(--af-accent-cyan)]" : "text-muted hover:text-[var(--af-text-primary)]"
-      }`}
-    >
-      {label}
-    </button>
   );
 }

@@ -16,13 +16,20 @@ alpha-forge/
 │   ├── app/services/ Business logic: broker_base (ABC), broker_zerodha, ai_service, market_data
 │   ├── alembic/      Database migrations
 │   └── tests/        Pytest suite
+├── packages/
+│   └── solar-orb-ui/ Publishable UI component library (@alphaforge/solar-orb-ui)
+│       ├── src/components/  Button, Input, Card, Badge, Icon, Text
+│       └── src/styles/      fonts.css, theme.css, base.css (design tokens + base styles)
 ├── frontend/         Next.js 15 (App Router) + React 19 + TypeScript + Tailwind v4
-│   ├── src/app/      Pages and layouts
-│   ├── src/components/  UI components (layout, dashboard, ai)
-│   └── src/lib/      API client (axios), Zustand store
+│   ├── src/app/      Pages and layouts (Solar Terminal theme)
+│   ├── src/components/  UI components (layout, terminal, dashboard, ai, solar-orb)
+│   │   ├── terminal/    Terminal landing page components (SolarOrb, AlphaBrief,
+│   │   │                TerminalWatchlist, PortfolioCards, RiskAnalysis, VoiceFooter)
+│   │   └── solar-orb/   Re-exports from @alphaforge/solar-orb-ui package
+│   └── src/lib/      API client (axios), Zustand store, React Query hooks
 ├── infra/            Infrastructure configs (docker-compose for services, devcontainer)
 ├── docs/             WHY.md, WHAT.md, HOW.md, GETTING_STARTED.md
-└── design/           Design system & Figma tokens
+└── design/           Design system & Gemini Stitch tokens
 ```
 
 ## Tech Decisions
@@ -31,6 +38,8 @@ alpha-forge/
 |------|--------|-------|
 | Python pkg mgr | PDM + uv | `pdm install` uses uv for resolution/install |
 | Node pkg mgr | pnpm | Lockfile: `pnpm-lock.yaml` |
+| Monorepo | pnpm workspaces | `pnpm-workspace.yaml` at root; `packages/*` + `frontend` |
+| UI library | @alphaforge/solar-orb-ui | Publishable package built with tsup (ESM + CJS + DTS) |
 | DB | PostgreSQL 16 | Async via asyncpg + SQLAlchemy |
 | Cache | Redis 7 | Quotes cache, pub/sub, Celery broker |
 | AI | OpenAI + LangChain | RAG with market data context |
@@ -54,14 +63,22 @@ alpha-forge/
 - Zustand for state (no Redux, no Context for global state)
 - Axios client in `src/lib/api.ts` — all API calls go through it
 - Tailwind utility classes; custom CSS vars for dark terminal theme
+- `@alphaforge/solar-orb-ui` — design system package with components, fonts, and theme tokens
+- Biome v2 for formatting/linting; ESLint v9 flat config for Next.js rules
+- TanStack React Query v5 for data fetching (hooks in `src/lib/queries.ts`)
 
 ## Key Files
 - `backend/app/main.py` — FastAPI app factory
 - `backend/app/core/config.py` — All environment variables
 - `backend/app/services/broker_base.py` — Abstract broker interface (implement this for new brokers)
-- `frontend/src/app/page.tsx` — Main dashboard
+- `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/lib/api.ts` — Backend API client
-- `frontend/src/app/globals.css` — Theme variables
+- `frontend/src/app/globals.css` — Theme variables (Solar Terminal design tokens)
+- `frontend/src/components/terminal/` — Terminal page component package
+- `packages/solar-orb-ui/src/index.ts` — UI library barrel export (Button, Input, Card, Badge, Icon, Text)
+- `packages/solar-orb-ui/src/styles/theme.css` — Tailwind v4 design tokens
+- `packages/solar-orb-ui/tsup.config.ts` — Package build config
+- `pnpm-workspace.yaml` — Workspace root definition
 
 ## Commands
 
@@ -78,6 +95,10 @@ cd frontend && pnpm dev             # Dev server
 cd frontend && pnpm lint            # Lint
 cd frontend && pnpm type-check      # TypeScript check
 
+# UI Package
+cd packages/solar-orb-ui && pnpm build   # Build ESM + CJS + DTS
+cd packages/solar-orb-ui && pnpm dev     # Watch mode
+
 # Infrastructure
 brew services start postgresql@16 && brew services start redis  # macOS native
 # OR: docker compose -f infra/docker-compose.yml up -d          # via OrbStack
@@ -90,6 +111,7 @@ cd backend && pdm run alembic revision --autogenerate -m "description"
 ## Guardrails
 - Never commit `.env` files or API keys
 - All AI outputs must include financial disclaimer
+- Everytime a message is typed or change is made into the code update the documentation with the same
 - Broker tokens encrypted at rest
 - CORS restricted to frontend origin only
 - No guaranteed return claims anywhere in code or UI

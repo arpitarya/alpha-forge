@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  // Transpile the workspace UI package
+  transpilePackages: ["@alphaforge/solar-orb-ui"],
   // Proxy API calls to backend in development
   async rewrites() {
     return [

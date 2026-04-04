@@ -10,9 +10,7 @@ export function Watchlist() {
   return (
     <div className="rounded border border-subtle bg-card p-3">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
-          Watchlist
-        </h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Watchlist</h2>
         <button className="text-xs text-[var(--af-accent-blue)] hover:underline">+ Add</button>
       </div>
       <div className="space-y-1">
@@ -24,9 +22,7 @@ export function Watchlist() {
             <span className="font-medium">{stock.symbol}</span>
             <div className="text-right">
               <span className="mr-3">{stock.price}</span>
-              <span className={stock.positive ? "text-green" : "text-red"}>
-                {stock.change}
-              </span>
+              <span className={stock.positive ? "text-green" : "text-red"}>{stock.change}</span>
             </div>
           </div>
         ))}

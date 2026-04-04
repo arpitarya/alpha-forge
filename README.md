@@ -69,7 +69,7 @@ alpha-forge/
 ├── infra/                   # Infrastructure configs
 │   ├── docker-compose.yml   # Container orchestration (optional)
 │   └── setup-local.sh       # Native macOS setup (Homebrew)
-├── design/                  # Design system & Figma tokens
+├── design/                  # Design system & Gemini Stitch tokens
 ├── .devcontainer/           # GitHub Codespaces config
 ├── .github/                 # Copilot instructions
 ├── CLAUDE.md                # Claude Code context

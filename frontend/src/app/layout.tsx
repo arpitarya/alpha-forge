@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
+import { QueryProvider } from "@/lib/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AlphaForge — AI-Powered Trading Terminal",
+  title: "Alpha Forge | Weightless Terminal",
   description:
-    "Institutional-grade financial analysis and trading platform powered by AI. Built for Indian markets.",
+    "AI-powered financial analysis and trading terminal for Indian markets. Institutional-grade tools for every investor.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="antialiased">{children}</body>
+    <html lang="en" className="dark">
+      <body className="h-screen bg-black font-body text-on-surface antialiased selection:bg-primary/30 overflow-hidden">
+        <QueryProvider>{children}</QueryProvider>
+      </body>
     </html>
   );
 }

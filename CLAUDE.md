@@ -76,9 +76,15 @@ alpha-forge/
 - `frontend/src/app/globals.css` — Theme variables (Solar Terminal design tokens)
 - `frontend/src/components/terminal/` — Terminal page component package
 - `packages/solar-orb-ui/src/index.ts` — UI library barrel export (Button, Input, Card, Badge, Icon, Text)
-- `packages/solar-orb-ui/src/styles/theme.css` — Tailwind v4 design tokens
+- `packages/solar-orb-ui/src/styles/theme.css` — Tailwind v4 design tokens (CSS)
+- `packages/solar-orb-ui/src/tokens/index.ts` — Design tokens (TypeScript)
+- `packages/solar-orb-ui/src/tokens/tokens.json` — Design tokens (JSON, machine-readable)
 - `packages/solar-orb-ui/tsup.config.ts` — Package build config
 - `pnpm-workspace.yaml` — Workspace root definition
+- `.env.port` — All service ports in one file
+- `.env.example` — Root environment template
+- `backend/.env.example` — Backend environment template
+- `frontend/.env.example` — Frontend environment template
 
 ## Commands
 

@@ -32,12 +32,12 @@ out/
 .pnpm-store/
 
 # ---------- Environment & Secrets ----------
-.env
-.env.*
-!.env.example
 *.pem
 *.key
 secrets/
+# dotenv environment variable files — root .env files are tracked (source of truth)
+# Only secrets and local overrides are ignored
+.env.*.local
 
 # ---------- IDE ----------
 .vscode/settings.json
@@ -97,11 +97,6 @@ temp/
 
 # Yarn Integrity file
 .yarn-integrity
-
-# dotenv environment variable files
-.env
-.env.*
-!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

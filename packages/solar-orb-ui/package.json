@@ -19,12 +19,23 @@
       }
     },
     "./styles": "./dist/styles.css",
+    "./tokens": {
+      "import": {
+        "types": "./dist/tokens/index.d.ts",
+        "default": "./dist/tokens/index.js"
+      },
+      "require": {
+        "types": "./dist/tokens/index.d.cts",
+        "default": "./dist/tokens/index.cjs"
+      }
+    },
     "./theme": "./src/styles/theme.css",
     "./src/styles/*": "./src/styles/*"
   },
   "files": [
     "dist",
-    "src/styles"
+    "src/styles",
+    "src/tokens"
   ],
   "sideEffects": [
     "*.css"

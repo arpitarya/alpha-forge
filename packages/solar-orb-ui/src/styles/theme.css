@@ -1,8 +1,9 @@
 /*
  * Solar Orb UI — Theme Tokens
  *
- * Import this file in your Tailwind CSS v4 project to get all Solar Terminal
- * design tokens (colors, fonts, surfaces) registered as Tailwind theme values.
+ * All Solar Terminal design tokens registered as Tailwind v4 theme values.
+ * This is the CSS single source of truth — mirrored by src/tokens/index.ts
+ * for programmatic (JS/TS) access.
  *
  * Usage in your app's globals.css:
  *   @import "@alphaforge/solar-orb-ui/theme";
@@ -10,18 +11,78 @@
  */
 
 @theme {
+  /* ── Brand ─────────────────────────────────── */
   --color-primary: #ff8f00;
   --color-primary-light: #ffa44f;
-  --color-surface: #0e0e0e;
+  --color-primary-dark: #cc7200;
+
+  /* ── Surfaces ──────────────────────────────── */
   --color-surface-lowest: #000000;
+  --color-surface: #0e0e0e;
   --color-surface-low: #131313;
   --color-surface-container: #1a1a1a;
   --color-surface-bright: #2c2c2c;
+
+  /* ── On-Surface (text) ─────────────────────── */
   --color-on-surface: #ffffff;
   --color-on-surface-variant: #adaaaa;
+  --color-on-surface-muted: #666666;
+
+  /* ── Outline ───────────────────────────────── */
+  --color-outline: #484847;
   --color-outline-variant: #484847;
+
+  /* ── Semantic ──────────────────────────────── */
   --color-af-green: #34d399;
   --color-af-red: #f87171;
+  --color-af-orange: #f59e0b;
+  --color-af-purple: #a855f7;
+  --color-af-blue: #3b82f6;
+
+  /* ── Typography ────────────────────────────── */
   --font-family-headline: "Space Grotesk", sans-serif;
   --font-family-body: "Space Grotesk", sans-serif;
+  --font-family-mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+
+  --font-size-display: 2.25rem;
+  --font-size-title: 1.25rem;
+  --font-size-body: 0.875rem;
+  --font-size-label: 0.625rem;
+  --font-size-mono-data: 0.8125rem;
+
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-wide: 0.15em;
+  --letter-spacing-wider: 0.2em;
+  --letter-spacing-widest: 0.3em;
+
+  /* ── Border Radius ─────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 2.5rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-glow-primary: 0 0 40px rgba(255, 143, 0, 0.15);
+  --shadow-glow-primary-lg: 0 0 120px rgba(255, 143, 0, 0.4);
+  --shadow-glow-green: 0 0 12px rgba(52, 211, 153, 0.2);
+  --shadow-glow-red: 0 0 12px rgba(248, 113, 113, 0.2);
+
+  /* ── Animation ─────────────────────────────── */
+  --animate-duration-fast: 150ms;
+  --animate-duration-normal: 300ms;
+  --animate-duration-slow: 700ms;
+  --animate-duration-pulse: 8s;
+
+  --ease-default: ease;
+  --ease-in-out: ease-in-out;
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }

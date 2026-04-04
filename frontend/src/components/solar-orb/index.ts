@@ -3,8 +3,10 @@
  *
  * Usage:
  *   import { Button, Input, Card, Badge, Icon, Text } from "@/components/solar-orb";
+ *   import { tokens, color } from "@/components/solar-orb";
  *   // or directly:
  *   import { Button } from "@alphaforge/solar-orb-ui";
+ *   import { tokens } from "@alphaforge/solar-orb-ui";
  */
 
 export {
@@ -14,6 +16,16 @@ export {
   Icon,
   Input,
   Text,
+  tokens,
+  color,
+  font,
+  spacing,
+  radius,
+  shadow,
+  blur,
+  animation,
+  layout,
+  zIndex,
 } from "@alphaforge/solar-orb-ui";
 
 export type {
@@ -23,4 +35,5 @@ export type {
   IconProps,
   InputProps,
   TextProps,
+  Tokens,
 } from "@alphaforge/solar-orb-ui";

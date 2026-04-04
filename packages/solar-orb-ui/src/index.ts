@@ -6,6 +6,9 @@
  * Components:
  *   import { Button, Input, Card, Badge, Icon, Text } from "@alphaforge/solar-orb-ui";
  *
+ * Design tokens (JS/TS):
+ *   import { tokens, color, font, spacing } from "@alphaforge/solar-orb-ui/tokens";
+ *
  * Styles (import in your CSS):
  *   @import "@alphaforge/solar-orb-ui/styles";
  *
@@ -28,3 +31,7 @@ export type { CardProps } from "./components/Card";
 export type { BadgeProps } from "./components/Badge";
 export type { IconProps } from "./components/Icon";
 export type { TextProps } from "./components/Text";
+
+// Design tokens
+export { tokens, color, font, spacing, radius, shadow, blur, animation, layout, zIndex } from "./tokens";
+export type { Tokens } from "./tokens";

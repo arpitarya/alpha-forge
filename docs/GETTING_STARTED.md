@@ -37,7 +37,8 @@ bash infra/setup-local.sh
 
 # 3. Backend setup
 cd backend
-cp .env.example .env       # Edit with your keys
+cp .env.example .env              # Edit config values
+cp ../.env.cred.example ../.env.cred  # Fill in API keys & secrets
 pdm install                # Installs Python deps using uv resolver
 pdm run migrate            # Apply database schema
 pdm run dev                # Start API at http://localhost:8000
@@ -98,6 +99,15 @@ This repo includes a `.devcontainer/devcontainer.json` for instant cloud develop
 ## Configuration
 
 ### Required Environment Variables
+
+All ports are defined in [`.env.port`](../.env.port) at the repo root. Credentials live in `.env.cred` (see `.env.cred.example`). Copy the example files:
+
+```bash
+cp .env.example .env                 # Root env (used by docker-compose)
+cp .env.cred.example .env.cred       # Credentials (API keys, passwords, secrets)
+cp backend/.env.example backend/.env  # Backend
+cp frontend/.env.example frontend/.env.local  # Frontend (Next.js uses .env.local)
+```
 
 The only **required** variables for basic operation:
 
@@ -175,6 +185,18 @@ backend/
 ├── Dockerfile
 ├── pyproject.toml           # PDM config (uses uv resolver)
 └── .env.example
+
+packages/
+└── solar-orb-ui/            # @alphaforge/solar-orb-ui publishable package
+    ├── src/
+    │   ├── index.ts         # Barrel export (components + tokens)
+    │   ├── components/      # Button, Input, Card, Badge, Icon, Text
+    │   ├── tokens/          # Design tokens (TypeScript + JSON)
+    │   │   ├── index.ts     # TS token constants
+    │   │   └── tokens.json  # Machine-readable token definitions
+    │   └── styles/          # fonts.css, theme.css, base.css
+    ├── tsup.config.ts       # Build config → ESM + CJS + DTS
+    └── package.json
 
 frontend/
 ├── src/

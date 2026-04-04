@@ -66,7 +66,8 @@ make dev-local
 - **New UI component?** Add to `packages/solar-orb-ui/src/components/`, export from `src/index.ts`, rebuild with `pnpm build`
 - **New broker?** Implement `BaseBroker` in `backend/app/services/broker_{name}.py`
 - **Database migrations**: `cd backend && pdm run alembic revision --autogenerate -m "description"`
-- **Environment variables**: Add to `backend/.env.example` with comments — never commit `.env`
+- **Environment variables**: All ports defined in `.env.port` at repo root. Add new vars to the appropriate `.env.example` file — never commit `.env`
+- **Design tokens**: Source of truth is `packages/solar-orb-ui/src/tokens/` (JSON + TS). CSS tokens in `theme.css` must stay in sync.
 - **AI outputs always include disclaimer**: "Not SEBI registered investment advice"
 - All financial amounts use `float` for now (will migrate to `Decimal` before production)
 

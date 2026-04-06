@@ -1,6 +1,6 @@
 export function AlphaBrief() {
   return (
-    <section className="floating-shard rounded-[2.5rem] p-10 flex flex-col gap-8">
+    <section className="h-full floating-shard rounded-[2.5rem] p-10 flex flex-col gap-8">
       <div className="flex items-center gap-3">
         <span className="material-symbols-outlined text-primary text-xl">bolt</span>
         <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/90">Alpha Brief</h2>

@@ -27,7 +27,7 @@ const watchlistItems = [
 
 export function TerminalWatchlist() {
   return (
-    <section className="floating-shard rounded-[2.5rem] p-10 flex flex-col gap-8">
+    <section className="h-full floating-shard rounded-[2.5rem] p-10 flex flex-col gap-8">
       <div className="flex justify-between items-center">
         <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/90">Watchlist</h2>
         <span className="material-symbols-outlined text-white/20 hover:text-white transition-colors cursor-pointer">

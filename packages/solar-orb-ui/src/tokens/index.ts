@@ -115,12 +115,14 @@ export const spacing = {
 
 export const radius = {
   none: "0px",
-  sm: "0px",
-  md: "0px",
-  lg: "0px",
-  xl: "0px",
-  "2xl": "0px",
-  full: "0px",
+  sm: "0.375rem",
+  md: "0.5rem",
+  lg: "1rem",
+  xl: "1.5rem",
+  "2xl": "2rem",
+  "4xl": "2.5rem",
+  "5xl": "3.5rem",
+  full: "9999px",
 } as const;
 
 // ── Shadows ─────────────────────────────────────────────────

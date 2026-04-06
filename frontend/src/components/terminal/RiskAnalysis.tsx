@@ -1,6 +1,6 @@
 export function RiskAnalysis() {
   return (
-    <section className="floating-shard rounded-[2.5rem] p-8 flex flex-col gap-6">
+    <section className="h-full floating-shard rounded-[2.5rem] p-8 flex flex-col gap-6">
       <h2 className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40">
         Risk Analysis
       </h2>

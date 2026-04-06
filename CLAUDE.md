@@ -32,6 +32,9 @@ alpha-forge/
 │   │   └── solar-orb/   Re-exports from @alphaforge/solar-orb-ui package
 │   └── src/lib/      API client (axios), Zustand store, React Query hooks
 ├── infra/            Infrastructure configs (docker-compose for services, devcontainer)
+├── llm-gateway/      Publishable Python package (alphaforge-llm-gateway)
+│   ├── src/alphaforge_llm_gateway/  LLMGateway, providers, router, rate_limiter, cost_guard, CLI
+│   └── notebooks/    Interactive Jupyter playground for provider comparison & benchmarks
 ├── docs/             WHY.md, WHAT.md, HOW.md, GETTING_STARTED.md
 └── design/           Design system & Gemini Stitch tokens
 ```
@@ -51,6 +54,7 @@ alpha-forge/
 | DB | PostgreSQL 16 | Async via asyncpg + SQLAlchemy |
 | Cache | Redis 7 | Quotes cache, pub/sub, Celery broker |
 | AI | OpenAI + LangChain | RAG with market data context |
+| LLM Gateway | alphaforge-llm-gateway | 5 free providers (Gemini, Groq, HuggingFace, OpenRouter, Ollama), smart routing, $0 cost wall |
 | Brokers | Abstract BaseBroker interface | Zerodha first, then Angel One, Upstox |
 | Local infra | brew services (Postgres, Redis) | Containers optional via OrbStack |
 | Browser MCP | Playwright MCP | Copilot can screenshot/inspect Chrome via `.vscode/settings.json` |
@@ -82,7 +86,9 @@ alpha-forge/
 - `backend/app/core/logging.py` — Backend logging setup (wraps alphaforge-logger)
 - `backend/app/services/broker_base.py` — Abstract broker interface (implement this for new brokers)
 - `backend/app/services/screener.py` — Screener picks storage/retrieval service
+- `backend/app/services/llm_gateway.py` — LLM Gateway thin wrapper (wires to settings)
 - `backend/app/routes/screener.py` — Screener API endpoints (POST/GET picks, list dates)
+- `backend/app/routes/llm.py` — LLM Gateway API endpoints (complete, analyze, providers, benchmark)
 - `screener/notebooks/screener_pipeline.ipynb` — Interactive Jupyter notebook for full screener pipeline
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/components/terminal/ScreenerPicks.tsx` — Screener picks display component (live data from backend)
@@ -97,6 +103,10 @@ alpha-forge/
 - `packages/solar-orb-ui/src/tokens/index.ts` — Design tokens (TypeScript)
 - `packages/solar-orb-ui/src/tokens/tokens.json` — Design tokens (JSON, machine-readable)
 - `packages/solar-orb-ui/tsup.config.ts` — Package build config
+- `llm-gateway/src/alphaforge_llm_gateway/__init__.py` — LLM Gateway barrel export (LLMGateway, LLMResponse, QueryType)
+- `llm-gateway/src/alphaforge_llm_gateway/gateway.py` — Main LLMGateway class (from_env, complete, analyze_screener)
+- `llm-gateway/src/alphaforge_llm_gateway/cli.py` — CLI: analyze-screener, explain-picks, chat, benchmark, providers
+- `llm-gateway/notebooks/llm_gateway_playground.ipynb` — Interactive notebook for provider comparison & benchmarks
 - `.python-version` — Python version for pyenv (3.14.2)
 - `.nvmrc` — Node.js version for nvm
 - `.npmrc` — pnpm/npm configuration (exact versions, engine-strict)
@@ -154,6 +164,13 @@ cd backend && pdm run alembic revision --autogenerate -m "description"
 # Screener pipeline
 ./setup.sh --pipeline     # Full data → train → backtest
 ./setup.sh --scan         # Daily live scan
+
+# LLM Gateway
+make llm-gateway-install                                        # Install package into .venv
+make llm-providers                                              # Show provider health + quota
+make llm-benchmark                                              # Benchmark all providers
+python -m alphaforge_llm_gateway chat                           # Interactive chat
+python -m alphaforge_llm_gateway analyze-screener -f picks.txt  # Analyze screener output
 ```
 
 ## Guardrails

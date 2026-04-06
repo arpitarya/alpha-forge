@@ -39,6 +39,13 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
 
+    # ── LLM Gateway (free multi-provider) ────────
+    gemini_api_key: str = ""
+    groq_api_key: str = ""
+    huggingface_api_key: str = ""
+    openrouter_api_key: str = ""
+    ollama_base_url: str = "http://localhost:11434"
+
     # ── Indian Broker: Zerodha Kite ──────────────
     kite_api_key: str = ""
     kite_api_secret: str = ""

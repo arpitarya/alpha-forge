@@ -1,0 +1,35 @@
+{
+  "screener_analysis": {
+    "must_reference_numbers": true,
+    "must_include_disclaimer": true,
+    "min_length": 200,
+    "must_mention_stocks": true,
+    "financial_terms_expected": ["RSI", "MACD", "ADX", "volume", "momentum"]
+  },
+  "stock_explanation": {
+    "must_reference_numbers": true,
+    "must_include_disclaimer": true,
+    "min_length": 200,
+    "must_translate_shap": true,
+    "financial_terms_expected": ["SHAP", "feature", "attribution", "bullish", "bearish"]
+  },
+  "chat": {
+    "must_reference_numbers": false,
+    "must_include_disclaimer": true,
+    "min_length": 50,
+    "financial_terms_expected": []
+  },
+  "sentiment": {
+    "must_reference_numbers": false,
+    "must_include_disclaimer": true,
+    "min_length": 50,
+    "must_classify_sentiment": true,
+    "financial_terms_expected": ["bullish", "bearish", "neutral", "sentiment"]
+  },
+  "technical_summary": {
+    "must_reference_numbers": true,
+    "must_include_disclaimer": true,
+    "min_length": 100,
+    "financial_terms_expected": ["RSI", "MACD", "trend", "support", "resistance"]
+  }
+}

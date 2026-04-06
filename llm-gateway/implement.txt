@@ -1,0 +1,188 @@
+# LLM Gateway — Implementation Tracker
+# ======================================
+# Module: llm-gateway/
+# Started: 2026-04-07
+# Status: Phase 1-12 COMPLETE (core implementation)
+# Plan: llm-gateway/PLAN.md
+
+## Phase 1: Package Scaffold & Core Types ✅
+- Created `pyproject.toml` (PDM publishable, openai + httpx deps)
+- Created `src/alphaforge_llm_gateway/types.py` (LLMProvider, QueryType, LLMResponse, ProviderConfig, RateLimits, CostGuardError)
+- Created `src/alphaforge_llm_gateway/base.py` (BaseLLMProvider ABC with shared `_call_openai()`)
+- Created `src/alphaforge_llm_gateway/__init__.py` (barrel export: LLMGateway, LLMResponse, LLMProvider, QueryType, CostGuardError)
+- Decision: All providers use single `openai` SDK with `base_url` override
+
+## Phase 2: Provider Implementations ✅
+- Created `src/alphaforge_llm_gateway/providers/__init__.py` (barrel export all 5 providers)
+- Created `providers/gemini.py` — Google Gemini free tier via generativelanguage endpoint
+  - Models: gemini-2.5-flash (default), gemini-2.5-pro, gemini-2.5-flash-lite, gemma-4
+  - Rate limits: 15 RPM, 1500 RPD
+- Created `providers/groq.py` — Groq free tier (fastest inference)
+  - Models: llama-3.3-70b-versatile (default), llama-4-scout, qwen3-32b, kimi-k2
+  - Rate limits: 30 RPM, 1000 RPD
+- Created `providers/huggingface.py` — HuggingFace serverless inference
+  - Models: Qwen/Qwen2.5-72B-Instruct (default)
+  - Rate limits: 10 RPM, 1000 RPD
+- Created `providers/openrouter.py` — OpenRouter with strict free-model-only enforcement
+  - Fetches /api/v1/models, hard-filters to $0 prompt AND completion cost
+  - Caches free model list, refreshes every 24 hours
+  - Raises CostGuardError for non-free models
+- Created `providers/ollama.py` — Local Ollama (private, unlimited)
+  - Auto-detects available models via /api/tags
+  - Graceful failure if Ollama not running
+
+## Phase 3: Rate Limiting & Cost Guardrails ✅
+- Created `rate_limiter.py` — In-memory per-provider token bucket
+  - Pre-configured free-tier limits for all 5 providers
+  - Auto-resets minute/day counters
+  - `acquire()`, `remaining()`, `utilization_pct()`, `update_limits()`
+- Created `cost_guard.py` — Zero-cost enforcement ($0 wall)
+  - Per-provider free model validation (hardcoded for Gemini/Groq, dynamic for OpenRouter)
+  - Warns at >80% rate limit utilization
+  - Raises CostGuardError if request would incur cost
+
+## Phase 4: Smart Router & Prompts ✅
+- Created `router.py` — QueryType → ranked (provider, model) fallback chains
+  - SCREENER_ANALYSIS: Gemini Flash → Groq Llama → Ollama
+  - STOCK_EXPLANATION: Gemini Pro → Groq Qwen → HuggingFace
+  - CHAT: Groq Llama → Gemini Flash → Ollama
+  - SENTIMENT: Gemini Flash-Lite → Groq Scout → HuggingFace
+  - TECHNICAL_SUMMARY: Gemini Flash → Groq Qwen → Ollama
+  - Routing table is updatable (for benchmark results)
+- Created `prompts.py` — Domain-specific prompt templates
+  - SCREENER_SYSTEM_PROMPT, EXPLAIN_SYSTEM_PROMPT, STOCK_ANALYSIS_PROMPT, SENTIMENT_PROMPT, TECHNICAL_SUMMARY_PROMPT
+  - All include SEBI disclaimer
+  - SYSTEM_PROMPTS dict maps QueryType → prompt
+
+## Phase 5: Gateway Class & Public API ✅
+- Created `gateway.py` — Main LLMGateway class
+  - `__init__()` auto-registers providers based on which API keys are provided
+  - `from_env()` reads env vars (GEMINI_API_KEY, GROQ_API_KEY, etc.)
+  - `complete()` delegates to router with automatic fallback on rate-limit or error
+  - `analyze_screener()` / `explain_picks()` convenience methods with system prompts
+  - `providers_status()` health + remaining quota per provider
+  - Minimal .env loader (no external dependency)
+  - If no cloud keys provided, Ollama is always tried as fallback
+
+## Phase 6: CLI Interface ✅
+- Created `__main__.py` — `python -m alphaforge_llm_gateway` entry point
+- Created `cli.py` — argparse with 6 subcommands:
+  - analyze-screener (stdin or -f file)
+  - explain-picks (stdin or -f file)
+  - chat (interactive or piped)
+  - complete (with --type flag)
+  - benchmark
+  - providers
+- Common flags: --provider, --model, --json, --no-disclaimer, --env-file
+- JSON + human-readable output formats
+
+## Phase 7: Interactive Notebook ✅
+- Created `notebooks/llm_gateway_playground.ipynb` (~25 cells)
+  - Setup & Imports, Provider Status, Single Completion
+  - Analyze Screener Output, Explain SHAP Picks
+  - Side-by-Side Provider Comparison
+  - Interactive Chat, Run Benchmark (with matplotlib bar chart)
+  - Rate Limit Dashboard, Custom Prompt Playground, Quick Run
+  - Uses `await` directly (Jupyter native async support)
+
+## Phase 8: Auto-Benchmarking System ✅
+- Created `benchmark.py` — BenchmarkResult/BenchmarkReport dataclasses
+  - Heuristic scoring: response length, disclaimer presence, number references, financial terms, latency
+  - Tests all providers against all QueryTypes with fallback test prompts
+  - JSON and human-readable table output
+- Created `benchmark_data/` fixtures:
+  - screener_output.txt (10-pick sample table)
+  - shap_explanation.txt (5-stock SHAP explanations)
+  - rubrics.json (evaluation criteria per query type)
+
+## Phase 9: Backend Integration ✅
+- Created `backend/app/services/llm_gateway.py` — Thin wrapper (singleton pattern)
+  - Follows logging.py wrapper pattern
+  - Reads config from Pydantic settings
+- Created `backend/app/routes/llm.py` — FastAPI routes
+  - POST /llm/complete (generic completion)
+  - POST /llm/analyze-screener
+  - POST /llm/explain-picks
+  - GET /llm/providers (health + quota)
+  - GET /llm/benchmark (latest results)
+  - POST /llm/benchmark/run (background task)
+- Updated `backend/app/core/config.py` — 5 new env vars (gemini_api_key, groq_api_key, huggingface_api_key, openrouter_api_key, ollama_base_url)
+- Updated `backend/app/routes/__init__.py` — Registered llm_router at /llm
+- Updated `backend/pyproject.toml` — Added alphaforge-llm-gateway file:// dependency
+- Updated `backend/.env.example` — Added LLM Gateway section with all 5 env vars
+
+## Phase 10: Frontend Integration ✅
+- Updated `frontend/src/lib/api.ts` — Added llmApi namespace
+  - complete(), analyzeScreener(), explainPicks(), getProviders(), getBenchmark(), runBenchmark()
+- Updated `frontend/src/lib/queries.ts` — Added React Query hooks
+  - LLMResponseData, LLMProviderStatus interfaces
+  - useAnalyzeScreener() (mutation)
+  - useExplainPicks() (mutation)
+  - useLLMProviders() (query, 30s stale)
+  - useBenchmarkResults() (query, 5min stale)
+
+## Phase 11: Screener Integration ✅
+- Updated `screener/requirements.txt` — Added alphaforge-llm-gateway file:// dependency
+- Screener can use gateway via CLI piping or library import (no code changes to screener needed)
+
+## Phase 12: Makefile & Setup ✅
+- Updated `Makefile` — Added 4 new targets:
+  - llm-gateway-install (pip install -e .)
+  - llm-gateway-test (pytest)
+  - llm-providers (python -m alphaforge_llm_gateway providers)
+  - llm-benchmark (python -m alphaforge_llm_gateway benchmark)
+- Updated .PHONY list
+
+## Files Created
+- llm-gateway/pyproject.toml
+- llm-gateway/src/alphaforge_llm_gateway/__init__.py
+- llm-gateway/src/alphaforge_llm_gateway/__main__.py
+- llm-gateway/src/alphaforge_llm_gateway/types.py
+- llm-gateway/src/alphaforge_llm_gateway/base.py
+- llm-gateway/src/alphaforge_llm_gateway/gateway.py
+- llm-gateway/src/alphaforge_llm_gateway/router.py
+- llm-gateway/src/alphaforge_llm_gateway/rate_limiter.py
+- llm-gateway/src/alphaforge_llm_gateway/cost_guard.py
+- llm-gateway/src/alphaforge_llm_gateway/prompts.py
+- llm-gateway/src/alphaforge_llm_gateway/benchmark.py
+- llm-gateway/src/alphaforge_llm_gateway/cli.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/__init__.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/gemini.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/groq.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/huggingface.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/openrouter.py
+- llm-gateway/src/alphaforge_llm_gateway/providers/ollama.py
+- llm-gateway/src/alphaforge_llm_gateway/benchmark_data/screener_output.txt
+- llm-gateway/src/alphaforge_llm_gateway/benchmark_data/shap_explanation.txt
+- llm-gateway/src/alphaforge_llm_gateway/benchmark_data/rubrics.json
+- llm-gateway/notebooks/llm_gateway_playground.ipynb
+- backend/app/services/llm_gateway.py
+- backend/app/routes/llm.py
+
+## Files Modified
+- backend/app/core/config.py (added 5 LLM Gateway env vars)
+- backend/app/routes/__init__.py (registered llm_router)
+- backend/pyproject.toml (added llm-gateway dependency)
+- backend/.env.example (added LLM Gateway section)
+- frontend/src/lib/api.ts (added llmApi namespace)
+- frontend/src/lib/queries.ts (added LLM hooks + interfaces)
+- screener/requirements.txt (added llm-gateway dependency)
+- Makefile (added 4 llm-gateway targets)
+
+## Key Decisions
+- All 5 providers use single openai SDK with base_url override (no provider-specific SDKs)
+- In-memory rate limiter (sufficient for personal use)
+- Hard $0 cost wall — CostGuardError if any non-free model requested
+- OpenRouter dynamically fetches and caches free model list
+- Ollama always included as local fallback when no cloud keys configured
+- CLI uses argparse (stdlib, zero extra deps)
+- Notebook uses await directly (Jupyter native async)
+- Backend wrapper follows same pattern as logging.py wrapping alphaforge-logger
+
+## TODO (Future)
+- [ ] Tests: test_gateway.py, test_providers.py, test_router.py, test_rate_limiter.py, test_cost_guard.py
+- [ ] Streaming responses (SSE/WebSocket)
+- [ ] Conversation memory / RAG
+- [ ] LLM-as-judge scoring in benchmark (currently heuristic-only)
+- [ ] Redis-backed rate limiter (optional upgrade)
+- [ ] setup.sh --llm-gateway flag

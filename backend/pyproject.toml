@@ -23,6 +23,7 @@ dependencies = [
     "python-multipart>=0.0.12",
     # Internal packages
     "alphaforge-logger @ file:///${PROJECT_ROOT}/../packages/logger-py",
+    "alphaforge-llm-gateway @ file:///${PROJECT_ROOT}/../llm-gateway",
     # Indian broker SDKs
     "kiteconnect>=5.0.0",
     # Data & Analysis

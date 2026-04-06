@@ -1,0 +1,44 @@
+SHAP Signal Explanations — Top 5 Picks
+=======================================
+
+1. RELIANCE (Probability: 0.847)
+   Feature Attributions:
+   - RSI_14 (+0.152): RSI at 62.3 — strong but not overbought
+   - VOL_SMA_RATIO (+0.128): Volume 1.52x above 20-day average — institutional accumulation
+   - MACD_HIST (+0.095): Positive MACD histogram at 2.15 — bullish momentum
+   - ADX_14 (+0.082): ADX at 28.4 — trending market (above 25 threshold)
+   - DIST_52W_HIGH (-0.045): Only 4.2% below 52-week high — near breakout
+
+2. INFY (Probability: 0.812)
+   Feature Attributions:
+   - MACD_HIST (+0.134): MACD histogram at 1.83 — sustained bullish signal
+   - RSI_14 (+0.112): RSI at 58.7 — healthy momentum, no divergence
+   - VOL_SMA_RATIO (+0.098): Volume 1.38x — above average buying pressure
+   - ADX_14 (+0.065): ADX at 25.1 — borderline trending
+   - DIST_52W_HIGH (-0.062): 6.8% below high — recovery potential
+
+3. TATAMOTORS (Probability: 0.725)
+   Feature Attributions:
+   - ADX_14 (+0.178): ADX at 34.5 — strong trend in progress
+   - VOL_SMA_RATIO (+0.156): Volume 1.71x — heavy institutional interest
+   - MACD_HIST (+0.143): MACD at 3.42 — strongest momentum in the list
+   - RSI_14 (-0.025): RSI at 67.1 — approaching overbought zone (risk flag)
+   - DIST_52W_HIGH (+0.032): Only 2.1% from high — strength signal
+
+4. HDFCBANK (Probability: 0.776)
+   Feature Attributions:
+   - ADX_14 (+0.145): ADX at 31.2 — clear trend
+   - RSI_14 (+0.118): RSI at 61.8 — bullish momentum
+   - VOL_SMA_RATIO (+0.105): Volume 1.44x — confirms trend
+   - DIST_52W_HIGH (+0.048): Close to 52-week high — relative strength
+   - MACD_HIST (+0.038): Moderate positive but declining from peak
+
+5. BHARTIARTL (Probability: 0.685)
+   Feature Attributions:
+   - ADX_14 (+0.195): ADX at 38.9 — very strong trend
+   - VOL_SMA_RATIO (+0.172): Volume 1.83x — highest in list
+   - MACD_HIST (+0.158): MACD at 4.18 — extreme momentum
+   - RSI_14 (-0.089): RSI at 71.3 — OVERBOUGHT (major risk flag)
+   - DIST_52W_HIGH (+0.055): Only 1.1% from high — potential resistance
+
+Model: LightGBM | Date: 2026-04-07

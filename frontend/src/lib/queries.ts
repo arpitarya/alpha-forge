@@ -1,5 +1,5 @@
 import { type UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query";
-import { aiApi, marketApi, portfolioApi, screenerApi, tradeApi } from "./api";
+import { aiApi, llmApi, marketApi, portfolioApi, screenerApi, tradeApi } from "./api";
 
 // ── Market Data ─────────────────────────────────
 
@@ -163,6 +163,59 @@ export function useScreenerDates(options?: Partial<UseQueryOptions>) {
     queryKey: ["screener", "dates"],
     queryFn: () => screenerApi.getDates().then((r) => r.data as string[]),
     staleTime: 60_000,
+    ...options,
+  });
+}
+
+// ── LLM Gateway ─────────────────────────────
+
+export interface LLMResponseData {
+  content: string;
+  model: string;
+  provider: string;
+  tokens_used: number;
+  latency_ms: number;
+  cost: number;
+}
+
+export interface LLMProviderStatus {
+  provider: string;
+  healthy: boolean;
+  models: string[];
+  default_model: string;
+  remaining: Record<string, number>;
+  utilization_pct: number;
+  is_local: boolean;
+}
+
+export function useAnalyzeScreener() {
+  return useMutation({
+    mutationFn: (output: string) =>
+      llmApi.analyzeScreener(output).then((r) => r.data as LLMResponseData),
+  });
+}
+
+export function useExplainPicks() {
+  return useMutation({
+    mutationFn: (output: string) =>
+      llmApi.explainPicks(output).then((r) => r.data as LLMResponseData),
+  });
+}
+
+export function useLLMProviders(options?: Partial<UseQueryOptions>) {
+  return useQuery({
+    queryKey: ["llm", "providers"],
+    queryFn: () => llmApi.getProviders().then((r) => r.data as LLMProviderStatus[]),
+    staleTime: 30_000,
+    ...options,
+  });
+}
+
+export function useBenchmarkResults(options?: Partial<UseQueryOptions>) {
+  return useQuery({
+    queryKey: ["llm", "benchmark"],
+    queryFn: () => llmApi.getBenchmark().then((r) => r.data),
+    staleTime: 300_000,
     ...options,
   });
 }

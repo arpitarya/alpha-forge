@@ -8,8 +8,7 @@ PYTHON := $(VENV)/bin/python
         dev-local dev-docker down \
         backend backend-install \
         frontend frontend-install \
-        screener-install screener-pipeline screener-scan \
-        db-local db-up db-migrate db-revision \
+        screener-install screener-pipeline screener-scan \        llm-gateway-install llm-gateway-test llm-providers llm-benchmark \        db-local db-up db-migrate db-revision \
         test test-backend test-frontend \
         lint format \
         clean clean-cache clean-venv clean-backend clean-frontend clean-all
@@ -89,6 +88,20 @@ screener-pipeline: venv ## Run full screener pipeline (data → train → backte
 
 screener-scan: venv ## Run daily screener live scan
 	@bash setup.sh --scan
+
+# ── LLM Gateway ──────────────────────────────────
+
+llm-gateway-install: venv ## Install llm-gateway package into .venv via PDM
+	cd llm-gateway && $(PYTHON) -m pip install -e .
+
+llm-gateway-test: venv ## Run llm-gateway test suite
+	cd llm-gateway && $(PYTHON) -m pytest -v
+
+llm-providers: venv ## Show LLM provider health and remaining quota
+	$(PYTHON) -m alphaforge_llm_gateway providers
+
+llm-benchmark: venv ## Run LLM benchmark across all providers
+	$(PYTHON) -m alphaforge_llm_gateway benchmark
 
 # ── Database / Infrastructure ────────────────────
 

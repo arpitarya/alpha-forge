@@ -1,0 +1,10 @@
+# AlphaForge — Implementation Tracker
+
+Central index of all module-level implementation logs. Each module maintains its own `implement.txt` with build history, decisions, and status.
+
+## Module Implementations
+
+| Module | Tracker | Status |
+|--------|---------|--------|
+| **Screener** | [screener/implement.txt](screener/implement.txt) | Active |
+| **LLM Gateway** | [llm-gateway/implement.txt](llm-gateway/implement.txt) | Phase 1-12 Complete |

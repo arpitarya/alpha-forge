@@ -1,0 +1,27 @@
+# Raw data files (downloaded at runtime)
+data/raw/ohlcv/
+data/raw/indices/
+data/raw/nse_supplementary/
+data/raw/universe.csv
+data/raw/universe_filtered.csv
+
+# Saved models
+models/saved/
+
+# Dataset output (built at runtime)
+dataset/output/
+
+# Reports
+reports/
+
+# Live picks
+live/picks/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/

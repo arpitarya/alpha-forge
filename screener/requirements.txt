@@ -1,0 +1,16 @@
+# AlphaForge Screener — Dependencies
+# Phase 1: Data Pipeline
+yfinance>=0.2.36
+nselib>=2.4
+jugaad-data>=0.25
+pandas>=2.2.0
+pyarrow>=15.0.0
+ta>=0.11.0
+numpy>=1.26.0
+requests>=2.31.0
+
+# Phase 4: Model Training
+scikit-learn>=1.4.0
+lightgbm>=4.0.0
+xgboost>=2.0.0
+shap>=0.45.0

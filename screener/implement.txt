@@ -1,0 +1,410 @@
+AlphaForge Screener — Implementation Tracker
+=============================================
+Disclaimer: NOT SEBI registered investment advice. For personal research only.
+
+Last updated: 2026-04-07 (Phase 5 + 6 completed)
+
+================================================================================
+PHASE 1: DATA PIPELINE                                              [COMPLETED]
+================================================================================
+
+[x] 1.0 — Project Structure & Configuration
+    - Created full directory tree: data/, features/, dataset/, models/, backtest/,
+      live/, reports/, notebooks/
+    - Created screener/config.py with all paths, thresholds, index symbols, constants
+    - Created screener/requirements.txt (yfinance, nselib, jugaad-data, pandas,
+      pyarrow, ta, numpy, requests)
+    - Created __init__.py for all packages (screener, data, features, dataset,
+      models, backtest, live)
+    - Created screener/.gitignore (excludes raw data, saved models, reports, picks)
+
+[x] 1.1 — Stock Universe Fetcher (screener/data/fetch_universe.py)
+    - Fetches all NSE-listed equities via nselib.capital_market.equity_list()
+    - Filters to EQ series only (excludes BE/BZ/SM/BL)
+    - Maps symbols to yfinance format ({SYMBOL}.NS)
+    - Optional 90-day average volume filter (>= 10,000 daily volume)
+    - Outputs: data/raw/universe.csv and data/raw/universe_filtered.csv
+    - Tested: 2,132 EQ stocks fetched successfully
+    - CLI: python screener/data/fetch_universe.py [--skip-volume-filter]
+
+[x] 1.2 — Historical OHLCV Download (screener/data/fetch_ohlcv.py)
+    - Downloads 2 years of daily OHLCV for all filtered stocks via yfinance
+    - Batch mode (500 tickers per batch) for efficiency
+    - Stores as individual Parquet files: data/raw/ohlcv/{SYMBOL}.parquet
+    - Columns: Open, High, Low, Close, Adj Close, Volume
+    - Supports incremental update mode (append new data to existing files)
+    - Supports downloading specific symbols for testing
+    - Tested: 5 stocks (RELIANCE, TCS, INFY, HDFCBANK, ICICIBANK) — 492 rows each,
+      zero NaN in Close, date range 2024-04-08 to 2026-04-02
+    - CLI: python screener/data/fetch_ohlcv.py [--incremental] [--symbols SYM1 SYM2]
+
+[x] 1.3 — Supplementary NSE Data (screener/data/fetch_nse_data.py)
+    - Delivery % data via bhav_copy_with_delivery (fallback from
+      price_volume_and_deliverable_position_data)
+    - Bulk deals via bulk_deal_data
+    - Block deals via block_deals_data
+    - FII/DII activity: graceful fallback (not in nselib 2.4.x, logged as warning)
+    - Rate-limited with 0.5s delay between NSE API calls
+    - Outputs: data/raw/nse_supplementary/{delivery_data,bulk_deals,block_deals}.csv
+    - Tested: Delivery 3,228 rows, Bulk deals 417 rows, Block deals 15 rows (7-day window)
+    - CLI: python screener/data/fetch_nse_data.py --nse-only [--days N]
+
+[x] 1.4 — Index Benchmarks (screener/data/fetch_nse_data.py)
+    - Downloads NIFTY 50, SENSEX, BANK NIFTY, NIFTY IT via yfinance
+    - 2 years of daily OHLCV stored as Parquet
+    - Outputs: data/raw/indices/{NIFTY_50,SENSEX,BANK_NIFTY,NIFTY_IT}.parquet
+    - Tested: All 4 indices downloaded (~490 rows each)
+    - CLI: python screener/data/fetch_nse_data.py --indices-only
+
+
+================================================================================
+PHASE 2: FEATURE ENGINEERING                                        [COMPLETED]
+================================================================================
+
+[x] 2.1 — Technical Indicators (screener/features/technical.py)
+    - 37 technical features computed per stock using `ta` library
+    - Momentum: RSI(14), RSI(7), Stochastic %K/%D, Williams %R, ROC(5/10/20)
+    - Trend: MACD line/signal/histogram, ADX(14)/+DI/-DI, Aroon Up/Down,
+      SMA(20/50/200) cross signals, Price-above-SMA flags
+    - Volatility: Bollinger %B, Bollinger Bandwidth, ATR(14), ATR(14) as pct of
+      close, Keltner Channel position
+    - Volume: OBV, OBV ROC(5), Volume/SMA(20) ratio, Accumulation/Distribution,
+      MFI(14)
+    - Price Action: Distance from 52w high/low (%), consecutive up/down days,
+      gap up/down %, candle body ratio
+    - Tested: RELIANCE → 37 features, 492 rows, correct values
+    - CLI: python screener/features/technical.py
+
+[x] 2.2 — Relative Strength (screener/features/relative_strength.py)
+    - 12 features: stock return vs benchmark over multiple windows
+    - NIFTY 50: RS ratio + excess return for 5D, 10D, 20D
+    - SENSEX, BANK NIFTY, NIFTY IT: RS ratio + excess return for 5D each
+    - Index data cached in-memory across calls for performance
+    - Handles MultiIndex columns from yfinance index parquets
+    - Tested: RELIANCE → 12 features, correct values vs NIFTY 50
+    - CLI: python screener/features/relative_strength.py
+
+[x] 2.3 — Fundamental Features (screener/features/fundamental.py)
+    - 6 features: PE, PB, Market Cap, Market Cap Category, Beta, 52W Return
+    - PE/PB/Market Cap/Beta fetched via yfinance Ticker.info (cached per-symbol)
+    - Market Cap categorized: Large (>20k Cr), Mid (>5k Cr), Small (>500 Cr), Micro
+    - 52-week return computed as rolling 252-day pct_change (time-series)
+    - Static values broadcast to all rows; 52W return is rolling
+    - Tested: RELIANCE → PE, PB, MCap all populated
+    - CLI: python screener/features/fundamental.py
+
+[x] 2.4 — NSE-Specific Features (screener/features/nse_features.py)
+    - 4 features: Delivery %, Delivery 5D avg, Bulk deal flag, Block deal flag
+    - Delivery % from bhav_copy_with_delivery data (Phase 1)
+    - Bulk/block deal flags: binary (1/0), checks if any deal in last 5 trading days
+    - NSE supplementary data cached in-memory after first load
+    - Handles varying column names across nselib versions
+    - Note: Delivery data limited to date range fetched in Phase 1 (typically 7-30 days)
+    - CLI: python screener/features/nse_features.py
+
+[x] 2.5 — Feature Orchestrator (screener/features/build_features.py)
+    - Combines all feature groups into single DataFrame per stock
+    - 6 interaction/derived features:
+      * RSI_VOL_CONFIRM: RSI(14) × Volume ratio — momentum + volume confirmation
+      * BREAKOUT_TREND: Dist from 52w high × ADX — breakout + trend strength
+      * SQUEEZE_SIGNAL: Bollinger %B × bandwidth narrowing flag — squeeze detection
+      * MACD_HIST_DELTA: MACD histogram change — momentum acceleration
+      * RSI_DIVERGENCE: RSI direction vs price direction — divergence flag
+      * VOL_CONFIRMED_TREND: ADX>25 AND Volume>avg — volume-confirmed trend
+    - Total: 65 features with fundamentals, 59 without
+    - Overall NaN: ~5.6% (warmup periods for rolling indicators — expected)
+    - Supports single-symbol and full-universe modes
+    - Tested: 5 stocks (RELIANCE, TCS, INFY, HDFCBANK, ICICIBANK) — all 59 features,
+      492 rows each, consistent output
+    - CLI: python screener/features/build_features.py --symbol SYM [--no-fundamentals]
+           python screener/features/build_features.py --max-symbols N
+
+
+================================================================================
+PHASE 3: LABELING & DATASET CONSTRUCTION                           [COMPLETED]
+================================================================================
+
+[x] 3.1 — Target Variable Labeler (screener/dataset/labeler.py)
+    - Computes forward-looking target variables from Adjusted Close prices
+    - FORWARD_RETURN_5D: 5-day forward return (pct_change, shift=-5)
+    - TARGET_5PCT_5D: Binary classification label (1 if return > 5%, else 0)
+    - Last 5 rows per stock are NaN (no future data available — by design)
+    - Uses Adj Close for split/dividend adjustment
+    - Functions: compute_forward_return(), compute_classification_label(),
+      compute_labels(), compute_labels_for_symbol()
+    - Tested: RELIANCE → 487 valid rows, 24 positive (4.9%), 5 NaN tail rows,
+      mean return -0.03%, std 2.97%, range [-10.2%, +10.1%]
+    - CLI: python screener/dataset/labeler.py --symbol RELIANCE
+
+[x] 3.2 — Dataset Assembly (screener/dataset/build_dataset.py)
+    - Combines features (Phase 2) + labels (Phase 3.1) into ML-ready dataset
+    - One row per stock-day with features, metadata (SYMBOL, SECTOR, MARKET_CAP_CAT),
+      and target labels
+    - Quality filters:
+      * Drop rows with NaN target labels (last 5 days per stock)
+      * Drop rows with >30% NaN features (indicator warmup period)
+    - No lookahead bias: features use data up to day T, labels use T+1 to T+5
+    - Output: dataset/output/dataset.parquet + dataset/output/dataset_stats.txt
+    - Functions: build_single_stock_dataset(), apply_quality_filters(),
+      compute_dataset_stats(), build_dataset(), _get_available_symbols()
+    - Updated .gitignore to exclude dataset/output/
+    - Tested: 5 stocks → 2,340 rows × 62 columns, 106 positive (4.5%),
+      quality filters dropped 120 rows (25 no-label + 95 high-NaN warmup),
+      date range 2024-05-08 to 2026-03-24
+    - CLI: python screener/dataset/build_dataset.py --symbols SYM1 SYM2
+           python screener/dataset/build_dataset.py --max-symbols N
+           Flags: --no-fundamentals, --no-nse, --no-save
+
+
+================================================================================
+PHASE 4: MODEL TRAINING                                            [COMPLETED]
+================================================================================
+
+[x] 4.1 — Baseline Rules Strategy (screener/models/baseline_rules.py)
+    - Simple rule-based screener for comparison against ML models
+    - 3 strategy variants:
+      * strict: ALL of RSI<35 + Volume>2×avg + MACD bullish + above SMA50 (AND)
+      * relaxed: At least 2 of the 4 rules fire (MIN_2)
+      * momentum: Volume surge + MACD bullish + above SMA50 (AND)
+    - Functions: rule_rsi_oversold_bounce(), rule_volume_surge(),
+      rule_macd_bullish(), rule_price_above_sma50(), apply_rules(),
+      evaluate_baseline()
+    - Evaluates: signal count, hit rate, avg return, avg win/loss, profit factor
+    - Tested (5-stock dataset, 2,340 rows):
+      * strict: 0 signals (too strict for test data)
+      * relaxed: 766 signals (32.7%), 4.18% hit rate, profit factor 0.83
+      * momentum: 26 signals (1.1%), 11.54% hit rate, profit factor 1.39
+      * Random baseline: 4.53% positive rate
+    - CLI: python screener/models/baseline_rules.py [--strategy strict|relaxed|momentum|all]
+
+[x] 4.2 — LightGBM Classifier (screener/models/train_lightgbm.py)
+    - Primary ML model for stock screener
+    - LightGBM with walk-forward cross-validation (no random split!)
+    - Handles class imbalance via auto-computed scale_pos_weight (21.08x with test data)
+    - Handles NaN natively (no imputation needed)
+    - Default hyperparams: 500 trees, lr=0.05, depth=6, subsample=0.8,
+      colsample=0.8, reg_alpha=0.1, reg_lambda=0.1
+    - Auto-drops all-NaN columns (DELIVERY_PCT, DELIVERY_PCT_5D_AVG)
+    - Saves model to models/saved/lightgbm/ (model.txt, meta.json,
+      feature_importance.csv)
+    - Functions: compute_scale_pos_weight(), create_lightgbm_model(),
+      train_lightgbm(), save_model(), load_model()
+    - Tested (5-stock dataset, 11 folds, 1,105 test rows):
+      * AUC-ROC: 0.5674 (avg/fold: 0.4210 ± 0.3449)
+      * Top features: DIST_52W_HIGH_PCT, ATR_14_PCT, DIST_52W_LOW_PCT
+      * Note: Low signal count expected with only 5 stocks and 4.5% positive rate
+    - CLI: python screener/models/train_lightgbm.py [--no-save] [--threshold N]
+           [--n-estimators N] [--learning-rate N]
+    - Requires: lightgbm, libomp (brew install libomp on macOS)
+
+[x] 4.3 — XGBoost Classifier (screener/models/train_xgboost.py)
+    - Comparison model against LightGBM, same features and CV strategy
+    - XGBoost with walk-forward CV, scale_pos_weight for imbalance
+    - Default hyperparams: 500 trees, lr=0.05, depth=6, tree_method=hist,
+      subsample=0.8, colsample=0.8, reg_alpha=0.1, reg_lambda=1.0
+    - Saves model to models/saved/xgboost/ (model.json, meta.json,
+      feature_importance.csv)
+    - Functions: compute_scale_pos_weight(), create_xgboost_model(),
+      train_xgboost(), save_model(), load_model()
+    - Tested (5-stock dataset, 11 folds, 1,105 test rows):
+      * AUC-ROC: 0.5536 (avg/fold: 0.4235 ± 0.3599)
+      * Top features: SMA_50_200_CROSS, OBV, SQUEEZE_SIGNAL
+    - CLI: python screener/models/train_xgboost.py [--no-save] [--threshold N]
+    - Requires: xgboost
+
+[x] 4.4 — Walk-Forward Cross-Validation (screener/models/walk_forward.py)
+    - CRITICAL: Always train on past, predict future — never random split
+    - Expanding window: min 12 months training, 1 month test per fold
+    - Purge gap: 5 trading days between train end and test start to prevent
+      label lookahead (configurable via purge_days)
+    - WalkForwardSplit class: generates train/test index splits from DatetimeIndex
+    - FoldResult dataclass: stores per-fold classification + trading metrics
+    - Computes: accuracy, precision, recall, F1, AUC-ROC, hit rate, avg return,
+      avg win/loss, profit factor per fold + aggregated
+    - Utility functions: get_feature_columns(), drop_all_nan_columns()
+    - Tested: 11 folds generated from 2024-05-08 to 2026-03-24
+      * Fold 1: Train 1,220 rows → Test 110 rows
+      * Fold 11: Train 2,265 rows → Test 60 rows
+    - CLI demo: python screener/models/walk_forward.py [--min-train-months N]
+    - Requires: scikit-learn
+
+[x] 4.5 — Feature Importance & Selection (screener/models/feature_importance.py)
+    - Compares feature importance across LightGBM and XGBoost
+    - Ranks features by average rank across models
+    - SHAP values computation for interpretability (optional, via --shap flag)
+    - Feature selection: drops features below min importance threshold
+    - Functions: get_model_importance(), compare_model_importances(),
+      compute_shap_importance(), select_features(), generate_report()
+    - Saves text report to reports/feature_importance.txt
+    - Tested (57 features after dropping 2 all-NaN):
+      * Top: ATR_14_PCT, DIST_52W_LOW_PCT, OBV (high in both models)
+      * Bottom: PRICE_ABOVE_SMA_20, BULK_DEAL_FLAG, BLOCK_DEAL_FLAG (zero importance)
+    - CLI: python screener/models/feature_importance.py [--shap] [--select]
+           [--save-report]
+    - Requires: shap (optional, for --shap)
+
+Dependencies added to requirements.txt:
+    - scikit-learn>=1.4.0, lightgbm>=4.0.0, xgboost>=2.0.0, shap>=0.45.0
+    - macOS: brew install libomp (required for LightGBM)
+
+
+================================================================================
+PHASE 5: BACKTESTING FRAMEWORK                                    [COMPLETED]
+================================================================================
+
+[x] 5.1 — Backtest Engine (screener/backtest/engine.py)
+    - BacktestEngine class: walk-forward backtest simulator
+    - For each test period: ranks stocks by predicted probability, selects top N
+    - Simulates: buy at next day's open, sell after 5 trading days at close
+    - Configurable top N (default: 5, 10, 20 picks per signal date)
+    - Two modes: quick (uses FORWARD_RETURN_5D) and realistic (loads OHLCV data
+      for actual open/close prices via use_ohlcv_prices flag)
+    - Methods: run_from_predictions(), run_from_walk_forward(), run_baseline()
+    - Convenience: run_full_backtest() runs all models + baselines at all top-N configs
+    - Equity curve built from period-weighted returns
+    - Tested: 8 strategy configurations (2 models × 2 top-N + 2 baselines × 2 top-N)
+    - CLI: python screener/backtest/engine.py [--models lgb xgb] [--top-ns 5 10 20]
+
+[x] 5.2 — Indian Market Cost Model (embedded in engine.py)
+    - CostModel dataclass with all Indian delivery trade costs:
+      * Brokerage: ₹20/order flat (or 0.03% for percentage brokers)
+      * STT: 0.1% on sell side (delivery trades)
+      * Exchange transaction charges: 0.00345% on both sides
+      * GST: 18% on brokerage + exchange txn charges
+      * Stamp duty: 0.015% on buy side
+    - compute_costs(): detailed per-component cost breakdown
+    - compute_cost_pct(): approximate round-trip cost as percentage
+    - Tested: ₹1L trade → total round-trip cost ₹173.46 (0.17%)
+    - Supports both flat (discount broker) and percentage (full-service) brokerage modes
+
+[x] 5.3 — Performance Metrics (screener/backtest/metrics.py)
+    - Trade-level metrics: hit rate, avg win/loss, profit factor, win/loss ratio,
+      expectancy, best/worst trade, total costs, gross profit/loss
+    - Portfolio-level metrics: Sharpe ratio (annualized, 6.5% risk-free for India),
+      Sortino ratio, CAGR, max drawdown, Calmar ratio, total return
+    - Combined: compute_all_metrics() returns both trade + portfolio metrics
+    - Benchmark checker: compares metrics against target benchmarks from PLAN.md
+      (hit >55%, avg win >5%, avg loss <3%, PF >1.5, Sharpe >1.5, MaxDD <20%,
+       CAGR >25%, win/loss >1.5)
+    - format_metrics_table(): human-readable formatted output
+    - Tested: synthetic data → all metric calculations verified correct
+
+[x] 5.4 — Comparison Report (screener/backtest/report.py)
+    - Side-by-side comparison: Rules baselines vs LightGBM vs XGBoost
+    - generate_comparison_table(): DataFrame with one row per strategy, sorted by PF
+    - generate_text_report(): full formatted report with summary table + detailed
+      per-strategy metrics + benchmark scores + best-strategy-by-metric section
+    - save_report(): saves report to reports/backtest_report.txt + CSV
+    - save_trades_csv(): exports individual trade lists per strategy
+    - Output: reports/backtest_report.txt (14KB) + reports/backtest_report.csv
+    - Tested (5-stock dataset, 8 strategies):
+      * Best by PF: baseline_momentum_top5 (PF=1.25, 26 trades, 46.2% hit rate)
+      * ML models performed poorly due to small universe (5 stocks, 4.5% pos rate)
+      * baseline_strict: 0 signals (too strict, skipped)
+    - CLI: python screener/backtest/report.py [--save-trades]
+
+
+================================================================================
+PHASE 6: LIVE SCREENER                                             [COMPLETED]
+================================================================================
+
+[x] 6.1 — Daily Scan Script (screener/live/scan.py)
+    - Full daily scan pipeline: features → model → predict → rank → save
+    - run_daily_scan(): main entry point for batch scanning
+    - compute_features_latest(): builds features for most recent trading day per stock
+    - predict_and_rank(): generates probability predictions, ranks top N
+    - save_picks(): saves CSV to live/picks/{date}_{model}_weekly_picks.csv
+    - Includes key feature values in output (RSI, volume ratio, MACD, ADX, etc.)
+    - Supports both lightgbm and xgboost models
+    - Handles missing features gracefully (fills NaN, warns)
+    - Tested: 5 stocks → ranked by probability, saved CSV
+      * Example: INFY (13.4% prob), HDFCBANK (2.9%), RELIANCE (0.2%)
+    - CLI: python screener/live/scan.py [--model lightgbm|xgboost] [--top-n 20]
+           [--symbols SYM1 SYM2] [--fundamentals] [--nse] [--no-save]
+
+[x] 6.2 — Signal Explanation (screener/live/explain.py)
+    - SHAP-based explanations for why each stock was picked
+    - compute_shap_values(): TreeExplainer for LightGBM/XGBoost
+    - describe_feature(): rule-based human-readable feature descriptions
+      * RSI interpretation (oversold/overbought levels)
+      * Volume surge detection (×2, ×3 average)
+      * MACD bullish/bearish signals
+      * ADX trend strength (no trend / trending / very strong)
+      * 52-week high/low proximity
+      * Bollinger band position
+      * Squeeze detection, MFI, ROC momentum
+    - explain_pick(): per-stock explanation with top-K contributing features
+    - explain_picks(): batch explanation for all picks
+    - Fallback: _explain_without_shap() for feature-value-only explanations
+    - format_explanations(): formatted text output with bullet points
+    - Tested: 5 stocks → SHAP explanations generated
+      * Example: "HDFCBANK: approaching oversold (RSI=33), MACD bearish (-4.333),
+        very strong trend (ADX=46)"
+    - CLI: python screener/live/explain.py [--model lightgbm|xgboost] [--top-n 10]
+           [--top-k 5] [--no-shap]
+
+[x] 6.3 — Retraining Schedule (screener/live/retrain.py)
+    - retrain_model(): retrains LightGBM or XGBoost on latest dataset
+    - retrain_if_due(): checks schedule (default: 30 days) before retraining
+    - check_model_drift(): compares backtest metrics vs live performance
+      * Monitors AUC drop (>5% alert threshold)
+      * Monitors hit rate drop (>10% alert threshold)
+      * Reads retrain log history for trend detection
+    - Retrain log: appends JSONL to reports/retrain_log.jsonl with metrics snapshot
+    - Three CLI sub-commands:
+      * retrain: force retrain a model
+      * drift: check for model drift
+      * schedule: retrain only if interval elapsed
+    - Tested: drift check returned status="ok" with no alerts
+    - CLI: python screener/live/retrain.py retrain [--model lightgbm|xgboost|all]
+           python screener/live/retrain.py drift [--model lightgbm|xgboost|all]
+           python screener/live/retrain.py schedule [--model all] [--interval 30]
+
+
+================================================================================
+KNOWN ISSUES / NOTES
+================================================================================
+
+- nselib 2.4.x does not expose fii_dii_trading_activity — need jugaad-data fallback
+  or newer nselib version
+- price_volume_and_deliverable_position_data requires symbol param in nselib 2.4.x;
+  bhav_copy_with_delivery used as fallback for market-wide delivery data
+- yfinance TzCache warning is cosmetic (non-blocking), appears on macOS
+- Full OHLCV download for ~2000 stocks takes ~10-15 minutes (4-5 batches of 500)
+- Survivorship bias acknowledged: yfinance may miss delisted stocks
+- Delivery % features have low coverage (~1-3/492 rows for RELIANCE) because
+  supplementary data is only fetched for recent date range (7-30 days).
+  Need to fetch historical delivery data across 2yr for full coverage.
+- yfinance index parquet files have MultiIndex columns — handled in relative_strength.py
+  and build_features.py with column flattening
+- nselib date parsing triggers pandas UserWarning about format inference — functional
+  but could add explicit format strings for cleanliness
+- LightGBM on macOS requires libomp: `brew install libomp`
+- Model metrics with 5-stock test dataset (2,340 rows) are not representative of
+  production performance. AUC and signal counts will improve significantly with
+  the full ~2000-stock universe (~200k+ rows). Models are conservative with small
+  datasets due to heavy class imbalance (4.5% positive rate).
+- DELIVERY_PCT and DELIVERY_PCT_5D_AVG are 100% NaN in test dataset — auto-dropped
+  by all model training pipelines
+- Walk-forward CV generates 11 folds with ~2yr data (12-month min training).
+  More folds will be available with the full dataset.
+- Backtest on 5-stock dataset: momentum baseline outperforms ML models (PF=1.25 vs
+  PF=0.59). Expected with tiny universe — ML models need more data to learn patterns.
+- Indian market cost model: ~0.17% round-trip with ₹20 flat brokerage (discount broker).
+  Increases to ~0.25-0.30% with percentage-based brokers.
+- SHAP explanations use TreeExplainer for both LightGBM and XGBoost — fast and exact.
+- Live scan produces "no signal" (prob < 0.5 threshold) for test stocks — expected with
+  test-trained model. Full universe training will produce actionable signals.
+
+
+================================================================================
+ALL PHASES COMPLETE — SCREENER READY FOR FULL UNIVERSE TESTING
+================================================================================
+
+Next steps:
+1. Download full universe OHLCV: python screener/data/fetch_ohlcv.py
+2. Build full dataset: python screener/dataset/build_dataset.py
+3. Train models on full dataset: python screener/models/train_lightgbm.py
+4. Run full backtest: python screener/backtest/engine.py
+5. Generate report: python screener/backtest/report.py
+6. Start daily scans: python screener/live/scan.py

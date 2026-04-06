@@ -33,30 +33,38 @@ The fastest, lightest setup — no Docker at all:
 git clone https://github.com/your-username/alpha-forge.git
 cd alpha-forge
 
-# 2. Pin runtime versions (pyenv reads .python-version, nvm reads .nvmrc)
-pyenv install               # Installs Python version from .python-version
-nvm install                 # Installs Node version from .nvmrc
-nvm use                     # Activates the pinned Node version
+# 2. Full automated setup (prereqs check, venv, deps, env files, dirs)
+./setup.sh
+# This checks pyenv/nvm/pnpm/pdm, creates .venv, installs all deps,
+# scaffolds .env files, and creates required directories.
 
 # 3. Setup PostgreSQL & Redis via Homebrew
-bash infra/setup-local.sh
-# This installs & starts PostgreSQL 16 + Redis 7 and creates the alphaforge database
+./setup.sh --db
+# OR: make db-local
 
-# 4. Backend setup
-cd backend
-cp .env.example .env              # Edit config values
-cp ../.env.cred.example ../.env.cred  # Fill in API keys & secrets
-pdm install                # Installs deps into repo-root .venv/
-pdm run migrate            # Apply database schema
-pdm run dev                # Start API at http://localhost:8000
+# 4. Review & update environment files
+# Edit backend/.env and frontend/.env.local with your credentials
 
-# 5. Frontend setup (in another terminal)
-cd frontend
-pnpm install               # Install Node deps (uses .npmrc config)
-pnpm dev                   # Start UI at http://localhost:3000
+# 5. Run database migrations
+make db-migrate
+
+# 6. Start development servers
+make dev-local              # Backend + frontend via Procfile
 ```
 
-**Or start everything at once** with a process manager:
+**Or step-by-step if you prefer granular control:**
+```bash
+./setup.sh --prereqs        # Check/install system tools
+./setup.sh --venv           # Create .venv from .python-version
+./setup.sh --backend        # Install backend deps (PDM)
+./setup.sh --frontend       # Install frontend + workspace deps (pnpm)
+./setup.sh --screener       # Install screener ML deps (pip)
+./setup.sh --env            # Scaffold .env files from templates
+./setup.sh --dirs           # Create log/data/model directories
+./setup.sh --db             # Setup local PostgreSQL + Redis
+```
+
+**Start everything at once** with a process manager:
 ```bash
 brew install overmind       # or: pip install honcho
 make dev-local              # Starts backend + frontend from Procfile
@@ -144,19 +152,44 @@ KITE_API_SECRET=your_secret
 ## Common Commands
 
 ```bash
-make help              # Show all available commands
-make dev-local         # Start backend + frontend via Procfile
-make dev-docker        # Start everything with Docker/OrbStack
-make backend           # Run backend locally (pdm run dev)
-make frontend          # Run frontend locally (pnpm dev)
-make test              # Run all tests
-make lint              # Lint backend + frontend
-make format            # Auto-format backend code
-make setup-mcp         # Install Playwright MCP for Copilot browser integration
-make db-local          # Setup PostgreSQL + Redis via Homebrew
-make db-up             # Start PostgreSQL + Redis via Docker
-make db-migrate        # Apply pending migrations
+# ── Setup ────────────────────────────────────────
+./setup.sh                 # Full repo setup (prereqs, venv, all deps, env, dirs)
+./setup.sh --prereqs       # Check/install system prerequisites
+./setup.sh --venv          # Create Python venv only
+./setup.sh --backend       # Install backend deps only
+./setup.sh --frontend      # Install frontend deps only
+./setup.sh --screener      # Install screener ML deps only
+./setup.sh --env           # Scaffold .env files from examples
+./setup.sh --dirs          # Create required directories
+./setup.sh --db            # Setup local PostgreSQL + Redis (macOS)
+./setup.sh --help          # Show all setup.sh options
+
+# ── Development ──────────────────────────────────
+make help                  # Show all available Makefile commands
+make dev-local             # Start backend + frontend via Procfile
+make dev-docker            # Start everything with Docker/OrbStack
+make backend               # Run backend locally (pdm run dev)
+make frontend              # Run frontend locally (pnpm dev)
+
+# ── Testing & Quality ────────────────────────────
+make test                  # Run all tests
+make lint                  # Lint backend + frontend
+make format                # Auto-format backend code
+
+# ── Database ─────────────────────────────────────
+make db-local              # Setup PostgreSQL + Redis via Homebrew
+make db-up                 # Start PostgreSQL + Redis via Docker
+make db-migrate            # Apply pending migrations
 make db-revision msg="description"  # Create new migration
+
+# ── Screener Pipeline ────────────────────────────
+./setup.sh --pipeline      # Run full data → train → backtest pipeline
+./setup.sh --scan          # Run daily live scan
+make screener-pipeline     # Same as above, via Makefile
+make screener-scan         # Same as above, via Makefile
+
+# ── Misc ─────────────────────────────────────────
+make setup-mcp             # Install Playwright MCP for Copilot browser integration
 ```
 
 ---

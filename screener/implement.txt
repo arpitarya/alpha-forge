@@ -398,13 +398,75 @@ KNOWN ISSUES / NOTES
 
 
 ================================================================================
+SETUP SCRIPT                                                       [COMPLETED]
+================================================================================
+
+[x] setup.sh (setup.sh — repo root)
+    - Single entry point for all screener setup and pipeline operations
+    - Modes:
+      * (no args)     Full setup: check prereqs, create dirs, install deps
+      * --deps        Install Python dependencies only (into repo-root .venv)
+      * --dirs        Create screener directory structure only
+      * --pipeline    Run full pipeline: data → features → dataset → train → backtest
+      * --scan        Run daily live scan (incremental OHLCV + predict + explain + drift)
+      * --help        Show usage
+    - Prerequisites checked:
+      * Repo-root .venv (created by 'make venv')
+      * libomp on macOS (prompts to install via Homebrew if missing)
+    - Directory creation: all 11 required dirs (ohlcv, indices, nse_supplementary,
+      features, dataset/output, models/saved/{lightgbm,xgboost}, backtest,
+      live/picks, reports, notebooks)
+    - Dependency install: pip install from requirements.txt + verification of all
+      critical imports (yfinance, nselib, pandas, sklearn, lightgbm, xgboost)
+    - Pipeline mode runs all 6 phases sequentially with progress output
+    - Scan mode: incremental OHLCV update → LightGBM + XGBoost scans → SHAP
+      explanations → model drift check
+    - CLI: ./setup.sh [--deps|--dirs|--pipeline|--scan|--help]
+
+
+================================================================================
 ALL PHASES COMPLETE — SCREENER READY FOR FULL UNIVERSE TESTING
 ================================================================================
 
-Next steps:
+Quick start (using setup.sh):
+  ./setup.sh              # Install deps + create dirs
+  ./setup.sh --pipeline   # Run full data → train → backtest pipeline
+  ./setup.sh --scan       # Daily live scan
+
+Manual steps:
 1. Download full universe OHLCV: python screener/data/fetch_ohlcv.py
 2. Build full dataset: python screener/dataset/build_dataset.py
 3. Train models on full dataset: python screener/models/train_lightgbm.py
 4. Run full backtest: python screener/backtest/engine.py
 5. Generate report: python screener/backtest/report.py
 6. Start daily scans: python screener/live/scan.py
+
+================================================================================
+PHASE 7: JUPYTER NOTEBOOK + ALPHAFORGE INTEGRATION                  [COMPLETED]
+================================================================================
+
+[x] 7.1 — Interactive Jupyter Notebook (screener/notebooks/screener_pipeline.ipynb)
+    - Full pipeline notebook covering all 6 phases interactively
+    - Phase 1: Data fetching (universe, OHLCV, NSE data, indices)
+    - Phase 2: Feature engineering with per-feature inspection
+    - Phase 3: Dataset building with class distribution analysis
+    - Phase 4: Model training (LightGBM, XGBoost, baseline rules)
+    - Phase 5: Backtesting with cost model and benchmark checks
+    - Phase 6: Live scanning with SHAP explanations
+    - Phase 7: AlphaForge backend integration (push/pull picks)
+    - Quick Run cell: end-to-end pipeline in one cell (QUICK_MODE toggle)
+    - Registered Jupyter kernel: "AlphaForge (Python 3.14)"
+    - Requirements: pip install jupyter ipykernel
+
+[x] 7.2 — AlphaForge Backend Integration
+    - Created backend/app/services/screener.py (ScreenerService)
+      - save_picks(): stores picks as JSON files
+      - get_picks(): retrieves picks by date (with CSV fallback)
+      - list_scan_dates(): lists all available scan dates
+    - Created backend/app/routes/screener.py
+      - POST /api/v1/screener/picks — push picks from notebook/CLI
+      - GET  /api/v1/screener/picks?date=YYYY-MM-DD — retrieve picks
+      - GET  /api/v1/screener/dates — list available scan dates
+    - Registered screener router in backend/app/routes/__init__.py
+    - Notebook cells for push/pull integration with backend API
+    - Graceful fallback to local CSV files when backend is offline

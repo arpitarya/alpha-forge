@@ -4,10 +4,11 @@ VENV   := .venv
 PYTHON := $(VENV)/bin/python
 
 .PHONY: help \
-        venv setup setup-mcp \
+        venv setup setup-mcp setup-full setup-prereqs setup-env setup-dirs \
         dev-local dev-docker down \
         backend backend-install \
         frontend frontend-install \
+        screener-install screener-pipeline screener-scan \
         db-local db-up db-migrate db-revision \
         test test-backend test-frontend \
         lint format \
@@ -20,35 +21,26 @@ help: ## Show this help
 # ── Setup ────────────────────────────────────────
 
 $(VENV)/bin/activate:
-	@PYTHON_VER=$$(cat .python-version 2>/dev/null || echo "3.14.2"); \
-	PYENV_PYTHON="$$(pyenv root)/versions/$$PYTHON_VER/bin/python"; \
-	if [ -x "$$PYENV_PYTHON" ]; then \
-		echo "Creating venv with pyenv Python $$PYTHON_VER..."; \
-		$$PYENV_PYTHON -m venv $(VENV); \
-	elif command -v python$$PYTHON_VER >/dev/null 2>&1; then \
-		echo "Creating venv with python$$PYTHON_VER..."; \
-		python$$PYTHON_VER -m venv $(VENV); \
-	else \
-		echo "❌ Python $$PYTHON_VER not found. Install via: pyenv install $$PYTHON_VER"; \
-		exit 1; \
-	fi
-	@echo "✅ Venv ready at $(VENV) ($$($(PYTHON) --version))"
+	@bash setup.sh --venv
 
 venv: $(VENV)/bin/activate ## Ensure repo-level Python venv exists
 
+setup-full: ## Full repo setup (prereqs, venv, all deps, env files, dirs)
+	@bash setup.sh
+
 setup: venv ## Install all project dependencies into local venv + node_modules
-	@echo "🔍 Checking required CLI tools..."
-	@command -v pdm     >/dev/null 2>&1 || { echo "❌ pdm not found — brew install pdm"; exit 1; }
-	@command -v pnpm    >/dev/null 2>&1 || { echo "❌ pnpm not found — corepack enable && corepack prepare pnpm@latest --activate"; exit 1; }
-	@command -v overmind >/dev/null 2>&1 || echo "  ⚠️  overmind not found (optional) — brew install overmind"
-	@echo ""
-	@echo "📦 Installing backend dependencies (PDM → .venv)..."
-	cd backend && pdm install
-	@echo ""
-	@echo "📦 Installing workspace Node packages (pnpm)..."
-	pnpm install
-	@echo ""
+	@bash setup.sh --backend
+	@bash setup.sh --frontend
 	@echo "✅ Setup complete"
+
+setup-prereqs: ## Check/install system prerequisites (pyenv, nvm, pnpm, pdm)
+	@bash setup.sh --prereqs
+
+setup-env: ## Scaffold .env files from .env.example templates (non-destructive)
+	@bash setup.sh --env
+
+setup-dirs: ## Create all required directories (logs, screener data, models)
+	@bash setup.sh --dirs
 
 setup-mcp: ## Install Playwright MCP server for Copilot browser integration
 	@echo "🌐 Installing Playwright Chromium browser..."
@@ -77,8 +69,7 @@ backend: venv ## Run backend dev server
 	cd backend && pdm run dev
 
 backend-install: venv ## Install backend Python dependencies
-	cd backend && pdm install
-	@echo "✅ Backend deps installed into $(VENV)"
+	@bash setup.sh --backend
 
 # ── Frontend ─────────────────────────────────────
 
@@ -86,12 +77,23 @@ frontend: ## Run frontend dev server
 	cd frontend && pnpm dev
 
 frontend-install: ## Install frontend Node dependencies
-	cd frontend && pnpm install
+	@bash setup.sh --frontend
+
+# ── Screener ─────────────────────────────────────
+
+screener-install: venv ## Install screener ML dependencies into .venv
+	@bash setup.sh --screener
+
+screener-pipeline: venv ## Run full screener pipeline (data → train → backtest)
+	@bash setup.sh --pipeline
+
+screener-scan: venv ## Run daily screener live scan
+	@bash setup.sh --scan
 
 # ── Database / Infrastructure ────────────────────
 
 db-local: ## Setup PostgreSQL & Redis via Homebrew (macOS, no Docker)
-	bash infra/setup-local.sh
+	@bash setup.sh --db
 
 db-up: ## Start PostgreSQL & Redis via Docker/OrbStack
 	docker compose -f infra/docker-compose.yml up postgres redis -d

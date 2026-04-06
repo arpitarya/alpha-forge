@@ -42,30 +42,41 @@ Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend
 ## Build & Run
 
 ```bash
+# Full repo setup (prereqs, venv, all deps, env files, dirs)
+./setup.sh                # One command to set up everything
+
+# Or step by step:
+./setup.sh --prereqs      # Check/install pyenv, nvm, pnpm, pdm
+./setup.sh --venv         # Create .venv from .python-version
+./setup.sh --backend      # Backend deps (PDM → .venv)
+./setup.sh --frontend     # Frontend + workspace deps (pnpm)
+./setup.sh --screener     # Screener ML deps (pip → .venv)
+./setup.sh --env          # Scaffold .env files from examples
+./setup.sh --dirs         # Create log/data/model directories
+
 # Infrastructure (PostgreSQL + Redis) — choose one:
-brew services start postgresql@16 && brew services start redis    # Native macOS
+./setup.sh --db                                                   # Native macOS (Homebrew)
 # OR
-docker compose -f infra/docker-compose.yml up -d                  # Container (OrbStack recommended over Docker Desktop)
+docker compose -f infra/docker-compose.yml up -d                  # Container (OrbStack recommended)
 
-# Backend
-cd backend && pdm install && pdm run dev
-
-# Workspace install (from repo root)
-pnpm install              # Installs all workspace deps
-
-# Frontend
-cd frontend && pnpm dev
+# Start dev servers
+make dev-local            # Backend + frontend via Procfile
+# OR individually:
+make backend              # Backend only
+make frontend             # Frontend only
 
 # Copilot Browser Integration (Playwright MCP)
 make setup-mcp            # Install Playwright Chromium + configure .vscode/settings.json
 
-# All at once
-make dev-local
+# Screener pipeline
+./setup.sh --pipeline     # Full data → train → backtest
+./setup.sh --scan         # Daily live scan
 ```
 
 ## Conventions
 
 - **Documentation**: Everytime a message is typed or change is made into the code update the documentation with the same
+- **Implementation tracking**: When a new module or feature is built, create an `implement.txt` file inside that module's directory (e.g., `screener/implement.txt`) and add a reference link to the root-level tracking list so all modules can be tracked from one place.
 - **API routes** live in `backend/app/routes/` — one file per domain (market, trade, ai, etc.)
 - **Services** live in `backend/app/services/` — business logic, never in route handlers
 - **Logging**: Backend uses `from app.core.logging import get_logger`; Frontend uses `import { getLogger } from "@/lib/logger"`. Logs write to `logs/` dir (gitignored). Configure via `LOG_LEVEL`, `LOG_DIR`, `LOG_FILE` env vars.

@@ -81,6 +81,9 @@ alpha-forge/
 - `backend/app/core/config.py` — All environment variables
 - `backend/app/core/logging.py` — Backend logging setup (wraps alphaforge-logger)
 - `backend/app/services/broker_base.py` — Abstract broker interface (implement this for new brokers)
+- `backend/app/services/screener.py` — Screener picks storage/retrieval service
+- `backend/app/routes/screener.py` — Screener API endpoints (POST/GET picks, list dates)
+- `screener/notebooks/screener_pipeline.ipynb` — Interactive Jupyter notebook for full screener pipeline
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/lib/api.ts` — Backend API client
 - `frontend/src/lib/logger.ts` — Frontend logging setup (wraps @alphaforge/logger)
@@ -108,14 +111,26 @@ alpha-forge/
 ## Commands
 
 ```bash
+# Full repo setup (prereqs, venv, all deps, env files, dirs)
+./setup.sh                # One command to set up everything
+./setup.sh --help         # Show all setup.sh options
+
+# Setup — granular
+./setup.sh --prereqs      # Check/install pyenv, nvm, pnpm, pdm
+./setup.sh --venv         # Create .venv from .python-version
+./setup.sh --backend      # Backend deps (PDM → .venv)
+./setup.sh --frontend     # Frontend + workspace deps (pnpm) + build solar-orb-ui
+./setup.sh --screener     # Screener ML deps (pip → .venv)
+./setup.sh --env          # Scaffold .env files from examples
+./setup.sh --dirs         # Create log/data/model directories
+./setup.sh --db           # Setup local PostgreSQL + Redis (macOS Homebrew)
+
 # Backend
-cd backend && pdm install           # Install deps (into repo-root .venv/)
 cd backend && pdm run dev           # Start server (uvicorn --reload)
 cd backend && pdm run pytest -v     # Tests
 cd backend && pdm run ruff check .  # Lint
 
 # Frontend
-cd frontend && pnpm install         # Install deps
 cd frontend && pnpm dev             # Dev server
 cd frontend && pnpm lint            # Lint
 cd frontend && pnpm type-check      # TypeScript check
@@ -128,18 +143,23 @@ cd packages/solar-orb-ui && pnpm dev     # Watch mode
 make setup-mcp                           # Install Playwright Chromium + MCP config
 
 # Infrastructure
-brew services start postgresql@16 && brew services start redis  # macOS native
+./setup.sh --db                                                 # macOS native (Homebrew)
 # OR: docker compose -f infra/docker-compose.yml up -d          # via OrbStack
 
 # Migrations
 cd backend && pdm run alembic upgrade head
 cd backend && pdm run alembic revision --autogenerate -m "description"
+
+# Screener pipeline
+./setup.sh --pipeline     # Full data → train → backtest
+./setup.sh --scan         # Daily live scan
 ```
 
 ## Guardrails
 - Never commit `.env` files or API keys
 - All AI outputs must include financial disclaimer
 - Everytime a message is typed or change is made into the code update the documentation with the same
+- When a new module or feature is built, create an `implement.txt` inside that module's directory and link it from the root-level tracking list
 - Broker tokens encrypted at rest
 - CORS restricted to frontend origin only
 - No guaranteed return claims anywhere in code or UI

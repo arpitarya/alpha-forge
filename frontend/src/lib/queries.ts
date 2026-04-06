@@ -1,5 +1,5 @@
 import { type UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query";
-import { aiApi, marketApi, portfolioApi, tradeApi } from "./api";
+import { aiApi, marketApi, portfolioApi, screenerApi, tradeApi } from "./api";
 
 // ── Market Data ─────────────────────────────────
 
@@ -126,5 +126,43 @@ export function useModifyOrder() {
 export function useCancelOrder() {
   return useMutation({
     mutationFn: (orderId: string) => tradeApi.cancelOrder(orderId).then((r) => r.data),
+  });
+}
+
+// ── Screener ────────────────────────────────────
+
+export interface ScreenerPick {
+  SYMBOL: string;
+  probability: number;
+  rank: number;
+  rsi_14?: number;
+  macd_hist?: number;
+  adx_14?: number;
+  vol_sma_ratio?: number;
+  dist_52w_high_pct?: number;
+}
+
+export interface ScreenerPicksResponse {
+  scan_date: string;
+  model_type: string | null;
+  count: number;
+  picks: ScreenerPick[];
+}
+
+export function useScreenerPicks(date?: string, options?: Partial<UseQueryOptions>) {
+  return useQuery({
+    queryKey: ["screener", "picks", date ?? "latest"],
+    queryFn: () => screenerApi.getPicks(date).then((r) => r.data as ScreenerPicksResponse),
+    staleTime: 60_000,
+    ...options,
+  });
+}
+
+export function useScreenerDates(options?: Partial<UseQueryOptions>) {
+  return useQuery({
+    queryKey: ["screener", "dates"],
+    queryFn: () => screenerApi.getDates().then((r) => r.data as string[]),
+    staleTime: 60_000,
+    ...options,
   });
 }

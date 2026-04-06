@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
+from app.core.logging import get_logger
+from app.services.screener import ScreenerService
+
 router = APIRouter()
+logger = get_logger("routes.ai")
+
+screener_service = ScreenerService()
 
 
 class ChatMessage(BaseModel):
@@ -62,9 +68,25 @@ async def analyze_stock(body: AnalysisRequest):
 
 @router.get("/screener")
 async def ai_screener(strategy: str = "momentum"):
-    """AI-driven stock screener — finds opportunities based on strategy."""
-    # TODO: implement screener logic
-    return {"strategy": strategy, "results": []}
+    """AI-driven stock screener — finds opportunities based on strategy.
+
+    Disclaimer: Not SEBI registered investment advice.
+    """
+    logger.info("Screener requested with strategy=%s", strategy)
+    data = await screener_service.get_picks()
+    picks = data.get("picks", [])
+
+    return {
+        "strategy": strategy,
+        "scan_date": data.get("scan_date", ""),
+        "model_type": data.get("model_type"),
+        "count": len(picks),
+        "results": picks,
+        "disclaimer": (
+            "Not SEBI registered investment advice. "
+            "For personal research and educational use only."
+        ),
+    }
 
 
 @router.get("/sentiment/{symbol}")

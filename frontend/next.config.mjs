@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const backendPort = process.env.BACKEND_PORT || "3000";
+const backendPort = process.env.BACKEND_PORT || "8000";
 
 const nextConfig = {
   reactStrictMode: true,

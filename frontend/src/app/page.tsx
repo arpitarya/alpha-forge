@@ -5,6 +5,7 @@ import {
   AlphaBrief,
   NetWorth,
   RiskAnalysis,
+  ScreenerPicks,
   SolarOrb,
   TerminalWatchlist,
   VoiceFooter,
@@ -43,6 +44,11 @@ export default function Home() {
         {/* Risk Analysis — bottom-left */}
         <div className="col-span-3 row-start-5 row-span-2">
           <RiskAnalysis />
+        </div>
+
+        {/* Screener Picks — bottom-center */}
+        <div className="col-span-6 col-start-4 row-start-5 row-span-2">
+          <ScreenerPicks />
         </div>
       </main>
 

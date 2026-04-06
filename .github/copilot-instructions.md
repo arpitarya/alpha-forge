@@ -76,7 +76,8 @@ make setup-mcp            # Install Playwright Chromium + configure .vscode/sett
 ## Conventions
 
 - **Documentation**: Everytime a message is typed or change is made into the code update the documentation with the same
-- **Implementation tracking**: When a new module or feature is built, create an `implement.txt` file inside that module's directory (e.g., `screener/implement.txt`) and add a reference link to the root-level tracking list so all modules can be tracked from one place.
+- **Planning**: When planning a new module or feature, create a `PLAN.md` inside that module's directory (e.g., `screener/PLAN.md`) with the full plan, goals, phases, and design decisions. Then add a reference link to the root-level `PLAN.md` so all module plans can be tracked from one place.
+- **Implementation tracking**: When a new module or feature is built, create an `implement.txt` file inside that module's directory (e.g., `screener/implement.txt`) logging what was built, decisions made, and status. Then add a reference link to the root-level `implement.txt` so all modules can be tracked from one place.
 - **API routes** live in `backend/app/routes/` — one file per domain (market, trade, ai, etc.)
 - **Services** live in `backend/app/services/` — business logic, never in route handlers
 - **Logging**: Backend uses `from app.core.logging import get_logger`; Frontend uses `import { getLogger } from "@/lib/logger"`. Logs write to `logs/` dir (gitignored). Configure via `LOG_LEVEL`, `LOG_DIR`, `LOG_FILE` env vars.

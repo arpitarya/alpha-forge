@@ -85,6 +85,7 @@ alpha-forge/
 - `backend/app/routes/screener.py` — Screener API endpoints (POST/GET picks, list dates)
 - `screener/notebooks/screener_pipeline.ipynb` — Interactive Jupyter notebook for full screener pipeline
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
+- `frontend/src/components/terminal/ScreenerPicks.tsx` — Screener picks display component (live data from backend)
 - `frontend/src/lib/api.ts` — Backend API client
 - `frontend/src/lib/logger.ts` — Frontend logging setup (wraps @alphaforge/logger)
 - `packages/logger-py/src/alphaforge_logger/logger.py` — Python logger package core
@@ -159,7 +160,8 @@ cd backend && pdm run alembic revision --autogenerate -m "description"
 - Never commit `.env` files or API keys
 - All AI outputs must include financial disclaimer
 - Everytime a message is typed or change is made into the code update the documentation with the same
-- When a new module or feature is built, create an `implement.txt` inside that module's directory and link it from the root-level tracking list
+- When planning a new module or feature, create a `PLAN.md` inside that module's directory with the full plan, goals, phases, and design decisions; then link it from the root-level `PLAN.md` so all plans can be tracked from one place
+- When a new module or feature is built, create an `implement.txt` inside that module's directory logging what was built, decisions made, and status; then link it from the root-level `implement.txt` so all modules can be tracked from one place
 - Broker tokens encrypted at rest
 - CORS restricted to frontend origin only
 - No guaranteed return claims anywhere in code or UI

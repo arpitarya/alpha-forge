@@ -66,6 +66,13 @@ export const tradeApi = {
   cancelOrder: (orderId: string) => api.delete(`/trade/order/${orderId}`),
 };
 
+// ── Screener ────────────────────────────────────
+export const screenerApi = {
+  getPicks: (date?: string) =>
+    api.get("/screener/picks", { params: date ? { date } : {} }),
+  getDates: () => api.get("/screener/dates"),
+};
+
 // ── Auth ────────────────────────────────────────
 export const authApi = {
   register: (data: { email: string; password: string; full_name: string }) =>

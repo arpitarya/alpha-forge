@@ -16,11 +16,16 @@ logger = get_logger("app")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: initialise logging, connections, warm caches, etc.
     setup_logging()
     logger.info("AlphaForge starting up (env=%s)", settings.app_env)
+
+    from app.services.embedding import get_embedding_service
+    embed_svc = get_embedding_service()
+    logger.info("Embedding service ready (model=%s)", settings.embedding_model)
+
     yield
-    # Shutdown: close connections, flush buffers, etc.
+
+    await embed_svc.close()
     logger.info("AlphaForge shutting down")
 
 

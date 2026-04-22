@@ -1,0 +1,73 @@
+# repo-context-mcp — Implementation Log
+
+Tool-agnostic MCP server giving any coding agent (Claude, Copilot, Cursor, future tools) semantic + structural context over the AlphaForge monorepo.
+
+## Phase 1 — Scaffolding (2026-04-22)
+
+Status: Complete
+
+Built:
+- `pyproject.toml` (PDM, py3.14, deps: mcp, asyncpg, pgvector, sqlalchemy, watchfiles, pathspec, httpx, pydantic-settings)
+- Package layout: `src/alphaforge_repo_context/{server,indexer,watcher,config,chunker,embeddings,db}.py`
+- Tools subpackage: `src/alphaforge_repo_context/tools/`
+- `PLAN.md` with phases + design decisions
+- Root wiring: `PLAN.md` + `implement.txt` + `CLAUDE.md` updated
+
+Decisions:
+- Python (not Node): sibling of `llm-gateway/`; reuses Gemini embedding pattern from `backend/app/services/embedding.py`.
+- Separate table `repo_chunks` rather than overloading `screener_pick_embeddings`/`conversation_memories` — different lifecycle, different query patterns.
+- Stdio transport default — works with every current MCP client.
+- Alembic migration lives under `backend/alembic/versions/` (single source of truth for all DB schema).
+
+## Phase 2 — DB schema + ORM
+
+Status: Complete (code scaffolded; migration TBD)
+
+Built:
+- `db.py` — async engine, `RepoChunk` SQLAlchemy model (mirrors `backend/app/models/memory.py` style), schema-create helper.
+- Chose separate `alembic` revision to live under `backend/alembic/versions/` when promoted; for now `db.init_schema()` creates the table on first run.
+
+## Phase 3 — Indexer
+
+Status: Complete
+
+Built:
+- `chunker.py` — Python `ast` chunker, TS/TSX regex chunker, Markdown section chunker, fallback sliding-window.
+- `embeddings.py` — Gemini embedding client (thin rewrite of `backend/app/services/embedding.py`, standalone to avoid coupling to backend).
+- `indexer.py` — walks repo, honors `.gitignore` + deny list, hashes chunks, only re-embeds diffs, writes to pgvector. CLI entry point.
+
+## Phase 4 — MCP server + tools
+
+Status: Complete
+
+Built:
+- `server.py` — MCP server bootstrap (stdio).
+- `tools/search_code.py` — cosine similarity search via pgvector.
+- `tools/get_symbol.py` — symbol lookup via `RepoChunk.symbol`.
+- `tools/module_overview.py` — reads nearest CLAUDE.md/PLAN.md/README.md.
+- `tools/recent_changes.py` — `git log` wrapper.
+- `tools/read_file_range.py` — bounded file read.
+
+## Phase 5 — Watcher
+
+Status: Scaffolded (optional)
+
+Built:
+- `watcher.py` — `watchfiles` loop, debounces changed paths, re-indexes. Not run by default; CLI flag `--watch` on indexer.
+
+## Phase 6 — Client configs
+
+Status: Documented in README.md
+
+Snippets provided for:
+- Claude Code (`.claude/settings.json`)
+- VS Code / GitHub Copilot (`.vscode/mcp.json`)
+- Cursor (`~/.cursor/mcp.json`)
+- Cline, Zed, Windsurf (same shape)
+
+## Open Items
+
+- Generate Alembic migration for `repo_chunks` and fold into `backend/alembic/versions/` once the table is finalized.
+- Add pytest fixtures + integration test using a temporary Postgres schema.
+- Consider swapping IVFFlat → HNSW index after measuring recall.
+- Investigate tree-sitter for richer TS/TSX chunking once the regex parser proves limiting.

@@ -77,10 +77,22 @@ TECHNICAL_SUMMARY_PROMPT = (
 # Map QueryType to system prompts for convenience
 from alphaforge_llm_gateway.types import QueryType  # noqa: E402
 
+RAG_CHAT_PROMPT = (
+    "You are an expert Indian stock market analyst assistant for the AlphaForge platform. "
+    "You have been provided with relevant screener picks, portfolio context, and past analysis "
+    "in the conversation. Ground your answers in the provided context — if a specific stock or "
+    "signal is mentioned in the screener context, reference it directly. "
+    "If the provided context is insufficient to answer, say so clearly rather than hallucinating. "
+    "Use Indian market conventions (NSE/BSE, INR, Nifty/Sensex benchmarks, Indian trading calendar). "
+    "Be concise and actionable."
+    + DISCLAIMER
+)
+
 SYSTEM_PROMPTS: dict[QueryType, str] = {
     QueryType.SCREENER_ANALYSIS: SCREENER_SYSTEM_PROMPT,
     QueryType.STOCK_EXPLANATION: EXPLAIN_SYSTEM_PROMPT,
     QueryType.CHAT: "",  # No system prompt for general chat
     QueryType.SENTIMENT: SENTIMENT_PROMPT,
     QueryType.TECHNICAL_SUMMARY: TECHNICAL_SUMMARY_PROMPT,
+    QueryType.RAG_CHAT: RAG_CHAT_PROMPT,
 }

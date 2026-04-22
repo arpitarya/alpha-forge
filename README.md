@@ -4,11 +4,43 @@
   <img src="logo.png" alt="AlphaForge Logo" width="400" />
 </p>
 
-**Personal AI-Powered Portfolio Management & Investment Terminal for Indian Markets**
+**Personal AI-powered Portfolio Management and Investment Terminal for Indian Markets**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-AlphaForge is an open-source, AI-powered personal portfolio management and investment tool for Indian markets (NSE/BSE). Built for managing your own investments — combining market data, analysis, and trade execution in a single terminal interface.
+AlphaForge is an open-source personal investment terminal for Indian markets (NSE/BSE). It combines a FastAPI backend, a Next.js frontend, an ML screener pipeline, and a multi-provider LLM gateway.
+
+This project is built for personal use and research.
+
+Not SEBI registered investment advice.
+
+---
+
+## What Is New
+
+- Added `llm-gateway/` package with 5-provider routing: Gemini, Groq, HuggingFace, OpenRouter, Ollama
+- Added backend `/llm` endpoints for completion, screener analysis, explanation, provider health, and benchmark
+- Added frontend typed LLM API integration and React Query hooks
+- Expanded screener implementation across data, features, dataset, models, and backtesting phases
+- Standardized setup with `./setup.sh` full and granular workflows
+- Added workspace packages:
+  - `packages/logger-py` (`alphaforge-logger`)
+  - `packages/logger-node` (`@alphaforge/logger`)
+  - `packages/solar-orb-ui` (`@alphaforge/solar-orb-ui`)
+
+---
+
+## Monorepo Overview
+
+| Module | Path | Purpose |
+|--------|------|---------|
+| Backend | `backend/` | FastAPI API, auth, market, portfolio, broker integration, LLM routes |
+| Frontend | `frontend/` | Next.js terminal UI, dashboard, AI surfaces |
+| UI Library | `packages/solar-orb-ui/` | Shared design tokens and UI components |
+| Logging Packages | `packages/logger-py/`, `packages/logger-node/` | Shared logging for Python and Node |
+| LLM Gateway | `llm-gateway/` | Provider routing, cost guardrails, CLI, benchmarks |
+| Screener | `screener/` | Data pipeline, feature engineering, model training, backtests |
+| Infra | `infra/` | Docker Compose and local setup scripts |
 
 ---
 
@@ -19,24 +51,69 @@ AlphaForge is an open-source, AI-powered personal portfolio management and inves
 git clone https://github.com/your-username/alpha-forge.git
 cd alpha-forge
 
-# Option 1: Native macOS (recommended for M-series Macs — zero Docker overhead)
-bash infra/setup-local.sh           # Install & start PostgreSQL + Redis via Homebrew
-cp backend/.env.example backend/.env
-cd backend && pdm install && pdm run dev    # API at :8000
-cd frontend && pnpm install && pnpm dev     # UI at :3000
+# Recommended: full setup
+./setup.sh
 
-# Option 2: All-in-one with process manager
-make db-local                       # Setup PostgreSQL + Redis via Homebrew
-make backend-install && make frontend-install
-make dev-local                      # Starts backend + frontend via Procfile
+# Start PostgreSQL + Redis locally (macOS)
+./setup.sh --db
 
-# Option 3: Containers (OrbStack recommended over Docker Desktop)
-cp backend/.env.example backend/.env
+# Apply DB migrations
+make db-migrate
+
+# Start backend + frontend
+make dev-local
+```
+
+Frontend: http://localhost:3000  
+Backend API: http://localhost:8000  
+OpenAPI docs: http://localhost:8000/docs
+
+### Alternate Setup Modes
+
+```bash
+# Granular setup
+./setup.sh --prereqs
+./setup.sh --venv
+./setup.sh --backend
+./setup.sh --frontend
+./setup.sh --screener
+./setup.sh --env
+./setup.sh --dirs
+
+# Containers (OrbStack or Docker)
 docker compose -f infra/docker-compose.yml up --build
 ```
 
-**Backend API docs:** http://localhost:8000/docs  
-**Frontend:** http://localhost:3000
+---
+
+## Common Commands
+
+```bash
+# Development
+make dev-local
+make backend
+make frontend
+
+# Quality
+make test
+make lint
+make format
+
+# Screener
+./setup.sh --pipeline
+./setup.sh --scan
+make screener-pipeline
+make screener-scan
+
+# LLM Gateway
+make llm-gateway-install
+make llm-providers
+make llm-benchmark
+python -m alphaforge_llm_gateway chat
+
+# Copilot browser integration
+make setup-mcp
+```
 
 ---
 
@@ -48,6 +125,10 @@ docker compose -f infra/docker-compose.yml up --build
 | [docs/WHAT.md](docs/WHAT.md) | What AlphaForge is — features, scope, roadmap |
 | [docs/HOW.md](docs/HOW.md) | How it works — architecture, tech stack, design |
 | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) | Setup guide for developers |
+| [screener/PLAN.md](screener/PLAN.md) | Screener planning phases |
+| [screener/implement.txt](screener/implement.txt) | Screener implementation log |
+| [llm-gateway/PLAN.md](llm-gateway/PLAN.md) | LLM Gateway planning phases |
+| [llm-gateway/implement.txt](llm-gateway/implement.txt) | LLM Gateway implementation log |
 
 ---
 
@@ -70,6 +151,12 @@ alpha-forge/
 │   │   ├── components/      # React components
 │   │   └── lib/             # API client, stores, utils
 │   └── package.json
+├── packages/                # Workspace packages
+│   ├── logger-py/           # alphaforge-logger
+│   ├── logger-node/         # @alphaforge/logger
+│   └── solar-orb-ui/        # @alphaforge/solar-orb-ui
+├── llm-gateway/             # Multi-provider LLM package + CLI
+├── screener/                # ML screener pipeline and backtests
 ├── infra/                   # Infrastructure configs
 │   ├── docker-compose.yml   # Container orchestration (optional)
 │   └── setup-local.sh       # Native macOS setup (Homebrew)
@@ -95,7 +182,7 @@ alpha-forge/
 | Node Tooling | pnpm | Fast, disk-efficient, strict |
 | Database | PostgreSQL 16 | Reliable, battle-tested |
 | Cache / Pub-Sub | Redis 7 | Real-time data, WebSocket backing |
-| AI / LLM | OpenAI + LangChain | Conversational AI, RAG |
+| AI / LLM | OpenAI + LangChain + `alphaforge-llm-gateway` | Conversational AI, RAG, provider routing |
 | Charts | Lightweight Charts (TradingView) | Professional-grade charts |
 | Broker API | Zerodha Kite Connect | Most popular Indian broker API |
 | Task Queue | Celery | Background jobs (screeners, alerts) |

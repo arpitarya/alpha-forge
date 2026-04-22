@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"
 
+    # ── Vector / Memory ──────────────────────────
+    embedding_model: str = "text-embedding-004"
+    embedding_dimensions: int = 768
+    memory_top_k: int = 5
+    memory_max_age_days: int = 90
+    screener_embed_batch_size: int = 10
+
     # ── Indian Broker: Zerodha Kite ──────────────
     kite_api_key: str = ""
     kite_api_secret: str = ""

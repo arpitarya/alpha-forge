@@ -35,6 +35,8 @@ alpha-forge/
 ├── llm-gateway/      Publishable Python package (alphaforge-llm-gateway)
 │   ├── src/alphaforge_llm_gateway/  LLMGateway, providers, router, rate_limiter, cost_guard, CLI
 │   └── notebooks/    Interactive Jupyter playground for provider comparison & benchmarks
+├── repo-context-mcp/ Tool-agnostic MCP server — gives Claude/Copilot/Cursor/any MCP client semantic + structural context over this repo
+│   └── src/alphaforge_repo_context/  server, indexer, chunker, embeddings, watcher, tools/
 ├── docs/             WHY.md, WHAT.md, HOW.md, GETTING_STARTED.md
 └── design/           Design system & Gemini Stitch tokens
 ```
@@ -55,6 +57,7 @@ alpha-forge/
 | Cache | Redis 7 | Quotes cache, pub/sub, Celery broker |
 | AI | OpenAI + LangChain | RAG with market data context |
 | LLM Gateway | alphaforge-llm-gateway | 5 free providers (Gemini, Groq, HuggingFace, OpenRouter, Ollama), smart routing, $0 cost wall |
+| Repo Context MCP | alphaforge-repo-context-mcp | Local stdio MCP server; pgvector-backed semantic + structural repo context for Claude/Copilot/Cursor/any MCP client |
 | Brokers | Abstract BaseBroker interface | Zerodha first, then Angel One, Upstox |
 | Local infra | brew services (Postgres, Redis) | Containers optional via OrbStack |
 | Browser MCP | Playwright MCP | Copilot can screenshot/inspect Chrome via `.vscode/settings.json` |
@@ -107,6 +110,11 @@ alpha-forge/
 - `llm-gateway/src/alphaforge_llm_gateway/gateway.py` — Main LLMGateway class (from_env, complete, analyze_screener)
 - `llm-gateway/src/alphaforge_llm_gateway/cli.py` — CLI: analyze-screener, explain-picks, chat, benchmark, providers
 - `llm-gateway/notebooks/llm_gateway_playground.ipynb` — Interactive notebook for provider comparison & benchmarks
+- `repo-context-mcp/src/alphaforge_repo_context/server.py` — MCP server entry (stdio); exposes `search_code`, `get_symbol`, `module_overview`, `recent_changes`, `read_file_range`
+- `repo-context-mcp/src/alphaforge_repo_context/indexer.py` — Walk → chunk → embed → pgvector; CLI `alphaforge-repo-context-index`
+- `repo-context-mcp/src/alphaforge_repo_context/chunker.py` — AST (Python), regex (TS/TSX), section (Markdown), sliding-window fallback
+- `repo-context-mcp/src/alphaforge_repo_context/db.py` — `repo_chunks` ORM model + `init_schema()`
+- `repo-context-mcp/README.md` — Wire-up snippets for Claude Code, VS Code/Copilot, Cursor, Cline, Zed, Windsurf
 - `.python-version` — Python version for pyenv (3.14.2)
 - `.nvmrc` — Node.js version for nvm
 - `.npmrc` — pnpm/npm configuration (exact versions, engine-strict)
@@ -165,12 +173,27 @@ cd backend && pdm run alembic revision --autogenerate -m "description"
 ./setup.sh --pipeline     # Full data → train → backtest
 ./setup.sh --scan         # Daily live scan
 
+# Cleanup
+./clean.sh                # Remove build artifacts and bytecode (keeps venv + node_modules)
+./clean.sh --cache        # Remove only tool caches
+./clean.sh --venv         # Remove Python venv
+./clean.sh --backend      # Deep-clean backend (artifacts, caches, venv)
+./clean.sh --frontend     # Deep-clean frontend (.next, node_modules)
+./clean.sh --all          # Nuclear clean — removes everything (run setup.sh to restore)
+
 # LLM Gateway
 make llm-gateway-install                                        # Install package into .venv
 make llm-providers                                              # Show provider health + quota
 make llm-benchmark                                              # Benchmark all providers
 python -m alphaforge_llm_gateway chat                           # Interactive chat
 python -m alphaforge_llm_gateway analyze-screener -f picks.txt  # Analyze screener output
+
+# Repo Context MCP (tool-agnostic: Claude, Copilot, Cursor, etc.)
+cd repo-context-mcp && pdm install                              # Install deps
+cd repo-context-mcp && pdm run index --full                     # Build initial vector index
+cd repo-context-mcp && pdm run index --watch                    # Watch + incremental reindex
+cd repo-context-mcp && pdm run serve                            # Run MCP server (stdio)
+alphaforge-repo-context-mcp                                     # Same server (after `pdm install`)
 ```
 
 ## Guardrails

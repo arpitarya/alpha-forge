@@ -24,6 +24,7 @@ class QueryType(str, Enum):
     CHAT = "chat"
     SENTIMENT = "sentiment"
     TECHNICAL_SUMMARY = "technical_summary"
+    RAG_CHAT = "rag_chat"
 
 
 @dataclass

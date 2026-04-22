@@ -38,6 +38,11 @@ ROUTING_TABLE: dict[QueryType, list[RoutingEntry]] = {
         (LLMProvider.GROQ, "qwen/qwen3-32b"),
         (LLMProvider.OLLAMA, ""),
     ],
+    QueryType.RAG_CHAT: [
+        (LLMProvider.GEMINI, "gemini-2.5-flash"),
+        (LLMProvider.GROQ, "llama-3.3-70b-versatile"),
+        (LLMProvider.OLLAMA, ""),
+    ],
 }
 
 

@@ -1,0 +1,91 @@
+# Graphify exclusions — same syntax as .gitignore
+
+# ---------- Dependencies / vendored ----------
+node_modules/
+.venv/
+venv/
+.pnpm-store/
+.yarn/
+
+# ---------- Build artifacts ----------
+dist/
+build/
+out/
+.next/
+.turbo/
+.pdm-build/
+*.tsbuildinfo
+**/*.egg-info/
+
+# ---------- Caches ----------
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+.svelte-kit/
+
+# ---------- Lockfiles (noise, no semantic value) ----------
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+pdm.lock
+uv.lock
+poetry.lock
+
+# ---------- Logs / runtime ----------
+logs/
+*.log
+tmp/
+temp/
+
+# ---------- ML / data artifacts ----------
+models/*.bin
+models/*.pt
+models/*.onnx
+*.h5
+wandb/
+mlruns/
+*.parquet
+*.feather
+
+# ---------- DB / binary blobs ----------
+*.db
+*.sqlite3
+*.tgz
+*.pem
+*.key
+
+# ---------- Coverage ----------
+coverage/
+htmlcov/
+.coverage
+*.lcov
+
+# ---------- Editor / OS ----------
+.DS_Store
+.idea/
+.vscode-test/
+
+# ---------- Secrets ----------
+.env
+.env.*
+!.env.example
+secrets/
+
+# ---------- Agent context files (graphify writes these; don't re-ingest) ----------
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.gemini/
+.cursor/
+
+# ---------- Graphify's own output ----------
+graphify-out/
+
+# ---------- Misc generated ----------
+*.generated.py
+*.generated.ts

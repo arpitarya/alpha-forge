@@ -166,3 +166,11 @@ vite.config.ts.timestamp-*
 
 # mcp
 .playwright-mcp
+
+# ---------- Graphify ----------
+# Commit graphify-out/graph.json + GRAPH_REPORT.md + graph.html so teammates
+# (and future Claude sessions) get the graph immediately. Skip volatile bits:
+graphify-out/cache/
+graphify-out/manifest.json
+graphify-out/cost.json
+graphify-out/memory/

@@ -1,0 +1,65 @@
+{
+  "name": "@alphaforge/solar-orb-ball",
+  "version": "0.1.0",
+  "description": "Standalone Solar Orb — the central animated AI orb of AlphaForge. Ships as a publishable React component with its own Vite playground for iteration.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/solar-orb-ball.cjs",
+  "module": "./dist/solar-orb-ball.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/solar-orb-ball.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/solar-orb-ball.cjs"
+      }
+    },
+    "./styles": "./dist/solar-orb-ball.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "build:demo": "vite build --mode demo",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.7"
+  },
+  "keywords": [
+    "react",
+    "ui",
+    "alphaforge",
+    "solar-orb",
+    "design-system",
+    "ai"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alphaforge/alpha-forge",
+    "directory": "packages/solar-orb-ball"
+  }
+}

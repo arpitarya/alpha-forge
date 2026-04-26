@@ -2,8 +2,10 @@
  * Solar Orb UI — Fonts
  *
  * Space Grotesk — primary typeface (headlines + body)
+ * Space Mono   — monospace for tags, prices, terminal-style labels
  * Material Symbols Outlined — icon font
  */
 
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");

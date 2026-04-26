@@ -1,9 +1,15 @@
 /*
  * Solar Orb UI — Theme Tokens
  *
- * All Solar Terminal design tokens registered as Tailwind v4 theme values.
- * This is the CSS single source of truth — mirrored by src/tokens/index.ts
- * for programmatic (JS/TS) access.
+ * Two layers:
+ *   1. Tailwind v4 @theme tokens — register palette/typography/etc. with Tailwind so
+ *      utility classes like `bg-primary`, `text-on-surface` work.
+ *   2. Semantic CSS variables (--bg, --fg, --accent, --line, …) under :root +
+ *      [data-theme] / [data-accent] selectors. These power runtime theme + accent
+ *      switching (dark↔light, amber/ion/signal/violet) used by the Hi-Fi mock.
+ *
+ * Components should prefer the semantic vars (var(--accent), var(--fg-2), …) over
+ * hardcoded Tailwind colors so they re-skin instantly when theme/accent flips.
  *
  * Usage in your app's globals.css:
  *   @import "@alphaforge/solar-orb-ui/theme";
@@ -44,7 +50,7 @@
   /* ── Typography ────────────────────────────── */
   --font-family-headline: "Space Grotesk", sans-serif;
   --font-family-body: "Space Grotesk", sans-serif;
-  --font-family-mono: "JetBrains Mono", "SF Mono", "Fira Code", ui-monospace, monospace;
+  --font-family-mono: "Space Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
 
   --font-size-display-lg: 3.5rem;
   --font-size-display: 2.25rem;
@@ -94,4 +100,75 @@
   --ease-default: ease;
   --ease-in-out: ease-in-out;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Semantic Theme Layer ─────────────────────────────────────────────────────
+ * These are the runtime-switchable vars. Components reference these so the same
+ * markup re-skins when [data-theme] or [data-accent] flips.
+ */
+
+:root,
+html[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --bg-2: #0e0e0e;
+  --surface: #141414;
+  --surface-hi: #1b1b1b;
+  --surface-lo: #000000;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-hi: rgba(255, 255, 255, 0.12);
+  --fg: #f2efe9;
+  --fg-2: #b9b3a7;
+  --fg-3: #6b675f;
+  --fg-4: #3a3732;
+
+  --green: #37d17a;
+  --red: #ff5a3a;
+}
+
+html[data-theme="light"] {
+  --bg: #f4f1e9;
+  --bg-2: #ece7d9;
+  --surface: #ffffff;
+  --surface-hi: #ffffff;
+  --surface-lo: #e6e0cf;
+  --line: rgba(0, 0, 0, 0.06);
+  --line-hi: rgba(0, 0, 0, 0.12);
+  --fg: #14110c;
+  --fg-2: #4e4a41;
+  --fg-3: #8a8478;
+  --fg-4: #c5bfb0;
+}
+
+/* Accent palettes — default to amber when no [data-accent] is set */
+:root,
+html[data-accent="amber"] {
+  --accent: #ff8f00;
+  --accent-soft: #ffb455;
+  --accent-dim: #c36a00;
+  --on-accent: #140700;
+  --glow: rgba(255, 143, 0, 0.18);
+}
+
+html[data-accent="ion"] {
+  --accent: #2ee7c2;
+  --accent-soft: #79f2d8;
+  --accent-dim: #0f9e85;
+  --on-accent: #001b15;
+  --glow: rgba(46, 231, 194, 0.18);
+}
+
+html[data-accent="signal"] {
+  --accent: #ff3d5c;
+  --accent-soft: #ff7185;
+  --accent-dim: #b80026;
+  --on-accent: #ffffff;
+  --glow: rgba(255, 61, 92, 0.22);
+}
+
+html[data-accent="violet"] {
+  --accent: #a678ff;
+  --accent-soft: #c6a6ff;
+  --accent-dim: #6a3fc7;
+  --on-accent: #ffffff;
+  --glow: rgba(166, 120, 255, 0.22);
 }

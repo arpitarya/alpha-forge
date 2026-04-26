@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Alpha Forge — Wireframes</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&family=Space+Mono:wght@400;700&family=Architects+Daughter&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --paper:#f6f3ec;
+  --paper-2:#efe9dc;
+  --ink:#111111;
+  --ink-2:#3a3a3a;
+  --ink-3:#6b6b6b;
+  --ink-4:#a6a29a;
+  --grid:#d9d2bf;
+  --amber:#ff8f00;
+  --amber-soft:#ffd08a;
+  --red:#c43a12;
+  --green:#2f7a3a;
+  --rule:#1a1a1a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Kalam',cursive;}
+body{
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.6), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(0,0,0,.03), transparent 50%),
+    linear-gradient(var(--paper),var(--paper));
+  min-height:100vh;
+}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;padding:0}
+
+/* --- SKETCH PRIMITIVES --- */
+.sk{border:2px solid var(--ink);position:relative;background:rgba(255,255,255,.35)}
+.sk.dashed{border-style:dashed}
+.sk.double{box-shadow:3px 3px 0 var(--ink)}
+.sk.soft{border-color:var(--ink-2);border-width:1.5px}
+.sk.ghost{border-color:var(--ink-4);border-width:1.5px;border-style:dashed}
+.sk.amber{border-color:var(--amber);background:rgba(255,143,0,.06)}
+.sk.filled{background:var(--ink);color:var(--paper)}
+.squig{
+  display:block;
+  height:6px;
+  background:
+    radial-gradient(circle at 4px 4px, var(--ink) 1.5px, transparent 2px) 0 0/10px 6px;
+  opacity:.55;
+}
+.hline{height:0;border:0;border-top:2px solid var(--ink)}
+.hline.dashed{border-top-style:dashed}
+.hline.soft{border-top-color:var(--ink-3);border-top-width:1.5px}
+.hline.wiggle{
+  height:8px;border:0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 3px, var(--ink) 3px 4px, transparent 4px 10px);
+  opacity:.8;
+}
+
+/* handwriting */
+.hand{font-family:'Kalam',cursive}
+.hand-alt{font-family:'Caveat',cursive;font-weight:700}
+.mono{font-family:'Space Mono',monospace;letter-spacing:.02em}
+.tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.tag.amber{color:var(--amber)}
+.tag.muted{color:var(--ink-3)}
+
+/* rough "hand-drawn" filter on select shapes (turbulence) */
+svg.filter-defs{position:absolute;width:0;height:0}
+.rough{filter:url(#rough)}
+
+/* placeholder patterns */
+.ph-diag{
+  background-image:repeating-linear-gradient(45deg,var(--ink-4) 0 1px,transparent 1px 8px);
+}
+.ph-dot{
+  background-image:radial-gradient(var(--ink-4) 1px, transparent 1.5px);
+  background-size:10px 10px;
+}
+.ph-cross{
+  background-image:
+    linear-gradient(0deg,transparent 49%,var(--ink-4) 49% 51%,transparent 51%),
+    linear-gradient(90deg,transparent 49%,var(--ink-4) 49% 51%,transparent 51%);
+  background-size:24px 24px;
+  opacity:.5;
+}
+
+/* chrome */
+.shell{max-width:1480px;margin:0 auto;padding:24px 28px 80px}
+.toolbar{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:8px 0 18px;border-bottom:2px solid var(--ink)}
+.brand{display:flex;align-items:baseline;gap:14px}
+.brand h1{font-family:'Architects Daughter',cursive;font-size:34px;margin:0;letter-spacing:-.02em}
+.brand .sub{font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.28em;color:var(--ink-3)}
+.meta{display:flex;gap:20px;align-items:center;font-family:'Space Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--ink-3)}
+.meta .dot{width:8px;height:8px;background:var(--amber);display:inline-block;border-radius:50%;box-shadow:0 0 0 3px rgba(255,143,0,.2)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;margin:22px 0 10px;flex-wrap:wrap}
+.tab{
+  font-family:'Kalam',cursive;font-size:16px;
+  padding:10px 18px 12px;
+  border:2px solid var(--ink);
+  background:rgba(255,255,255,.3);
+  transform:rotate(-.3deg);
+  position:relative;
+}
+.tab:nth-child(even){transform:rotate(.4deg)}
+.tab.active{background:var(--ink);color:var(--paper)}
+.tab .num{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;opacity:.6;margin-right:8px}
+
+.subtabs{display:flex;gap:10px;margin:16px 0 18px;align-items:center;flex-wrap:wrap}
+.subtab{
+  font-family:'Caveat',cursive;font-weight:700;font-size:22px;
+  padding:2px 14px 4px;
+  border-bottom:2px solid transparent;
+  color:var(--ink-3);
+}
+.subtab.active{color:var(--ink);border-bottom-color:var(--amber);}
+.subtab .vn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--ink-4);margin-right:6px;vertical-align:3px}
+
+.pane{display:none}
+.pane.active{display:block}
+.variant{display:none}
+.variant.active{display:block}
+
+.v-caption{
+  display:flex;gap:18px;align-items:flex-start;margin:4px 0 18px;
+  padding:10px 14px;background:rgba(0,0,0,.03);border-left:3px solid var(--amber);
+}
+.v-caption .title{font-family:'Architects Daughter',cursive;font-size:20px;line-height:1.1}
+.v-caption .desc{font-family:'Kalam',cursive;font-size:14px;color:var(--ink-2);max-width:720px}
+
+/* annotation callouts */
+.note{
+  position:absolute;
+  font-family:'Caveat',cursive;font-weight:700;font-size:18px;
+  color:var(--ink);line-height:1.05;
+  pointer-events:none;z-index:5;
+}
+.note::before{
+  content:"";position:absolute;left:-14px;top:10px;width:12px;height:2px;background:var(--ink);
+}
+.note.amber{color:var(--amber)}
+.note.amber::before{background:var(--amber)}
+.note-arrow{position:absolute;pointer-events:none;z-index:5}
+
+/* frames */
+.frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/10;
+  background:
+    linear-gradient(var(--paper-2),var(--paper-2));
+  border:2px solid var(--ink);
+  box-shadow:5px 5px 0 rgba(0,0,0,.08);
+  overflow:hidden;
+}
+.frame-label{
+  position:absolute;top:-14px;left:18px;background:var(--paper);padding:0 10px;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-2)
+}
+.frame-dim{
+  position:absolute;bottom:-14px;right:18px;background:var(--paper);padding:0 10px;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--ink-4)
+}
+
+/* grid overlay */
+.gridlines{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.25;
+  mix-blend-mode:multiply;
+}
+body.no-grid .gridlines{display:none}
+body.no-notes .note,
+body.no-notes .note-arrow,
+body.no-notes .v-caption{display:none}
+body.no-amber .amber,
+body.no-amber [class*="amber"]{color:inherit !important;border-color:var(--ink) !important;background:rgba(0,0,0,.04) !important}
+body.no-amber .note.amber{color:var(--ink) !important}
+body.no-amber .note.amber::before{background:var(--ink) !important}
+body.no-amber .solar{filter:grayscale(1) contrast(1.1)}
+body.no-amber .dot{background:var(--ink) !important;box-shadow:none !important}
+
+/* orb */
+.solar{
+  position:relative;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 40% 40%, #fff 0%, #ffd08a 25%, #ff8f00 60%, rgba(255,143,0,0) 75%);
+  filter:blur(.3px);
+}
+.solar::after{
+  content:"";position:absolute;inset:-18%;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,143,0,.28), transparent 60%);
+  z-index:-1;
+}
+
+/* tweaks panel */
+.tweaks{
+  position:fixed;right:20px;bottom:20px;z-index:50;
+  background:var(--paper);border:2px solid var(--ink);
+  padding:14px 16px 16px;min-width:220px;box-shadow:4px 4px 0 rgba(0,0,0,.12);
+  font-family:'Kalam',cursive;font-size:14px;
+  display:none;
+}
+.tweaks.on{display:block}
+.tweaks h4{margin:0 0 8px;font-family:'Architects Daughter',cursive;font-size:16px;letter-spacing:.02em}
+.tweaks label{display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer}
+.tweaks input[type=checkbox]{width:16px;height:16px;accent-color:var(--amber)}
+.tweaks .seg{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.tweaks .seg button{
+  border:1.5px solid var(--ink);padding:3px 9px;font-family:'Space Mono',monospace;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;background:transparent;
+}
+.tweaks .seg button.active{background:var(--ink);color:var(--paper)}
+
+/* misc utility */
+.row{display:flex;gap:12px}
+.col{display:flex;flex-direction:column;gap:12px}
+.center{display:flex;align-items:center;justify-content:center}
+.pill{
+  display:inline-block;border:2px solid var(--ink);padding:3px 10px 4px;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+}
+.pill.amber{border-color:var(--amber);color:var(--amber)}
+.pill.filled{background:var(--ink);color:var(--paper)}
+
+/* tiny sparkline */
+.spark{height:28px;width:100%;display:block}
+
+/* stamps */
+.stamp{
+  position:absolute;top:10px;right:12px;
+  transform:rotate(6deg);
+  border:2px solid var(--amber);color:var(--amber);
+  padding:3px 10px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;
+  background:rgba(255,143,0,.06);
+  z-index:4;
+}
+
+/* responsive */
+@media (max-width:980px){
+  .frame{aspect-ratio:auto;min-height:800px}
+}
+</style>
+</head>
+<body data-screen-label="Alpha Forge Wireframes">
+
+<!-- SVG filters -->
+<svg class="filter-defs" aria-hidden="true">
+  <defs>
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3"/>
+      <feDisplacementMap in="SourceGraphic" scale="1.2"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="shell">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="brand">
+      <h1>Alpha Forge</h1>
+      <span class="sub">wireframes · v0.1 · round 1</span>
+    </div>
+    <div class="meta">
+      <span><span class="dot"></span> low-fi exploration</span>
+      <span>2026.04.22</span>
+      <span>desktop 1440</span>
+    </div>
+  </div>
+
+  <!-- SCREEN TABS -->
+  <div class="tabs" id="screenTabs">
+    <button class="tab active" data-pane="terminal"><span class="num">01</span>Terminal</button>
+    <button class="tab" data-pane="portfolio"><span class="num">02</span>Portfolio</button>
+    <button class="tab" data-pane="loading"><span class="num">03</span>Loading / Splash</button>
+  </div>
+
+  <!-- ================= TERMINAL PANE ================= -->
+  <div class="pane active" id="pane-terminal" data-screen-label="01 Terminal">
+
+    <div class="subtabs" id="terminalSubtabs">
+      <button class="subtab active" data-variant="t1"><span class="vn">V1</span>Orbital Calm</button>
+      <button class="subtab" data-variant="t2"><span class="vn">V2</span>Command Deck</button>
+      <button class="subtab" data-variant="t3"><span class="vn">V3</span>Split Brain</button>
+      <button class="subtab" data-variant="t4"><span class="vn">V4</span>Voice-First Stage</button>
+    </div>
+
+    <!-- V1: ORBITAL CALM (closest to current hi-fi) -->
+    <div class="variant active" data-variant="t1">
+      <div class="v-caption">
+        <div>
+          <div class="title">V1 · Orbital Calm</div>
+          <div class="desc">Closest to today's hi-fi. Orb anchors center, voice bar fixed at bottom, reading shards float around the edges. Breathing room over density.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">terminal · v1</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- top bar -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:52px;" class="sk soft">
+          <div style="position:absolute;left:18px;top:14px;" class="hand-alt" >ALPHA FORGE</div>
+          <div style="position:absolute;left:50%;top:18px;transform:translateX(-50%);display:flex;gap:28px" class="tag">
+            <span class="amber">Terminal</span><span class="muted">Portfolio</span><span class="muted">Markets</span><span class="muted">Screener</span>
+          </div>
+          <div style="position:absolute;right:18px;top:14px;display:flex;gap:14px" class="tag muted">⌘K · ▢ · ◔</div>
+        </div>
+
+        <!-- sidebar -->
+        <div style="position:absolute;left:24px;top:96px;bottom:120px;width:64px" class="sk ghost">
+          <div class="col" style="padding:14px 0;align-items:center;gap:22px">
+            <div class="sk amber" style="width:36px;height:36px"></div>
+            <div class="sk ghost" style="width:36px;height:36px"></div>
+            <div class="sk ghost" style="width:36px;height:36px"></div>
+            <div class="sk ghost" style="width:36px;height:36px"></div>
+          </div>
+        </div>
+
+        <!-- left shard: alpha brief -->
+        <div style="position:absolute;left:108px;top:96px;width:260px;height:340px" class="sk">
+          <div style="padding:16px">
+            <div class="tag amber">⚡ ALPHA BRIEF</div>
+            <div style="margin-top:12px" class="hline soft"></div>
+            <div class="tag amber" style="margin-top:12px">MARKET SENTIMENT</div>
+            <div style="margin-top:6px"><span class="squig"></span><span class="squig" style="width:85%"></span><span class="squig" style="width:70%"></span></div>
+            <div class="tag muted" style="margin-top:16px">RISK ALERT</div>
+            <div style="margin-top:6px"><span class="squig"></span><span class="squig" style="width:80%"></span><span class="squig" style="width:60%"></span></div>
+            <div class="tag muted" style="margin-top:16px">NEXT ACTION</div>
+            <div style="margin-top:6px"><span class="squig" style="width:75%"></span><span class="squig" style="width:55%"></span></div>
+          </div>
+        </div>
+
+        <!-- right shard: watchlist -->
+        <div style="position:absolute;right:24px;top:96px;width:260px;height:440px" class="sk">
+          <div style="padding:16px">
+            <div style="display:flex;justify-content:space-between">
+              <div class="tag">WATCHLIST</div><div class="tag muted">+</div>
+            </div>
+            <div class="hline soft" style="margin-top:10px"></div>
+            <!-- rows -->
+            <div style="margin-top:14px" class="col">
+              <div class="row" style="justify-content:space-between;align-items:center">
+                <div class="row" style="gap:8px;align-items:center">
+                  <div class="sk ghost" style="width:28px;height:28px"></div>
+                  <div>
+                    <div style="font-weight:700">RELIANCE</div>
+                    <div class="tag muted">NSE</div>
+                  </div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-weight:700">₹2,914</div>
+                  <div class="tag" style="color:var(--green)">+1.2%</div>
+                </div>
+              </div>
+              <div class="row" style="justify-content:space-between;align-items:center">
+                <div class="row" style="gap:8px;align-items:center">
+                  <div class="sk ghost" style="width:28px;height:28px"></div>
+                  <div><div style="font-weight:700">INFY</div><div class="tag muted">NSE</div></div>
+                </div>
+                <div style="text-align:right"><div style="font-weight:700">₹1,612</div><div class="tag" style="color:var(--green)">+0.8%</div></div>
+              </div>
+              <div class="row" style="justify-content:space-between;align-items:center">
+                <div class="row" style="gap:8px;align-items:center">
+                  <div class="sk ghost" style="width:28px;height:28px"></div>
+                  <div><div style="font-weight:700">HDFCBANK</div><div class="tag muted">NSE</div></div>
+                </div>
+                <div style="text-align:right"><div style="font-weight:700">₹1,488</div><div class="tag" style="color:var(--red)">-0.4%</div></div>
+              </div>
+              <div class="row" style="justify-content:space-between;align-items:center">
+                <div class="row" style="gap:8px;align-items:center">
+                  <div class="sk ghost" style="width:28px;height:28px"></div>
+                  <div><div style="font-weight:700">NVDA</div><div class="tag muted">NASDAQ</div></div>
+                </div>
+                <div style="text-align:right"><div style="font-weight:700">$894.20</div><div class="tag" style="color:var(--green)">+1.8%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- center orb -->
+        <div style="position:absolute;left:50%;top:220px;transform:translateX(-50%);text-align:center">
+          <div class="solar" style="width:220px;height:220px;margin:0 auto"></div>
+          <div class="tag amber" style="margin-top:18px">· READY ·</div>
+          <div class="hand-alt" style="font-size:22px;margin-top:4px">What do you want to know?</div>
+        </div>
+
+        <!-- bottom stat cards -->
+        <div style="position:absolute;left:50%;bottom:130px;transform:translateX(-50%);display:flex;gap:20px">
+          <div class="sk" style="width:220px;padding:12px 16px">
+            <div class="tag muted">NET WORTH</div>
+            <div style="font-family:'Architects Daughter';font-size:28px;letter-spacing:-.02em">₹1.28 Cr</div>
+            <div class="tag" style="color:var(--green)">▲ 1.2% today</div>
+          </div>
+          <div class="sk" style="width:220px;padding:12px 16px">
+            <div class="tag muted">ALLOCATION</div>
+            <div class="row" style="margin-top:6px;align-items:end;gap:6px;height:36px">
+              <div style="width:10px;height:100%;background:var(--amber)"></div>
+              <div style="width:10px;height:60%;background:var(--ink-4)"></div>
+              <div style="width:10px;height:40%;background:var(--ink-4)"></div>
+              <div style="width:10px;height:25%;background:var(--ink-4)"></div>
+            </div>
+            <div class="tag muted" style="margin-top:4px">EQ · DEBT · CRYPTO · GOLD</div>
+          </div>
+        </div>
+
+        <!-- bottom voice bar -->
+        <div style="position:absolute;left:24px;right:24px;bottom:24px;height:72px" class="sk">
+          <div class="row" style="align-items:center;height:100%;padding:0 20px;gap:20px">
+            <div class="solar" style="width:36px;height:36px"></div>
+            <div>
+              <div class="hand-alt amber" style="color:var(--amber);font-size:18px">Listening…</div>
+              <div class="tag muted">NEURAL INTERFACE</div>
+            </div>
+            <div style="flex:1;display:flex;gap:4px;align-items:center;justify-content:center">
+              <div style="width:3px;height:14px;background:var(--amber)"></div>
+              <div style="width:3px;height:28px;background:var(--amber)"></div>
+              <div style="width:3px;height:20px;background:var(--amber)"></div>
+              <div style="width:3px;height:34px;background:var(--amber)"></div>
+              <div style="width:3px;height:22px;background:var(--amber)"></div>
+              <div style="width:3px;height:12px;background:var(--amber)"></div>
+              <div style="width:3px;height:26px;background:var(--amber)"></div>
+            </div>
+            <div class="hand" style="font-style:italic;opacity:.6;max-width:340px">"Alpha, show me exposure to AI stocks…"</div>
+            <div class="pill filled">DEPLOY ▸</div>
+          </div>
+        </div>
+
+        <!-- annotations -->
+        <div class="note amber" style="top:96px;left:400px">orb = single AI focal point</div>
+        <div class="note" style="top:470px;right:300px;max-width:180px">watchlist mixes NSE + global tickers</div>
+        <div class="note amber" style="bottom:110px;left:60px;max-width:200px">voice bar is persistent across all screens — always ready</div>
+      </div>
+    </div>
+
+    <!-- V2: COMMAND DECK (dense, data-first) -->
+    <div class="variant" data-variant="t2">
+      <div class="v-caption">
+        <div>
+          <div class="title">V2 · Command Deck</div>
+          <div class="desc">Bloomberg-inspired density. Data first, orb minimized to a pulse in the corner. Command palette (⌘K) replaces voice as primary AI surface. For power users.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">terminal · v2</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- top strip -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:40px" class="sk soft">
+          <div style="display:flex;align-items:center;height:100%;padding:0 14px;gap:22px" class="tag">
+            <span class="hand-alt" style="font-size:16px">ALPHA FORGE</span>
+            <span class="amber">TERMINAL</span>
+            <span class="muted">PORTFOLIO</span>
+            <span class="muted">MARKETS</span>
+            <span class="muted">SCREENER</span>
+            <span class="muted">CHAT</span>
+            <span style="flex:1"></span>
+            <span class="mono">NIFTY 22,147 ▲0.4%</span>
+            <span class="mono" style="color:var(--green)">SENSEX 72,880 ▲0.5%</span>
+            <span class="mono" style="color:var(--red)">USD/INR 83.41 ▼</span>
+          </div>
+        </div>
+
+        <!-- ⌘K command bar -->
+        <div style="position:absolute;top:80px;left:24px;right:24px;height:46px" class="sk amber">
+          <div class="row" style="align-items:center;height:100%;padding:0 16px;gap:14px">
+            <span class="tag amber">⌘K · ASK ALPHA</span>
+            <span class="hand" style="opacity:.5;flex:1">type or speak — "what moved my portfolio today?"</span>
+            <span class="tag muted">↵ run</span>
+          </div>
+        </div>
+
+        <!-- 3-column grid -->
+        <div style="position:absolute;left:24px;top:142px;right:24px;bottom:24px;display:grid;grid-template-columns:1fr 1fr 320px;gap:14px">
+
+          <!-- col 1: positions table -->
+          <div class="sk" style="padding:14px;overflow:hidden">
+            <div class="row" style="justify-content:space-between">
+              <div class="tag">POSITIONS · 12</div>
+              <div class="tag muted">P&L TODAY · +₹14,821</div>
+            </div>
+            <div class="hline soft" style="margin:10px 0"></div>
+            <div class="col" style="gap:8px">
+              <div class="row" style="justify-content:space-between" class="mono"><span>RELIANCE &nbsp;·&nbsp; 120</span><span class="mono">₹2,914</span><span class="mono" style="color:var(--green)">+1.2%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">INFY · 250</span><span class="mono">₹1,612</span><span class="mono" style="color:var(--green)">+0.8%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">HDFCBANK · 80</span><span class="mono">₹1,488</span><span class="mono" style="color:var(--red)">-0.4%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">TCS · 60</span><span class="mono">₹3,962</span><span class="mono" style="color:var(--green)">+0.2%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">ITC · 400</span><span class="mono">₹416</span><span class="mono" style="color:var(--red)">-0.9%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">NVDA · 20</span><span class="mono">$894.20</span><span class="mono" style="color:var(--green)">+1.8%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono">BTC · 0.25</span><span class="mono">$64,281</span><span class="mono" style="color:var(--green)">+2.4%</span></div>
+              <div class="row" style="justify-content:space-between"><span class="mono" style="opacity:.5">… 5 more</span><span></span><span></span></div>
+            </div>
+            <div class="hline dashed" style="margin:14px 0"></div>
+            <div class="tag">INTRADAY CHART</div>
+            <div class="sk ghost" style="height:120px;margin-top:8px" class="ph-diag">
+              <svg viewBox="0 0 300 100" preserveAspectRatio="none" style="width:100%;height:100%">
+                <polyline points="0,70 30,60 60,65 90,50 120,55 150,40 180,45 210,30 240,35 270,20 300,25" fill="none" stroke="#111" stroke-width="2"/>
+                <polyline points="0,75 30,70 60,72 90,62 120,66 150,55 180,58 210,48 240,52 270,40 300,44" fill="none" stroke="#ff8f00" stroke-width="2" stroke-dasharray="3 3"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- col 2: screener + alerts -->
+          <div class="col">
+            <div class="sk" style="padding:14px;flex:1">
+              <div class="row" style="justify-content:space-between">
+                <div class="tag">ML SCREENER · TOP SIGNALS</div>
+                <div class="pill amber">LIVE</div>
+              </div>
+              <div class="hline soft" style="margin:10px 0"></div>
+              <div class="col" style="gap:10px">
+                <div class="row" style="justify-content:space-between;align-items:center">
+                  <div><div style="font-weight:700">BHARTIARTL</div><div class="tag muted">momentum · earnings gap</div></div>
+                  <div class="pill amber">0.91</div>
+                </div>
+                <div class="row" style="justify-content:space-between;align-items:center">
+                  <div><div style="font-weight:700">TATAMOTORS</div><div class="tag muted">mean-revert · oversold</div></div>
+                  <div class="pill">0.84</div>
+                </div>
+                <div class="row" style="justify-content:space-between;align-items:center">
+                  <div><div style="font-weight:700">ADANIENT</div><div class="tag muted">volume breakout</div></div>
+                  <div class="pill">0.79</div>
+                </div>
+                <div class="row" style="justify-content:space-between;align-items:center">
+                  <div><div style="font-weight:700">POLYCAB</div><div class="tag muted">sector rotation</div></div>
+                  <div class="pill">0.71</div>
+                </div>
+              </div>
+            </div>
+            <div class="sk" style="padding:14px;flex:0 0 auto">
+              <div class="tag">ALERTS · 3</div>
+              <div class="hline soft" style="margin:8px 0"></div>
+              <div class="col" style="gap:6px">
+                <div class="row" style="justify-content:space-between"><span>RELIANCE above ₹2,900</span><span class="tag muted">07:42</span></div>
+                <div class="row" style="justify-content:space-between"><span>NIFTY IV > 14</span><span class="tag muted">09:15</span></div>
+                <div class="row" style="justify-content:space-between"><span>Screener: new signal</span><span class="tag amber">just now</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- col 3: orb + brief -->
+          <div class="col">
+            <div class="sk" style="padding:16px;position:relative">
+              <div class="tag">ALPHA BRIEF</div>
+              <div class="solar" style="width:72px;height:72px;position:absolute;top:14px;right:14px"></div>
+              <div class="hline soft" style="margin:14px 0"></div>
+              <div class="tag amber">MARKET SENTIMENT</div>
+              <div style="margin-top:6px"><span class="squig"></span><span class="squig" style="width:80%"></span><span class="squig" style="width:65%"></span></div>
+              <div class="tag muted" style="margin-top:14px">TODAY'S THESIS</div>
+              <div style="margin-top:6px"><span class="squig" style="width:90%"></span><span class="squig" style="width:70%"></span></div>
+            </div>
+            <div class="sk" style="padding:14px;flex:1">
+              <div class="tag">RISK METER</div>
+              <div class="hline soft" style="margin:8px 0"></div>
+              <div class="row" style="align-items:end;gap:6px;height:70px;margin-top:6px">
+                <div style="flex:1;height:30%;background:var(--ink-4)"></div>
+                <div style="flex:1;height:60%;background:var(--ink-4)"></div>
+                <div style="flex:1;height:92%;background:var(--amber)"></div>
+                <div style="flex:1;height:44%;background:var(--ink-4)"></div>
+                <div style="flex:1;height:72%;background:var(--ink-4)"></div>
+              </div>
+              <div class="row" style="justify-content:space-between;margin-top:8px"><span class="tag">CONFIDENCE</span><span class="tag amber">88.4%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note" style="top:70px;left:320px">top strip = always-on market pulse</div>
+        <div class="note amber" style="top:130px;right:300px">⌘K replaces voice bar as primary AI entry</div>
+        <div class="note" style="bottom:40px;left:44px;max-width:200px">density-first: real tables, not oversized cards</div>
+      </div>
+    </div>
+
+    <!-- V3: SPLIT BRAIN (chat + canvas) -->
+    <div class="variant" data-variant="t3">
+      <div class="v-caption">
+        <div>
+          <div class="title">V3 · Split Brain</div>
+          <div class="desc">Persistent chat drawer on the left, data canvas on the right. Alpha responds with inline charts, tables, and action buttons. Conversational, but with the data always visible beside the reasoning.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">terminal · v3</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- top nav -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:46px" class="sk soft">
+          <div class="row" style="align-items:center;height:100%;padding:0 16px;gap:22px" class="tag">
+            <span class="hand-alt" style="font-size:17px">ALPHA FORGE</span>
+            <span class="amber">TERMINAL</span><span class="muted">PORTFOLIO</span><span class="muted">MARKETS</span>
+            <span style="flex:1"></span>
+            <span class="tag muted">⌘K</span><span class="tag muted">◉ user</span>
+          </div>
+        </div>
+
+        <!-- left chat -->
+        <div style="position:absolute;left:24px;top:86px;bottom:24px;width:440px" class="sk">
+          <div style="padding:14px;height:100%;display:flex;flex-direction:column;gap:10px">
+            <div class="row" style="justify-content:space-between">
+              <div class="row" style="gap:8px;align-items:center">
+                <div class="solar" style="width:28px;height:28px"></div>
+                <div><div style="font-weight:700">ALPHA</div><div class="tag muted">GEMINI · 2.0</div></div>
+              </div>
+              <div class="tag muted">◐ + ⟲</div>
+            </div>
+            <div class="hline soft"></div>
+
+            <!-- chat scroll -->
+            <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:14px">
+              <!-- user -->
+              <div style="align-self:flex-end;max-width:80%" class="sk soft" >
+                <div style="padding:8px 12px"><span class="squig" style="width:85%"></span><span class="squig" style="width:60%"></span></div>
+              </div>
+              <!-- alpha -->
+              <div>
+                <div class="tag amber">ALPHA · 2s</div>
+                <div style="margin-top:6px"><span class="squig"></span><span class="squig" style="width:88%"></span><span class="squig" style="width:72%"></span></div>
+                <div class="sk ghost" style="margin-top:10px;padding:8px 10px">
+                  <div class="tag">EXPOSURE · AI BASKET</div>
+                  <svg viewBox="0 0 200 40" style="width:100%;height:36px;margin-top:4px">
+                    <polyline points="0,30 20,22 40,24 60,14 80,18 100,10 120,14 140,6 160,10 180,4 200,8" fill="none" stroke="#ff8f00" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="row" style="margin-top:8px;gap:6px">
+                  <span class="pill">Rebalance ▸</span><span class="pill">Backtest</span><span class="pill amber">Save note</span>
+                </div>
+              </div>
+              <!-- user -->
+              <div style="align-self:flex-end;max-width:80%" class="sk soft">
+                <div style="padding:8px 12px"><span class="squig" style="width:70%"></span></div>
+              </div>
+              <!-- alpha typing -->
+              <div>
+                <div class="tag amber">ALPHA · typing…</div>
+                <div class="row" style="gap:4px;margin-top:6px">
+                  <div style="width:6px;height:6px;background:var(--amber);border-radius:50%"></div>
+                  <div style="width:6px;height:6px;background:var(--amber);border-radius:50%;opacity:.6"></div>
+                  <div style="width:6px;height:6px;background:var(--amber);border-radius:50%;opacity:.3"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sk amber" style="padding:10px 12px">
+              <div class="row" style="align-items:center;gap:10px">
+                <span class="tag amber">🎤</span>
+                <span class="hand" style="opacity:.55;flex:1">ask anything · voice or text</span>
+                <span class="tag muted">↵</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- right canvas -->
+        <div style="position:absolute;left:484px;right:24px;top:86px;bottom:24px;display:grid;grid-template-rows:1fr 1fr;gap:14px">
+          <!-- chart -->
+          <div class="sk" style="padding:14px;position:relative">
+            <div class="row" style="justify-content:space-between">
+              <div><div class="tag">NET WORTH · 1Y</div><div class="hand-alt" style="font-size:26px;margin-top:2px">₹1,28,45,000</div></div>
+              <div class="row" style="gap:4px">
+                <span class="pill">1D</span><span class="pill">1W</span><span class="pill">1M</span><span class="pill filled">1Y</span><span class="pill">ALL</span>
+              </div>
+            </div>
+            <svg viewBox="0 0 600 160" preserveAspectRatio="none" style="width:100%;height:160px;margin-top:12px">
+              <defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#ff8f00" stop-opacity=".3"/><stop offset="100%" stop-color="#ff8f00" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0,120 C50,110 80,130 130,100 C180,70 220,90 270,60 C320,30 360,70 410,50 C460,30 500,20 550,30 L600,20 L600,160 L0,160 Z" fill="url(#g1)"/>
+              <path d="M0,120 C50,110 80,130 130,100 C180,70 220,90 270,60 C320,30 360,70 410,50 C460,30 500,20 550,30 L600,20" fill="none" stroke="#ff8f00" stroke-width="2"/>
+            </svg>
+          </div>
+          <!-- row of cards -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+            <div class="sk" style="padding:14px">
+              <div class="tag">HOLDINGS · 12</div>
+              <div class="hline soft" style="margin:8px 0"></div>
+              <div class="col" style="gap:6px" class="mono">
+                <div class="row" style="justify-content:space-between" ><span class="mono">RELIANCE</span><span class="mono" style="color:var(--green)">+1.2%</span></div>
+                <div class="row" style="justify-content:space-between"><span class="mono">INFY</span><span class="mono" style="color:var(--green)">+0.8%</span></div>
+                <div class="row" style="justify-content:space-between"><span class="mono">HDFC</span><span class="mono" style="color:var(--red)">-0.4%</span></div>
+                <div class="row" style="justify-content:space-between"><span class="mono">TCS</span><span class="mono" style="color:var(--green)">+0.2%</span></div>
+              </div>
+            </div>
+            <div class="sk" style="padding:14px">
+              <div class="tag">ALLOCATION</div>
+              <div class="hline soft" style="margin:8px 0"></div>
+              <div class="center" style="height:80px">
+                <div style="position:relative;width:80px;height:80px">
+                  <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--amber) 0 45%, var(--ink) 45% 75%, var(--ink-4) 75% 100%)"></div>
+                  <div style="position:absolute;inset:18px;background:var(--paper-2);border-radius:50%"></div>
+                </div>
+              </div>
+              <div class="tag muted" style="text-align:center">EQ · DEBT · CRYPTO</div>
+            </div>
+            <div class="sk" style="padding:14px">
+              <div class="tag">SCREENER</div>
+              <div class="hline soft" style="margin:8px 0"></div>
+              <div class="col" style="gap:6px">
+                <div class="row" style="justify-content:space-between"><span>BHARTIARTL</span><span class="pill amber">0.91</span></div>
+                <div class="row" style="justify-content:space-between"><span>TATAMOTORS</span><span class="pill">0.84</span></div>
+                <div class="row" style="justify-content:space-between"><span>ADANIENT</span><span class="pill">0.79</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note amber" style="top:96px;left:480px;max-width:240px">canvas updates in sync with the chat — every answer points to a visual</div>
+        <div class="note" style="top:440px;left:20px;max-width:180px">rich replies: charts, tables, action buttons</div>
+      </div>
+    </div>
+
+    <!-- V4: VOICE-FIRST STAGE -->
+    <div class="variant" data-variant="t4">
+      <div class="v-caption">
+        <div>
+          <div class="title">V4 · Voice-First Stage</div>
+          <div class="desc">Radical voice-first. Orb takes the whole stage. Data collapses into thin glanceable strips at top and bottom. You speak — the stage responds with a generated dashboard. No hunting in menus.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">terminal · v4</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- thin top strip -->
+        <div style="position:absolute;top:20px;left:24px;right:24px;height:28px" class="sk ghost">
+          <div class="row" style="align-items:center;height:100%;padding:0 12px;gap:20px" class="mono" style="font-size:11px">
+            <span class="hand-alt" style="font-size:14px">ALPHA FORGE</span>
+            <span>NIFTY 22,147 ▲</span><span>SENSEX 72,880 ▲</span><span>USDINR 83.41 ▼</span><span>BTC $64.2k ▲</span>
+            <span style="flex:1"></span><span class="tag amber">· LIVE</span>
+          </div>
+        </div>
+
+        <!-- big orb stage -->
+        <div style="position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);text-align:center;width:80%">
+          <div class="solar" style="width:320px;height:320px;margin:0 auto"></div>
+          <div class="tag amber" style="margin-top:28px;font-size:12px">· LISTENING ·</div>
+          <div class="hand-alt" style="font-size:40px;margin-top:10px;line-height:1.05;max-width:720px;margin-left:auto;margin-right:auto">"show me what's moving in Nifty IT today"</div>
+          <div class="row" style="justify-content:center;gap:6px;margin-top:22px;align-items:center;height:40px">
+            <div style="width:4px;height:16px;background:var(--amber)"></div>
+            <div style="width:4px;height:32px;background:var(--amber)"></div>
+            <div style="width:4px;height:22px;background:var(--amber)"></div>
+            <div style="width:4px;height:40px;background:var(--amber)"></div>
+            <div style="width:4px;height:26px;background:var(--amber)"></div>
+            <div style="width:4px;height:34px;background:var(--amber)"></div>
+            <div style="width:4px;height:18px;background:var(--amber)"></div>
+            <div style="width:4px;height:28px;background:var(--amber)"></div>
+            <div style="width:4px;height:14px;background:var(--amber)"></div>
+          </div>
+        </div>
+
+        <!-- bottom stat strip -->
+        <div style="position:absolute;left:24px;right:24px;bottom:72px;height:76px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+          <div class="sk" style="padding:10px 14px">
+            <div class="tag muted">NET WORTH</div>
+            <div class="hand-alt" style="font-size:22px">₹1.28 Cr</div>
+            <div class="tag" style="color:var(--green)">▲ 1.2% today</div>
+          </div>
+          <div class="sk" style="padding:10px 14px">
+            <div class="tag muted">TODAY P&L</div>
+            <div class="hand-alt" style="font-size:22px">+₹14,821</div>
+            <div class="tag muted">12 positions</div>
+          </div>
+          <div class="sk" style="padding:10px 14px">
+            <div class="tag muted">CONFIDENCE</div>
+            <div class="hand-alt" style="font-size:22px">88.4%</div>
+            <div class="tag amber">orb pulse strong</div>
+          </div>
+          <div class="sk" style="padding:10px 14px">
+            <div class="tag muted">ALERTS</div>
+            <div class="hand-alt" style="font-size:22px">3</div>
+            <div class="tag muted">1 unread · screener</div>
+          </div>
+        </div>
+
+        <!-- bottom command hint -->
+        <div style="position:absolute;left:24px;right:24px;bottom:20px;height:40px" class="sk amber">
+          <div class="row" style="align-items:center;height:100%;padding:0 14px;gap:14px">
+            <span class="tag amber">🎤 TAP TO SPEAK</span>
+            <span style="flex:1" class="hand" style="opacity:.55">or type / press space to silence</span>
+            <span class="tag muted">ESC to minimise · ⌘K for menu</span>
+          </div>
+        </div>
+
+        <div class="note amber" style="top:80px;left:40%;max-width:220px">orb grows to fill the stage — Alpha is the interface</div>
+        <div class="note" style="bottom:170px;right:30px;max-width:180px">dashboard materialises below only after you ask</div>
+        <div class="note" style="top:40px;right:200px;max-width:200px">live ticker is the only persistent data</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= PORTFOLIO PANE ================= -->
+  <div class="pane" id="pane-portfolio" data-screen-label="02 Portfolio">
+
+    <div class="subtabs" id="portfolioSubtabs">
+      <button class="subtab active" data-variant="p1"><span class="vn">V1</span>Ledger</button>
+      <button class="subtab" data-variant="p2"><span class="vn">V2</span>Treemap Atlas</button>
+      <button class="subtab" data-variant="p3"><span class="vn">V3</span>Narrative Portfolio</button>
+    </div>
+
+    <!-- P1: LEDGER (table-first) -->
+    <div class="variant active" data-variant="p1">
+      <div class="v-caption">
+        <div>
+          <div class="title">V1 · Ledger</div>
+          <div class="desc">Classic broker statement, upgraded. Sort, filter, group by asset class. P&L curve sits on top. The orb becomes a floating "ask Alpha about this row" button per line.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">portfolio · v1</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- nav -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:40px" class="sk soft">
+          <div class="row" style="align-items:center;height:100%;padding:0 16px;gap:22px" class="tag">
+            <span class="hand-alt" style="font-size:16px">ALPHA FORGE</span>
+            <span class="muted">TERMINAL</span><span class="amber">PORTFOLIO</span><span class="muted">MARKETS</span><span class="muted">SCREENER</span>
+            <span style="flex:1"></span>
+            <span class="tag muted">ZERODHA · synced 2m ago</span>
+          </div>
+        </div>
+
+        <!-- summary strip -->
+        <div style="position:absolute;left:24px;top:82px;right:24px;height:110px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:14px">
+          <div class="sk" style="padding:12px 16px">
+            <div class="tag muted">TOTAL VALUE</div>
+            <div class="hand-alt" style="font-size:40px;line-height:1">₹1,28,45,000</div>
+            <div class="tag" style="color:var(--green)">▲ ₹1,52,330 · 1.2% today</div>
+            <svg viewBox="0 0 200 40" style="width:100%;height:32px;margin-top:6px">
+              <polyline points="0,30 20,26 40,28 60,22 80,24 100,16 120,20 140,10 160,14 180,6 200,10" fill="none" stroke="#ff8f00" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="sk" style="padding:12px 16px">
+            <div class="tag muted">INVESTED</div>
+            <div class="hand-alt" style="font-size:28px">₹98,20,000</div>
+            <div class="tag muted">since 2021 · 34 lots</div>
+          </div>
+          <div class="sk" style="padding:12px 16px">
+            <div class="tag muted">UNREALIZED P&L</div>
+            <div class="hand-alt" style="font-size:28px;color:var(--green)">+₹30,25,000</div>
+            <div class="tag" style="color:var(--green)">+30.8% overall</div>
+          </div>
+          <div class="sk" style="padding:12px 16px">
+            <div class="tag muted">XIRR</div>
+            <div class="hand-alt" style="font-size:28px">17.4%</div>
+            <div class="tag muted">vs NIFTY 14.1%</div>
+          </div>
+        </div>
+
+        <!-- tabs -->
+        <div style="position:absolute;left:24px;top:204px;right:24px" class="row" style="gap:8px">
+          <span class="pill filled">EQUITY · 12</span><span class="pill">MUTUAL FUNDS · 6</span><span class="pill">CRYPTO · 3</span><span class="pill">DEBT · 2</span><span class="pill">GOLD · 1</span>
+          <span style="flex:1"></span>
+          <span class="pill ghost">+ SORT</span><span class="pill ghost">⌕ SEARCH</span>
+        </div>
+
+        <!-- table -->
+        <div style="position:absolute;left:24px;top:250px;right:24px;bottom:24px" class="sk">
+          <div style="padding:14px 16px;height:100%;display:flex;flex-direction:column">
+            <div class="row" class="tag" style="padding:4px 0;border-bottom:2px solid var(--ink)">
+              <div style="flex:2"><span class="tag">SYMBOL</span></div>
+              <div style="flex:1;text-align:right"><span class="tag">QTY</span></div>
+              <div style="flex:1;text-align:right"><span class="tag">AVG</span></div>
+              <div style="flex:1;text-align:right"><span class="tag">LTP</span></div>
+              <div style="flex:1;text-align:right"><span class="tag">VALUE</span></div>
+              <div style="flex:1;text-align:right"><span class="tag">P&L</span></div>
+              <div style="flex:2"><span class="tag">7D</span></div>
+              <div style="flex:.5;text-align:right"><span class="tag">ALPHA</span></div>
+            </div>
+
+            <!-- rows -->
+            <div style="flex:1;display:flex;flex-direction:column" class="mono">
+              <!-- row -->
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">RELIANCE</div><div class="tag muted">energy · lg-cap</div></div>
+                <div style="flex:1;text-align:right">120</div>
+                <div style="flex:1;text-align:right">₹2,410</div>
+                <div style="flex:1;text-align:right">₹2,914</div>
+                <div style="flex:1;text-align:right">₹3.50L</div>
+                <div style="flex:1;text-align:right;color:var(--green)">+₹60,480</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,20 12,18 24,22 36,14 48,16 60,10 72,14 84,8 96,12 108,6 120,8" fill="none" stroke="#2f7a3a" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">INFY</div><div class="tag muted">IT · lg-cap</div></div>
+                <div style="flex:1;text-align:right">250</div>
+                <div style="flex:1;text-align:right">₹1,410</div>
+                <div style="flex:1;text-align:right">₹1,612</div>
+                <div style="flex:1;text-align:right">₹4.03L</div>
+                <div style="flex:1;text-align:right;color:var(--green)">+₹50,500</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,16 12,18 24,14 36,16 48,12 60,14 72,10 84,12 96,8 108,10 120,6" fill="none" stroke="#2f7a3a" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">HDFCBANK</div><div class="tag muted">banking · lg-cap</div></div>
+                <div style="flex:1;text-align:right">80</div>
+                <div style="flex:1;text-align:right">₹1,560</div>
+                <div style="flex:1;text-align:right">₹1,488</div>
+                <div style="flex:1;text-align:right">₹1.19L</div>
+                <div style="flex:1;text-align:right;color:var(--red)">−₹5,760</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,8 12,10 24,14 36,12 48,16 60,18 72,14 84,18 96,20 108,16 120,22" fill="none" stroke="#c43a12" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">TCS</div><div class="tag muted">IT · lg-cap</div></div>
+                <div style="flex:1;text-align:right">60</div>
+                <div style="flex:1;text-align:right">₹3,720</div>
+                <div style="flex:1;text-align:right">₹3,962</div>
+                <div style="flex:1;text-align:right">₹2.37L</div>
+                <div style="flex:1;text-align:right;color:var(--green)">+₹14,520</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,14 12,12 24,14 36,10 48,12 60,8 72,10 84,6 96,8 108,4 120,8" fill="none" stroke="#2f7a3a" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">ITC</div><div class="tag muted">FMCG</div></div>
+                <div style="flex:1;text-align:right">400</div>
+                <div style="flex:1;text-align:right">₹380</div>
+                <div style="flex:1;text-align:right">₹416</div>
+                <div style="flex:1;text-align:right">₹1.66L</div>
+                <div style="flex:1;text-align:right;color:var(--green)">+₹14,400</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,14 12,16 24,18 36,14 48,16 60,12 72,14 84,16 96,12 108,10 120,8" fill="none" stroke="#2f7a3a" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+              <div class="row" style="padding:8px 0;border-bottom:1px dashed var(--ink-4);align-items:center">
+                <div style="flex:2"><div style="font-weight:700">NVDA</div><div class="tag muted">semis · US</div></div>
+                <div style="flex:1;text-align:right">20</div>
+                <div style="flex:1;text-align:right">$520</div>
+                <div style="flex:1;text-align:right">$894</div>
+                <div style="flex:1;text-align:right">$17.8k</div>
+                <div style="flex:1;text-align:right;color:var(--green)">+$7,480</div>
+                <div style="flex:2"><svg class="spark" viewBox="0 0 120 28"><polyline points="0,22 12,18 24,16 36,12 48,14 60,8 72,10 84,4 96,6 108,2 120,4" fill="none" stroke="#2f7a3a" stroke-width="1.5"/></svg></div>
+                <div style="flex:.5;text-align:right"><span class="solar" style="width:18px;height:18px;display:inline-block;vertical-align:middle"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note amber" style="top:240px;right:60px;max-width:180px">per-row orb = "ask Alpha about this position"</div>
+        <div class="note" style="top:84px;left:260px">live XIRR vs benchmark, not just absolute P&L</div>
+      </div>
+    </div>
+
+    <!-- P2: TREEMAP ATLAS -->
+    <div class="variant" data-variant="p2">
+      <div class="v-caption">
+        <div>
+          <div class="title">V2 · Treemap Atlas</div>
+          <div class="desc">Portfolio as a living map. Rectangles sized by position value, coloured by today's P&L. Hover for detail. Side rail shows rebalance suggestions from Alpha.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">portfolio · v2</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- nav -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:40px" class="sk soft">
+          <div class="row" style="align-items:center;height:100%;padding:0 16px;gap:22px" class="tag">
+            <span class="hand-alt" style="font-size:16px">ALPHA FORGE</span>
+            <span class="muted">TERMINAL</span><span class="amber">PORTFOLIO</span><span class="muted">MARKETS</span>
+            <span style="flex:1"></span><span class="tag amber">₹1.28 Cr · ▲1.2%</span>
+          </div>
+        </div>
+
+        <!-- controls -->
+        <div style="position:absolute;top:82px;left:24px;right:24px" class="row" style="gap:8px;align-items:center">
+          <span class="pill filled">SIZE · VALUE</span><span class="pill">SIZE · WEIGHT</span>
+          <span style="width:14px"></span>
+          <span class="pill filled">COLOR · DAY P&L</span><span class="pill">COLOR · 1Y</span><span class="pill">COLOR · SECTOR</span>
+          <span style="flex:1"></span>
+          <span class="pill amber">ASK ALPHA ▸</span>
+        </div>
+
+        <!-- treemap -->
+        <div style="position:absolute;top:132px;left:24px;right:340px;bottom:24px" class="sk">
+          <div style="position:relative;width:100%;height:100%;padding:10px">
+            <!-- fake treemap cells -->
+            <div style="position:absolute;left:10px;top:10px;width:48%;height:55%;background:rgba(47,122,58,.35);padding:10px">
+              <div style="font-weight:700;font-size:18px">RELIANCE</div>
+              <div class="mono" style="font-size:11px">₹3.50L · +1.2%</div>
+              <div class="tag muted" style="margin-top:4px">ENERGY</div>
+            </div>
+            <div style="position:absolute;left:calc(48% + 20px);top:10px;width:28%;height:35%;background:rgba(47,122,58,.22);padding:10px">
+              <div style="font-weight:700">INFY</div>
+              <div class="mono" style="font-size:11px">₹4.03L · +0.8%</div>
+            </div>
+            <div style="position:absolute;left:calc(76% + 30px);top:10px;width:22%;height:35%;background:rgba(255,143,0,.25);padding:10px">
+              <div style="font-weight:700">TCS</div>
+              <div class="mono" style="font-size:11px">₹2.37L · +0.2%</div>
+            </div>
+            <div style="position:absolute;left:calc(48% + 20px);top:calc(35% + 20px);width:50%;height:20%;background:rgba(196,58,18,.22);padding:10px">
+              <div style="font-weight:700">HDFCBANK</div>
+              <div class="mono" style="font-size:11px">₹1.19L · −0.4%</div>
+            </div>
+            <div style="position:absolute;left:10px;top:calc(55% + 20px);width:30%;height:40%;background:rgba(47,122,58,.18);padding:10px">
+              <div style="font-weight:700">ITC</div>
+              <div class="mono" style="font-size:11px">₹1.66L · +0.3%</div>
+            </div>
+            <div style="position:absolute;left:calc(30% + 20px);top:calc(55% + 20px);width:22%;height:40%;background:rgba(47,122,58,.42);padding:10px">
+              <div style="font-weight:700">NVDA</div>
+              <div class="mono" style="font-size:11px">$17.8k · +1.8%</div>
+            </div>
+            <div style="position:absolute;left:calc(52% + 30px);top:calc(55% + 20px);width:20%;height:40%;background:rgba(47,122,58,.5);padding:10px">
+              <div style="font-weight:700">BTC</div>
+              <div class="mono" style="font-size:11px">$16.1k · +2.4%</div>
+            </div>
+            <div style="position:absolute;left:calc(72% + 40px);top:calc(55% + 20px);width:24%;height:40%;background:rgba(0,0,0,.06);padding:10px">
+              <div style="font-weight:700">MF · 6 funds</div>
+              <div class="mono" style="font-size:11px">₹14.2L · +0.6%</div>
+            </div>
+            <!-- legend -->
+            <div style="position:absolute;bottom:10px;left:10px;right:10px" class="row" style="gap:14px;align-items:center">
+              <div class="tag">TODAY P&L · </div>
+              <span class="pill" style="background:rgba(196,58,18,.3);border:none">-2%</span>
+              <div style="flex:1;height:6px;background:linear-gradient(90deg,rgba(196,58,18,.6),rgba(255,255,255,.2),rgba(47,122,58,.6))"></div>
+              <span class="pill" style="background:rgba(47,122,58,.3);border:none">+2%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- right rail: alpha rebalance -->
+        <div style="position:absolute;top:132px;right:24px;bottom:24px;width:300px" class="sk">
+          <div style="padding:16px">
+            <div class="row" style="gap:10px;align-items:center">
+              <div class="solar" style="width:28px;height:28px"></div>
+              <div class="tag amber">ALPHA · REBALANCE</div>
+            </div>
+            <div class="hline soft" style="margin:10px 0"></div>
+            <div class="hand-alt" style="font-size:18px;line-height:1.15;margin-top:4px">
+              IT is 38% of equity — Alpha flags concentration risk.
+            </div>
+            <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap">
+              <span class="pill">trim INFY 15%</span><span class="pill">trim TCS 10%</span><span class="pill">add BHARTIARTL</span>
+            </div>
+            <div class="hline dashed" style="margin:16px 0"></div>
+            <div class="tag muted">DRIFT FROM TARGET</div>
+            <div class="col" style="margin-top:8px;gap:6px">
+              <div class="row" style="justify-content:space-between"><span>Equity</span><span class="mono">+8%</span></div>
+              <div style="height:6px;background:var(--ink-4)"><div style="height:100%;width:80%;background:var(--amber)"></div></div>
+              <div class="row" style="justify-content:space-between"><span>Debt</span><span class="mono">-6%</span></div>
+              <div style="height:6px;background:var(--ink-4)"><div style="height:100%;width:40%;background:var(--ink)"></div></div>
+              <div class="row" style="justify-content:space-between"><span>Crypto</span><span class="mono">+3%</span></div>
+              <div style="height:6px;background:var(--ink-4)"><div style="height:100%;width:35%;background:var(--amber)"></div></div>
+            </div>
+            <div class="hline dashed" style="margin:16px 0"></div>
+            <div class="pill filled" style="width:100%;text-align:center;display:block">SIMULATE · BACKTEST</div>
+          </div>
+        </div>
+
+        <div class="note" style="top:130px;left:60px">size = value · color = day P&L</div>
+        <div class="note amber" style="top:180px;right:360px">hover any cell → mini chart + Alpha note</div>
+      </div>
+    </div>
+
+    <!-- P3: NARRATIVE -->
+    <div class="variant" data-variant="p3">
+      <div class="v-caption">
+        <div>
+          <div class="title">V3 · Narrative Portfolio</div>
+          <div class="desc">Portfolio as a story told by Alpha. One long scroll: "here's what you own, here's what happened today, here's what to watch tomorrow." Great for weekend review.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">portfolio · v3</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- nav -->
+        <div style="position:absolute;top:24px;left:24px;right:24px;height:40px" class="sk soft">
+          <div class="row" style="align-items:center;height:100%;padding:0 16px;gap:22px" class="tag">
+            <span class="hand-alt" style="font-size:16px">ALPHA FORGE</span>
+            <span class="muted">TERMINAL</span><span class="amber">PORTFOLIO</span><span class="muted">MARKETS</span>
+            <span style="flex:1"></span><span class="tag muted">SUN · 21:04</span>
+          </div>
+        </div>
+
+        <!-- content -->
+        <div style="position:absolute;top:82px;left:24px;right:24px;bottom:24px;display:grid;grid-template-columns:80px 1fr 300px;gap:16px">
+
+          <!-- section rail -->
+          <div class="col" style="gap:10px;padding-top:8px">
+            <div class="tag amber" style="transform:rotate(-90deg);transform-origin:left top;white-space:nowrap;position:relative;top:100px;left:28px">· OVERVIEW</div>
+          </div>
+
+          <!-- main scroll -->
+          <div style="overflow:hidden">
+            <div class="row" style="align-items:center;gap:14px">
+              <div class="solar" style="width:44px;height:44px"></div>
+              <div>
+                <div class="tag amber">ALPHA · WEEKLY BRIEF</div>
+                <div class="hand-alt" style="font-size:32px;line-height:1.05">Your portfolio had a quietly good week.</div>
+              </div>
+            </div>
+            <div class="hline soft" style="margin:14px 0"></div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+              <div class="sk" style="padding:10px 12px"><div class="tag muted">1W RETURN</div><div class="hand-alt" style="font-size:22px;color:var(--green)">+2.4%</div></div>
+              <div class="sk" style="padding:10px 12px"><div class="tag muted">vs NIFTY</div><div class="hand-alt" style="font-size:22px">+0.8%</div></div>
+              <div class="sk" style="padding:10px 12px"><div class="tag muted">ALPHA SCORE</div><div class="hand-alt" style="font-size:22px">B+</div></div>
+            </div>
+
+            <div class="tag amber">· WHAT MOVED</div>
+            <div class="hand" style="font-size:16px;margin-top:6px;line-height:1.5;max-width:680px">
+              RELIANCE is your biggest driver again — &nbsp;<span class="pill" style="background:rgba(47,122,58,.15);border:none;font-size:11px">+₹14,200</span>&nbsp; this week on energy sector strength. HDFCBANK cooled —
+              <span class="pill" style="background:rgba(196,58,18,.15);border:none;font-size:11px">−₹3,100</span>&nbsp; on banking drag. Your IT basket (INFY, TCS) held steady; together they're 38% of equity.
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+              <div class="sk" style="padding:12px">
+                <div class="tag amber">WINNERS</div>
+                <div class="col" style="margin-top:8px;gap:6px">
+                  <div class="row" style="justify-content:space-between"><span>RELIANCE</span><span class="mono" style="color:var(--green)">+₹14,200</span></div>
+                  <div class="row" style="justify-content:space-between"><span>NVDA</span><span class="mono" style="color:var(--green)">+$1,340</span></div>
+                  <div class="row" style="justify-content:space-between"><span>BTC</span><span class="mono" style="color:var(--green)">+$820</span></div>
+                </div>
+              </div>
+              <div class="sk" style="padding:12px">
+                <div class="tag muted">LOSERS</div>
+                <div class="col" style="margin-top:8px;gap:6px">
+                  <div class="row" style="justify-content:space-between"><span>HDFCBANK</span><span class="mono" style="color:var(--red)">−₹3,100</span></div>
+                  <div class="row" style="justify-content:space-between"><span>ITC</span><span class="mono" style="color:var(--red)">−₹640</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tag amber" style="margin-top:22px">· WHAT TO WATCH</div>
+            <div class="hand" style="font-size:16px;margin-top:6px;line-height:1.5;max-width:680px">
+              Nifty IT index RSI is at 72 — stretched. I'd flag INFY and TCS for a trim if momentum breaks. Screener found 3 candidates that look early-momentum; want me to pitch them?
+            </div>
+            <div class="row" style="gap:8px;margin-top:12px">
+              <span class="pill amber">Show screener picks ▸</span>
+              <span class="pill">Set rebalance rule</span>
+              <span class="pill">Save as note</span>
+            </div>
+          </div>
+
+          <!-- right: toc + actions -->
+          <div class="sk" style="padding:14px;height:fit-content">
+            <div class="tag">IN THIS BRIEF</div>
+            <div class="hline soft" style="margin:8px 0"></div>
+            <div class="col" style="gap:6px">
+              <div class="row" style="gap:8px"><span class="tag amber">01</span><span>What moved</span></div>
+              <div class="row" style="gap:8px"><span class="tag muted">02</span><span>Winners & losers</span></div>
+              <div class="row" style="gap:8px"><span class="tag muted">03</span><span>What to watch</span></div>
+              <div class="row" style="gap:8px"><span class="tag muted">04</span><span>Tax lots · Q4</span></div>
+              <div class="row" style="gap:8px"><span class="tag muted">05</span><span>Goal tracking</span></div>
+            </div>
+            <div class="hline dashed" style="margin:14px 0"></div>
+            <div class="tag amber">AUTO-GENERATED</div>
+            <div class="hand" style="font-size:13px;opacity:.7;margin-top:4px">Every Sunday 21:00. Tweakable in settings.</div>
+          </div>
+
+        </div>
+
+        <div class="note amber" style="top:120px;left:200px;max-width:240px">Alpha writes; you skim. Good for non-daily users.</div>
+        <div class="note" style="bottom:90px;right:80px;max-width:180px">TOC on right jumps between narrative sections</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= LOADING PANE ================= -->
+  <div class="pane" id="pane-loading" data-screen-label="03 Loading">
+
+    <div class="subtabs" id="loadingSubtabs">
+      <button class="subtab active" data-variant="l1"><span class="vn">V1</span>Neural Boot</button>
+      <button class="subtab" data-variant="l2"><span class="vn">V2</span>Checklist</button>
+      <button class="subtab" data-variant="l3"><span class="vn">V3</span>Orb Bloom</button>
+    </div>
+
+    <!-- L1: NEURAL BOOT (closest to current) -->
+    <div class="variant active" data-variant="l1">
+      <div class="v-caption">
+        <div>
+          <div class="title">V1 · Neural Boot</div>
+          <div class="desc">Closest to the current splash. Corner telemetry, centered logo card, progress bar. Feels like powering on an instrument.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">loading · v1</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- corners -->
+        <div style="position:absolute;top:24px;left:24px" class="mono" style="font-size:11px">
+          <div class="tag amber">SYSTEM.CORE.KERNEL</div>
+          <div class="tag muted">VER_0.9.4.ALPHA</div>
+        </div>
+        <div style="position:absolute;top:24px;right:24px;text-align:right" class="mono" style="font-size:11px">
+          <div class="tag amber">LATENCY · ZERO</div>
+          <div class="tag muted">UPLINK_STABLE ⦾</div>
+        </div>
+        <div style="position:absolute;bottom:24px;left:24px" class="mono" style="font-size:11px">
+          <div class="tag muted">MEMORY_ALLOCATION</div>
+          <div class="tag">128.00 GB</div>
+        </div>
+        <div style="position:absolute;bottom:24px;right:24px;text-align:right" class="mono" style="font-size:11px">
+          <div class="tag muted">GEOLOCATION</div>
+          <div class="tag">NODE_MUMBAI_01</div>
+        </div>
+
+        <!-- center -->
+        <div style="position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);text-align:center;width:80%">
+          <div style="margin:0 auto" class="sk" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;position:relative">
+            <div class="solar" style="width:110px;height:110px"></div>
+            <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Architects Daughter';font-size:18px">△F</div>
+          </div>
+          <div style="margin-top:28px;font-family:'Architects Daughter';font-size:56px;letter-spacing:.08em">A L P H A &nbsp; F O R G E</div>
+        </div>
+
+        <div style="position:absolute;left:50%;bottom:28%;transform:translateX(-50%);width:60%">
+          <div class="row" style="justify-content:space-between">
+            <span class="tag amber">INITIALIZING NEURAL LINK…</span>
+            <span class="tag amber">68%</span>
+          </div>
+          <div style="height:8px;background:rgba(0,0,0,.08);margin-top:8px">
+            <div style="height:100%;width:68%;background:var(--amber)"></div>
+          </div>
+        </div>
+
+        <div class="note amber" style="top:160px;left:44%;max-width:180px">logo plate — breathing amber glow</div>
+        <div class="note" style="bottom:240px;right:120px;max-width:220px">progress text cycles: loading models → streaming ticks → hello</div>
+      </div>
+    </div>
+
+    <!-- L2: CHECKLIST -->
+    <div class="variant" data-variant="l2">
+      <div class="v-caption">
+        <div>
+          <div class="title">V2 · Checklist</div>
+          <div class="desc">Honest loading. Show what's actually happening — Zerodha sync, LLM warm-up, screener cache. Trust over theatre. For engineers.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">loading · v2</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- logo -->
+        <div style="position:absolute;left:24px;top:24px" class="row" style="gap:12px;align-items:center">
+          <div class="solar" style="width:28px;height:28px"></div>
+          <div class="hand-alt" style="font-size:22px">Alpha Forge</div>
+          <div class="tag muted" style="margin-left:14px">booting…</div>
+        </div>
+
+        <!-- center column -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px">
+          <div class="tag amber">· WARMING UP</div>
+          <div class="hand-alt" style="font-size:36px;line-height:1.05;margin-top:4px">Give me a second — I'm spinning up your terminal.</div>
+          <div class="hline soft" style="margin:18px 0"></div>
+
+          <div class="col" style="gap:10px" class="mono">
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag" style="color:var(--green);width:14px">✓</span>
+              <span style="flex:1">backend · fastapi on :8000</span>
+              <span class="tag muted">142ms</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag" style="color:var(--green);width:14px">✓</span>
+              <span style="flex:1">postgres · 16 ready</span>
+              <span class="tag muted">08ms</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag" style="color:var(--green);width:14px">✓</span>
+              <span style="flex:1">redis · pubsub connected</span>
+              <span class="tag muted">04ms</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag amber" style="width:14px">◐</span>
+              <span style="flex:1">zerodha · kite session</span>
+              <span class="tag amber">syncing 12 positions…</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag amber" style="width:14px">◐</span>
+              <span style="flex:1">llm gateway · gemini / groq / local</span>
+              <span class="tag amber">benchmarking providers</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag muted" style="width:14px">○</span>
+              <span style="flex:1" class="mono" style="opacity:.5">screener · loading cached features</span>
+              <span class="tag muted">queued</span>
+            </div>
+            <div class="row" style="gap:12px;align-items:center">
+              <span class="tag muted" style="width:14px">○</span>
+              <span style="flex:1" class="mono" style="opacity:.5">watchlist · streaming ticks</span>
+              <span class="tag muted">queued</span>
+            </div>
+          </div>
+
+          <div style="height:3px;background:rgba(0,0,0,.08);margin-top:22px">
+            <div style="height:100%;width:42%;background:var(--amber)"></div>
+          </div>
+          <div class="row" style="justify-content:space-between;margin-top:6px">
+            <span class="tag muted">3 OF 7 SERVICES ONLINE</span>
+            <span class="tag amber">~4s REMAINING</span>
+          </div>
+        </div>
+
+        <div style="position:absolute;bottom:24px;left:24px" class="mono" style="font-size:11px">
+          <span class="tag muted">press ESC to open logs</span>
+        </div>
+
+        <div class="note amber" style="top:140px;right:200px;max-width:220px">real status &gt; fake progress bars. builds trust.</div>
+      </div>
+    </div>
+
+    <!-- L3: ORB BLOOM -->
+    <div class="variant" data-variant="l3">
+      <div class="v-caption">
+        <div>
+          <div class="title">V3 · Orb Bloom</div>
+          <div class="desc">No chrome. No text. Just the orb blooming from a pin-prick to full size. The terminal fades in around it once it's ready. Cinematic, for first-run only.</div>
+        </div>
+      </div>
+      <div class="frame">
+        <span class="frame-label">loading · v3</span>
+        <span class="frame-dim">1440 × 900</span>
+        <div class="gridlines"></div>
+
+        <!-- big orb -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center">
+          <div class="solar" style="width:180px;height:180px;margin:0 auto;animation:bloom 2.6s ease-out infinite alternate"></div>
+        </div>
+        <style>
+        @keyframes bloom{
+          0%{transform:scale(.3);opacity:.5}
+          100%{transform:scale(1.1);opacity:1}
+        }
+        @keyframes caret{50%{opacity:0}}
+        </style>
+
+        <!-- caption under -->
+        <div style="position:absolute;left:50%;bottom:24%;transform:translateX(-50%);text-align:center">
+          <div class="tag amber">· WAKING UP</div>
+          <div class="hand-alt" style="font-size:28px;margin-top:6px">hello<span style="animation:caret 1s step-end infinite">_</span></div>
+        </div>
+
+        <!-- faint corners -->
+        <div style="position:absolute;top:24px;left:24px" class="tag muted">alpha forge</div>
+        <div style="position:absolute;bottom:24px;right:24px" class="tag muted">v0.9.4</div>
+
+        <div class="note amber" style="top:120px;left:48%;max-width:180px">single visual cue. no bar, no %. trust it.</div>
+        <div class="note" style="bottom:260px;right:140px;max-width:200px">shown once per session max — skip on reloads</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TWEAKS PANEL -->
+<div class="tweaks" id="tweaks">
+  <h4>Tweaks</h4>
+  <label><input type="checkbox" id="tw-grid" checked/> Grid overlay</label>
+  <label><input type="checkbox" id="tw-notes" checked/> Show annotations</label>
+  <label><input type="checkbox" id="tw-amber" checked/> Amber accent (on AI)</label>
+  <div class="tag muted" style="margin-top:10px">PAPER</div>
+  <div class="seg" id="tw-paper">
+    <button data-paper="warm" class="active">warm</button>
+    <button data-paper="cool">cool</button>
+    <button data-paper="mono">mono</button>
+  </div>
+</div>
+
+<script>
+// TWEAK DEFAULTS
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "grid": false,
+  "notes": false,
+  "amber": true,
+  "paper": "warm"
+}/*EDITMODE-END*/;
+
+// ---- tab switching
+function bindTabs(rootSel, btnSel, dataAttr, activeCls){
+  document.querySelectorAll(btnSel).forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const val = btn.dataset[dataAttr];
+      const scope = btn.closest(rootSel);
+      scope.querySelectorAll(btnSel).forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      scope.parentElement.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+      // not quite — we handle explicitly below per-level
+    });
+  });
+}
+
+// screen-level tabs
+document.querySelectorAll('#screenTabs .tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#screenTabs .tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const pane = btn.dataset.pane;
+    document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+    document.getElementById('pane-'+pane).classList.add('active');
+    localStorage.setItem('af-wire-pane', pane);
+  });
+});
+// variant-level tabs
+document.querySelectorAll('.subtabs .subtab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const pane = btn.closest('.pane');
+    pane.querySelectorAll('.subtab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const v = btn.dataset.variant;
+    pane.querySelectorAll('.variant').forEach(va=>va.classList.remove('active'));
+    pane.querySelector('.variant[data-variant="'+v+'"]').classList.add('active');
+    localStorage.setItem('af-wire-variant-'+pane.id, v);
+  });
+});
+
+// restore
+(()=>{
+  const pane = localStorage.getItem('af-wire-pane');
+  if(pane){
+    const btn = document.querySelector('#screenTabs .tab[data-pane="'+pane+'"]');
+    if(btn) btn.click();
+  }
+  document.querySelectorAll('.pane').forEach(p=>{
+    const v = localStorage.getItem('af-wire-variant-'+p.id);
+    if(v){
+      const b = p.querySelector('.subtab[data-variant="'+v+'"]');
+      if(b) b.click();
+    }
+  });
+})();
+
+// ---- tweaks: edit-mode protocol
+const tweaksEl = document.getElementById('tweaks');
+function applyTweaks(t){
+  document.body.classList.toggle('no-grid', !t.grid);
+  document.body.classList.toggle('no-notes', !t.notes);
+  document.body.classList.toggle('no-amber', !t.amber);
+  document.body.dataset.paper = t.paper;
+  const root = document.documentElement;
+  if(t.paper === 'cool'){
+    root.style.setProperty('--paper','#eef1f6');
+    root.style.setProperty('--paper-2','#e4e8f0');
+    root.style.setProperty('--grid','#c9d0dd');
+  } else if (t.paper === 'mono'){
+    root.style.setProperty('--paper','#f3f3f3');
+    root.style.setProperty('--paper-2','#eaeaea');
+    root.style.setProperty('--grid','#d2d2d2');
+  } else {
+    root.style.setProperty('--paper','#f6f3ec');
+    root.style.setProperty('--paper-2','#efe9dc');
+    root.style.setProperty('--grid','#d9d2bf');
+  }
+  // sync controls
+  document.getElementById('tw-grid').checked = !!t.grid;
+  document.getElementById('tw-notes').checked = !!t.notes;
+  document.getElementById('tw-amber').checked = !!t.amber;
+  document.querySelectorAll('#tw-paper button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.paper === t.paper);
+  });
+}
+let tweakState = {...TWEAK_DEFAULTS};
+applyTweaks(tweakState);
+
+function setTweak(patch){
+  tweakState = {...tweakState, ...patch};
+  applyTweaks(tweakState);
+  try { window.parent.postMessage({type:'__edit_mode_set_keys', edits: patch}, '*'); } catch(e){}
+}
+document.getElementById('tw-grid').addEventListener('change',e=>setTweak({grid:e.target.checked}));
+document.getElementById('tw-notes').addEventListener('change',e=>setTweak({notes:e.target.checked}));
+document.getElementById('tw-amber').addEventListener('change',e=>setTweak({amber:e.target.checked}));
+document.querySelectorAll('#tw-paper button').forEach(b=>{
+  b.addEventListener('click',()=>setTweak({paper:b.dataset.paper}));
+});
+
+// edit-mode listener
+window.addEventListener('message', (e)=>{
+  const d = e.data || {};
+  if(d.type === '__activate_edit_mode') tweaksEl.classList.add('on');
+  if(d.type === '__deactivate_edit_mode') tweaksEl.classList.remove('on');
+});
+try { window.parent.postMessage({type:'__edit_mode_available'}, '*'); } catch(e){}
+</script>
+</body>
+</html>

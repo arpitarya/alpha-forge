@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alpha Forge | Weightless Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #F8F9FE;
+            color: #1A1C20;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .solar-orb {
+            background: radial-gradient(circle at center, #ff8f00 0%, #ffecb3 70%, transparent 100%);
+            filter: blur(2px);
+            box-shadow: 0 0 120px rgba(255, 143, 0, 0.2), inset 0 0 60px rgba(255, 255, 255, 0.4);
+            animation: pulse-glow 8s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 100px rgba(255, 143, 0, 0.15); }
+            50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 160px rgba(255, 143, 0, 0.3); }
+        }
+        .floating-shard {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#ff8f00",
+                        "on-surface": "#1A1C20",
+                        "on-surface-variant": "#64748b",
+                        surface: "#ffffff",
+                    },
+                    borderRadius: {
+                        '4xl': '2.5rem',
+                        '5xl': '3.5rem',
+                    },
+                    fontFamily: {
+                        headline: ["Space Grotesk"],
+                        body: ["Space Grotesk"],
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="h-screen flex flex-col bg-[#F8F9FE] overflow-hidden selection:bg-primary/20">
+<!-- Top Navigation -->
+<header class="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 flex justify-between items-center px-10 py-4 floating-shard rounded-full">
+<div class="text-xl font-bold tracking-tighter text-primary uppercase">Alpha Forge</div>
+<nav class="hidden md:flex gap-10 text-xs font-bold tracking-[0.2em] uppercase">
+<a class="text-primary" href="#">Terminal</a>
+<a class="text-neutral-400 hover:text-on-surface transition-colors" href="#">Portfolio</a>
+<a class="text-neutral-400 hover:text-on-surface transition-colors" href="#">Markets</a>
+</nav>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-neutral-400 cursor-pointer hover:text-primary transition-colors">notifications</span>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-black/5 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDinIxUaYTXHYics3dGmtlsJfaaxthfmL2xj9E7WCZCpJE-y2LVM_yvywfO3IfJczya0wkxtgEAKCl4YZGAGpO6_qfnKc5ZauaGKsDalnF9lSo2FP_y7SgN-56efxb-wFyqD9-5QxTkqLY748XTd3cR_5ZaBjh6GFZRufuS0REXAd9NGJGOcIitn1qknMwNcvJtJJbTpht6KfRphVgdmhInL9upi1Z82Y4hK4rltBGoVkfXuQ7AV198LvavCrO7v2ZegXTfqlm4SUs"/>
+</div>
+</header>
+<!-- Floating Sidebar -->
+<aside class="fixed left-6 top-32 z-40 flex flex-col gap-6 py-8 px-4 floating-shard rounded-5xl w-20 hover:w-56 transition-all duration-700 ease-in-out group overflow-hidden">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-4 bg-primary/10 text-primary rounded-full p-4 cursor-pointer">
+<span class="material-symbols-outlined">terminal</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold text-sm tracking-widest uppercase">Terminal</span>
+</div>
+<div class="flex items-center gap-4 text-neutral-400 hover:text-on-surface p-4 cursor-pointer hover:bg-black/5 rounded-full transition-all">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold text-sm tracking-widest uppercase">Portfolio</span>
+</div>
+<div class="flex items-center gap-4 text-neutral-400 hover:text-on-surface p-4 cursor-pointer hover:bg-black/5 rounded-full transition-all">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold text-sm tracking-widest uppercase">Markets</span>
+</div>
+</div>
+</aside>
+<!-- Main Dashboard Area -->
+<main class="flex-1 mt-20 ml-32 mr-8 mb-32 p-8 grid grid-cols-12 grid-rows-6 gap-8 relative">
+<!-- Ambient Background Glows -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10"></div>
+<!-- Alpha Brief Shard -->
+<section class="col-span-3 row-span-3 floating-shard rounded-4xl p-10 flex flex-col gap-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">bolt</span>
+<h2 class="text-sm font-bold tracking-[0.3em] uppercase text-on-surface/90">Alpha Brief</h2>
+</div>
+<div class="space-y-10">
+<div class="space-y-3">
+<p class="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">Market Sentiment</p>
+<p class="text-sm text-on-surface/70 font-light leading-relaxed">System detects bullish pivot in AI infrastructure tokens. Volume up 22% in APAC.</p>
+</div>
+<div class="space-y-3">
+<p class="text-[10px] text-on-surface/40 font-bold uppercase tracking-[0.2em]">Risk Alert</p>
+<p class="text-sm text-on-surface/50 font-light leading-relaxed">Global Equities hedge position is over-extended. System recommends rebalancing.</p>
+</div>
+</div>
+</section>
+<!-- Watchlist Shard -->
+<section class="col-span-3 col-start-10 row-span-4 floating-shard rounded-4xl p-10 flex flex-col gap-8">
+<div class="flex justify-between items-center">
+<h2 class="text-sm font-bold tracking-[0.3em] uppercase text-on-surface/90">Watchlist</h2>
+<span class="material-symbols-outlined text-on-surface/20 hover:text-on-surface transition-colors cursor-pointer">add</span>
+</div>
+<div class="space-y-10">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex gap-4 items-center">
+<div class="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">currency_bitcoin</span>
+</div>
+<div>
+<p class="font-bold text-sm tracking-tight">BTC</p>
+<p class="text-[10px] text-on-surface/30 uppercase tracking-tighter">Bitcoin</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">$64,281</p>
+<p class="text-[10px] text-emerald-600 font-bold">+2.4%</p>
+</div>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex gap-4 items-center">
+<div class="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">memory</span>
+</div>
+<div>
+<p class="font-bold text-sm tracking-tight">NVDA</p>
+<p class="text-[10px] text-on-surface/30 uppercase tracking-tighter">Nvidia</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">$894.20</p>
+<p class="text-[10px] text-emerald-600 font-bold">+1.8%</p>
+</div>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex gap-4 items-center">
+<div class="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-primary text-sm">auto_awesome</span>
+</div>
+<div>
+<p class="font-bold text-sm tracking-tight">SOL</p>
+<p class="text-[10px] text-on-surface/30 uppercase tracking-tighter">Solana</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-sm">$142.15</p>
+<p class="text-[10px] text-red-500 font-bold">-0.9%</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Central Neural Interaction Zone -->
+<section class="col-span-6 col-start-4 row-span-4 flex flex-col items-center justify-center gap-16">
+<div class="relative group cursor-pointer">
+<div class="w-72 h-72 solar-orb rounded-full"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-56 h-56 rounded-full bg-white/40 backdrop-blur-3xl border border-white/60 flex items-center justify-center overflow-hidden transition-transform duration-1000 group-hover:scale-110">
+<span class="material-symbols-outlined text-7xl text-primary/40 select-none">stream</span>
+</div>
+</div>
+</div>
+<div class="flex gap-10 w-full justify-center">
+<!-- Net Worth -->
+<div class="floating-shard px-10 py-8 rounded-4xl flex flex-col items-center gap-2 hover:scale-105 transition-all duration-700">
+<p class="text-[10px] font-bold text-on-surface/30 uppercase tracking-[0.4em]">Net Worth</p>
+<p class="text-4xl font-bold text-on-surface tracking-tighter">$1,284,500</p>
+<div class="flex items-center gap-2 text-emerald-600 font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span class="text-[10px]">1.2% TODAY</span>
+</div>
+</div>
+<!-- Allocation -->
+<div class="floating-shard px-10 py-8 rounded-4xl flex flex-col items-center gap-4 hover:scale-105 transition-all duration-700">
+<p class="text-[10px] font-bold text-on-surface/30 uppercase tracking-[0.4em]">Allocation</p>
+<div class="flex gap-6">
+<div class="flex flex-col items-center gap-1">
+<div class="w-1.5 h-10 bg-primary rounded-full"></div>
+<p class="text-[10px] font-bold">45%</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-1.5 h-6 bg-black/10 rounded-full"></div>
+<p class="text-[10px] font-bold">30%</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-1.5 h-4 bg-black/5 rounded-full"></div>
+<p class="text-[10px] font-bold">25%</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Risk Profile Shard -->
+<section class="col-span-3 row-start-5 row-span-2 floating-shard rounded-4xl p-8 flex flex-col gap-6">
+<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-on-surface/40">Risk Analysis</h2>
+<div class="flex-1 flex items-end gap-2 px-2">
+<div class="flex-1 h-[30%] bg-black/5 rounded-full transition-all duration-1000 hover:h-[50%] hover:bg-primary/20"></div>
+<div class="flex-1 h-[60%] bg-black/5 rounded-full transition-all duration-1000 hover:h-[80%] hover:bg-primary/20"></div>
+<div class="flex-1 h-[90%] bg-primary/40 rounded-full"></div>
+<div class="flex-1 h-[40%] bg-black/5 rounded-full transition-all duration-1000 hover:h-[60%] hover:bg-primary/20"></div>
+<div class="flex-1 h-[70%] bg-black/5 rounded-full transition-all duration-1000 hover:h-[85%] hover:bg-primary/20"></div>
+</div>
+<div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-primary">
+<span>Confidence</span>
+<span>88.4%</span>
+</div>
+</section>
+</main>
+<!-- Weightless Voice Footer -->
+<footer class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-7xl z-50 h-24 floating-shard rounded-full flex items-center px-12 gap-12">
+<div class="flex items-center gap-6">
+<div class="relative w-12 h-12 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-20"></div>
+<div class="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center border border-primary/20">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold italic text-primary animate-pulse uppercase tracking-wider">Listening...</span>
+<span class="text-[8px] font-bold text-on-surface/20 uppercase tracking-[0.4em]">Neural Interface</span>
+</div>
+</div>
+<div class="flex-1 h-8 flex items-center gap-1.5 opacity-40">
+<div class="w-1 h-3 bg-primary rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+<div class="w-1 h-6 bg-primary rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+<div class="w-1 h-4 bg-primary rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+<div class="w-1 h-7 bg-primary rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+<div class="w-1 h-5 bg-primary rounded-full animate-bounce" style="animation-delay: 0.5s"></div>
+<div class="w-1 h-2 bg-primary rounded-full animate-bounce" style="animation-delay: 0.6s"></div>
+</div>
+<div class="text-on-surface/50 text-sm font-light italic tracking-wide max-w-md truncate">
+        "Alpha, analyze the exposure to AI stocks in my equity portfolio..."
+    </div>
+<button class="bg-primary hover:bg-amber-600 text-white font-bold text-[10px] uppercase tracking-[0.2em] px-8 py-3 rounded-full transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
+        Deploy
+    </button>
+</footer>
+</body></html>

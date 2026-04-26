@@ -1,0 +1,162 @@
+/*
+ * @alphaforge/solar-orb-ball — component styles
+ *
+ * All custom properties (--orb-*) are scoped to .solar-orb-ball, so multiple
+ * orbs with different accents can co-exist in the same page.
+ */
+
+.solar-orb-ball {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+/* ── HUD corner brackets ─────────────────────────────────────── */
+.solar-orb-ball__hud {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--orb-accent);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 2;
+}
+.solar-orb-ball__hud--tl { top: 14px;    left: 14px;    border-right: none;  border-bottom: none; }
+.solar-orb-ball__hud--tr { top: 14px;    right: 14px;   border-left: none;   border-bottom: none; }
+.solar-orb-ball__hud--bl { bottom: 14px; left: 14px;    border-right: none;  border-top: none; }
+.solar-orb-ball__hud--br { bottom: 14px; right: 14px;   border-left: none;   border-top: none; }
+
+/* ── Horizontal scanline ─────────────────────────────────────── */
+.solar-orb-ball__scan {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--orb-accent) 60%, transparent),
+    transparent
+  );
+  opacity: 0.45;
+  animation: solar-orb-ball-scan 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes solar-orb-ball-scan {
+  0%, 100% { transform: translateY(-140px); opacity: 0; }
+  25%      { opacity: 0.45; }
+  50%      { transform: translateY(140px); opacity: 0.45; }
+  75%      { opacity: 0; }
+}
+
+/* ── Stars ───────────────────────────────────────────────────── */
+.solar-orb-ball__stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: 1;
+}
+.solar-orb-ball__stars > span {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #b9b3a7;
+  box-shadow: 0 0 4px currentColor;
+  animation: solar-orb-ball-twinkle 4s ease-in-out infinite;
+}
+@keyframes solar-orb-ball-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.6); }
+}
+
+/* ── Outward pulse rings ─────────────────────────────────────── */
+.solar-orb-ball__ring {
+  position: absolute;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--orb-accent) 50%, transparent);
+  pointer-events: none;
+  z-index: 1;
+  animation: solar-orb-ball-ring var(--orb-pulse-duration) cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+.solar-orb-ball__ring--delay {
+  animation-delay: calc(var(--orb-pulse-duration) / 2);
+}
+@keyframes solar-orb-ball-ring {
+  0%   { transform: scale(0.92); opacity: 0.55; }
+  100% { transform: scale(1.7);  opacity: 0; }
+}
+
+/* ── The orb itself ──────────────────────────────────────────── */
+.solar-orb-ball__core {
+  position: relative;
+  width: var(--orb-size);
+  height: var(--orb-size);
+  border-radius: 50%;
+  z-index: 2;
+  background: radial-gradient(
+    circle at 36% 32%,
+    #fff 0%,
+    #ffe8b0 8%,
+    var(--orb-accent-soft) 26%,
+    var(--orb-accent) 60%,
+    color-mix(in srgb, var(--orb-accent) 35%, transparent) 88%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 80px var(--orb-glow),
+    0 0 220px var(--orb-glow),
+    inset -16px -20px 36px color-mix(in srgb, var(--orb-accent-dim) 50%, transparent),
+    inset 12px 14px 30px rgba(255, 255, 255, 0.45);
+  animation: solar-orb-ball-pulse var(--orb-pulse-duration) ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes solar-orb-ball-pulse {
+  0%, 100% { transform: scale(1);     filter: brightness(1); }
+  50%      { transform: scale(1.035); filter: brightness(1.05); }
+}
+
+/* Specular highlight on the upper-left of the orb */
+.solar-orb-ball__highlight {
+  position: absolute;
+  top: 14%;
+  left: 20%;
+  width: 38%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 40% 40%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0) 70%
+  );
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+/* ── Caption ────────────────────────────────────────────────── */
+.solar-orb-ball__caption {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 3;
+}
+.solar-orb-ball__caption-eyebrow {
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+.solar-orb-ball__caption-text {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.95);
+  margin-top: 4px;
+}

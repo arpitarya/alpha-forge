@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ALPHA FORGE | INITIALIZING</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd73e",
+                    "on-primary-fixed": "#1e0c00",
+                    "on-error": "#450900",
+                    "surface-dim": "#e0e0e0",
+                    "on-background": "#1a1a1a",
+                    "inverse-on-surface": "#fcf9f8",
+                    "surface-bright": "#ffffff",
+                    "inverse-primary": "#ffa44f",
+                    "on-primary-container": "#462300",
+                    "on-secondary-container": "#4c2d00",
+                    "secondary-fixed": "#ffc787",
+                    "primary-fixed-dim": "#eb8300",
+                    "surface-tint": "#ffa44f",
+                    "inverse-surface": "#2c2c2c",
+                    "error": "#b92902",
+                    "on-surface-variant": "#484847",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#734700",
+                    "on-tertiary-container": "#5d4b00",
+                    "error-dim": "#d53d18",
+                    "on-error-container": "#ffd2c8",
+                    "secondary-fixed-dim": "#ffb557",
+                    "secondary-container": "#ffebd3",
+                    "on-primary-fixed-variant": "#532b00",
+                    "primary": "#FF8F00",
+                    "surface-variant": "#f4f4f4",
+                    "on-surface": "#1a1a1a",
+                    "primary-container": "#ffe8d3",
+                    "surface-container-low": "#f9f9f9",
+                    "outline-variant": "#d1d1d1",
+                    "on-secondary": "#ffffff",
+                    "secondary-dim": "#ea9612",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad4",
+                    "tertiary-fixed-dim": "#f0c92f",
+                    "surface-container-highest": "#e0e0e0",
+                    "surface-container": "#f1f1f1",
+                    "surface": "#F8F9FE",
+                    "secondary": "#faa324",
+                    "primary-dim": "#eb8300",
+                    "on-tertiary-fixed-variant": "#685400",
+                    "on-secondary-fixed": "#4c2d00",
+                    "tertiary": "#685400",
+                    "on-tertiary-fixed": "#473900",
+                    "background": "#F8F9FE",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#ff8f00",
+                    "outline": "#767575",
+                    "tertiary-dim": "#f0c92f",
+                    "tertiary-container": "#ffd73e",
+                    "surface-container-high": "#ebebeb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Space Grotesk"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #F8F9FE;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .solar-glow {
+            background: radial-gradient(circle, rgba(255, 143, 0, 0.08) 0%, rgba(248, 249, 254, 0) 70%);
+        }
+        .scanline {
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.01) 50%);
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- Cinematic Background Elements -->
+<div class="absolute inset-0 scanline pointer-events-none"></div>
+<div class="absolute inset-0 solar-glow pointer-events-none"></div>
+<!-- Top Corner Metadata -->
+<div class="absolute top-8 left-8 flex flex-col space-y-1">
+<span class="text-[0.625rem] font-bold tracking-[0.2em] text-primary uppercase">SYSTEM.CORE.KERNEL</span>
+<span class="text-[0.625rem] font-medium tracking-[0.2em] text-outline uppercase opacity-60">VER_0.9.4.ALPHA</span>
+</div>
+<div class="absolute top-8 right-8 flex items-center space-y-1 text-right">
+<div class="flex flex-col">
+<span class="text-[0.625rem] font-bold tracking-[0.2em] text-primary uppercase">LATENCY: ZERO</span>
+<span class="text-[0.625rem] font-medium tracking-[0.2em] text-outline uppercase opacity-60">UPLINK_STABLE</span>
+</div>
+<span class="material-symbols-outlined text-primary ml-4 text-sm" style="font-variation-settings: 'FILL' 1;">sensors</span>
+</div>
+<!-- Central Branding & Loading -->
+<main class="relative z-10 flex flex-col items-center max-w-md w-full px-6">
+<!-- Animated Logo Container -->
+<div class="relative mb-12 group">
+<div class="absolute inset-0 bg-primary opacity-10 blur-3xl rounded-full scale-150 group-hover:opacity-20 transition-opacity"></div>
+<img alt="Alpha Forge" class="w-48 h-48 relative z-10 drop-shadow-[0_0_8px_rgba(255,143,0,0.2)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsIJjDy1FHRtAbqpLRcEpuo-V9pkkHX_i4dnU6gCJEhNWsNi71toGELu0KHWjZiOeTUgHIMp0sFci3HqD_WcpR1HeM3h2E3juZt-Ui84-i9JQf_aD2BRKfYgQDS3gfeHE0nQP8MVQFgZJErhSYf4TzZ6sxxHWcpvGc5rdyg7fupchn1zGZR5siFt-U2WLFJldFrDc3CADT0SaPZH2NAqvrfWBRAg-IXJfk6EJAQ1eCtWM7R4ENh3wt_i2QZMz5i1RZNOanLC8CCE4"/>
+</div>
+<!-- Brand Name -->
+<div class="text-center mb-16">
+<h1 class="text-3xl font-black tracking-[0.6em] text-on-surface uppercase mb-2">ALPHA FORGE</h1>
+<div class="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+</div>
+<!-- Progress Indicator Section -->
+<div class="w-full space-y-4">
+<div class="flex justify-between items-end w-full">
+<span class="text-[0.6875rem] font-bold tracking-[0.15em] text-primary uppercase">INITIALIZING NEURAL LINK...</span>
+<span class="text-xl font-black tracking-tighter text-primary">68%</span>
+</div>
+<!-- Progress Bar Frame -->
+<div class="w-full h-1.5 bg-surface-container-highest relative overflow-hidden">
+<!-- Glowing Progress Fill -->
+<div class="absolute top-0 left-0 h-full bg-primary shadow-[0_0_8px_rgba(255,143,0,0.3)]" style="width: 68%;"></div>
+<!-- Trailing Edge Glow -->
+<div class="absolute top-0 left-[68%] -translate-x-1/2 w-4 h-full bg-white/60 blur-sm"></div>
+</div>
+</div>
+</main>
+<!-- Bottom Corner Metadata -->
+<div class="absolute bottom-8 left-8 flex items-center">
+<span class="material-symbols-outlined text-primary mr-4 text-sm" style="font-variation-settings: 'FILL' 0;">memory</span>
+<div class="flex flex-col">
+<span class="text-[0.625rem] font-bold tracking-[0.2em] text-outline uppercase">MEMORY_ALLOCATION</span>
+<span class="text-[0.625rem] font-medium tracking-[0.2em] text-on-surface uppercase">128.00 GB</span>
+</div>
+</div>
+<div class="absolute bottom-8 right-8 flex flex-col text-right">
+<span class="text-[0.625rem] font-bold tracking-[0.2em] text-outline uppercase">GEOLOCATION</span>
+<span class="text-[0.625rem] font-medium tracking-[0.2em] text-on-surface uppercase">NODE_ORBIT_OSLO_01</span>
+</div>
+<!-- Grid Texture Background (Subtle) -->
+<div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: radial-gradient(circle, #ffa44f 1px, transparent 1px); background-size: 40px 40px;"></div>
+</body></html>

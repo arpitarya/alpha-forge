@@ -1,0 +1,73 @@
+solar-orb-ui — Implementation Log
+==================================
+
+Phase 1 — Token expansion + atom upgrades  (2026-04-26, in progress)
+--------------------------------------------------------------------
+
+Goal: bring solar-orb-ui to parity with the Hi-Fi mock's terminal screen so
+frontend/ can compose pages without redefining visual primitives.
+
+Tokens
+------
+- theme.css: kept Tailwind v4 @theme block; added a semantic CSS-var layer
+  (:root + html[data-theme=dark|light] + html[data-accent=amber|ion|signal|
+  violet]) so the same markup re-skins at runtime via data attributes.
+  Variables exposed: --bg/-2, --surface/-hi/-lo, --line/-hi, --fg/-2/-3/-4,
+  --green, --red, --accent/-soft/-dim, --on-accent, --glow.
+- fonts.css: added Space Mono (used in Hi-Fi for tags, prices, mono labels).
+- base.css: added .card-glow (mask-composite gradient hairline rim from Hi-Fi
+  .card::after), .hud-corner (4 positional variants), live-dot-pulse +
+  mic-ping keyframes; rewrote .solar-orb to match Hi-Fi's accent-driven
+  radial gradient + dual glow shadow.
+
+Atoms upgraded
+--------------
+- Text: added 'tag' (Space Mono eyebrow) + 'mono' (tabular numerics)
+  variants; introduced `tone` prop (default/muted/subtle/accent/up/dn) wired
+  to semantic vars instead of hardcoded white-alpha.
+- Card: added `glow` prop (renders .card-glow), exposed Card.Header sub-
+  component matching Hi-Fi `.hd > h3 + tag` pattern. All bg/border now
+  reference semantic vars.
+- Chip: added `bordered` variant (rebalance-rail style — outline that flips
+  to accent on hover).
+- Button: added `deploy` variant (gradient accent->soft + glow shadow,
+  used in voice footer + rebalance CTA).
+- Divider: switched root element to <hr> for a11y compliance; added
+  `dashed` prop for watchlist row separators.
+- ProgressBar: added `bidirectional` mode — fill grows from center,
+  positive=accent right, negative=muted left. Powers rebalance drift bars.
+
+Atoms added
+-----------
+- Kbd: inline keyboard hint (⌘K) — rendered as <kbd>.
+- LiveDot: pulsing status indicator. Optional `label` renders the dot +
+  uppercase mono label inline (covers "LIVE · NSE" and similar).
+- HudCorners: wraps content in 4 accent corner brackets via .hud-corner.
+  Each corner individually toggleable.
+- Sparkline: SVG line/area chart. Auto-normalizes points to viewBox; tone
+  switches between up/dn/accent/neutral; optional fill draws a gradient
+  area below the line.
+- CountUp: client-only animated number with cubic-out easing. Supports
+  Indian-grouping (12,84,500) when format=inr, else locale formatting.
+  Re-animates on value change.
+
+Barrel
+------
+- src/index.ts: exports Kbd, LiveDot, HudCorners, Sparkline, CountUp +
+  their prop types, alongside existing primitives.
+
+Verification
+------------
+- `pnpm build` → ESM + CJS + DTS clean. dist/index.js: 28.6 KB ESM.
+- `pnpm type-check` → no errors.
+- IDE Biome warning on index.ts (sort imports) is Information-level only.
+- Pre-existing frontend type errors in ScreenerPicks.tsx are unrelated
+  (data type from useScreenerPicks not annotated upstream) and not
+  introduced by Phase 1.
+
+Next (Phase 2)
+--------------
+- Molecules: Stat, WatchRow, RiskBars, Ticker, MicIndicator, Waveform.
+- Layout shells: AppShell, TopBar, IconRail, VoiceDock.
+- Refactor frontend/src/app/page.tsx + terminal/* onto the new primitives;
+  delete duplicated `floating-shard` + ad-hoc colour styling.

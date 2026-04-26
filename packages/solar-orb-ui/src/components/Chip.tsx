@@ -2,10 +2,12 @@ import { clsx } from "clsx";
 import type { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 
+type ChipVariant = "default" | "active" | "bordered";
+
 export interface ChipProps {
   children: ReactNode;
   icon?: string;
-  variant?: "default" | "active";
+  variant?: ChipVariant;
   className?: string;
   onClick?: () => void;
 }
@@ -24,10 +26,14 @@ export function Chip({
       type="button"
       className={twMerge(
         clsx(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors",
-          variant === "default" && "bg-surface-container text-on-surface-variant",
-          variant === "active" && "bg-primary/10 text-primary",
-          isInteractive && "cursor-pointer hover:bg-surface-bright",
+          "inline-flex items-center gap-1.5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-colors",
+          variant === "default" &&
+            "bg-[color:var(--surface-hi)] text-[color:var(--fg-2)]",
+          variant === "active" &&
+            "bg-[color:color-mix(in_srgb,var(--accent)_10%,transparent)] text-[color:var(--accent)]",
+          variant === "bordered" &&
+            "border border-[color:var(--line-hi)] text-[color:var(--fg-2)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+          isInteractive && "cursor-pointer",
           !isInteractive && "cursor-default",
           className,
         ),
@@ -35,9 +41,7 @@ export function Chip({
       onClick={onClick}
       tabIndex={isInteractive ? 0 : -1}
     >
-      {icon && (
-        <span className="material-symbols-outlined text-xs">{icon}</span>
-      )}
+      {icon && <span className="material-symbols-outlined text-xs">{icon}</span>}
       {children}
     </button>
   );

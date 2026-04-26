@@ -6,8 +6,6 @@
  *
  * Usage:
  *   @import "@alphaforge/solar-orb-ui/styles";
- *
- * Or import the pre-built dist/styles.css which bundles fonts + theme + base.
  */
 
 /* ── Material Symbols defaults ─────────────────────── */
@@ -19,23 +17,26 @@
 /* ── Solar Orb Glow ───────────────────────────────── */
 
 .solar-orb {
-  background: radial-gradient(circle at center, #ff8f00 0%, #462300 70%, transparent 100%);
-  filter: blur(2px);
-  box-shadow: 0 0 120px rgba(255, 143, 0, 0.4), inset 0 0 60px rgba(255, 255, 255, 0.1);
-  animation: pulse-glow 8s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 36% 32%,
+    #fff 0%,
+    #ffe8b0 8%,
+    var(--accent-soft) 26%,
+    var(--accent) 60%,
+    color-mix(in srgb, var(--accent) 35%, transparent) 88%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 80px var(--glow),
+    0 0 220px var(--glow),
+    inset -16px -20px 36px color-mix(in srgb, var(--accent-dim) 50%, transparent),
+    inset 12px 14px 30px rgba(255, 255, 255, 0.45);
+  animation: pulse-glow 3.4s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.8;
-    box-shadow: 0 0 100px rgba(255, 143, 0, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 1;
-    box-shadow: 0 0 160px rgba(255, 143, 0, 0.5);
-  }
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50%      { transform: scale(1.035); filter: brightness(1.05); }
 }
 
 /* ── Floating Glass Shard ─────────────────────────── */
@@ -47,12 +48,70 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* ── Card Glow Border ─────────────────────────────── *
+ * Recreates Hi-Fi `.card::after` — a 1px gradient hairline rim around the
+ * card. Drawn with mask-composite so it doesn't paint over content.
+ */
+
+.card-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 60%, transparent),
+    transparent 30%,
+    transparent 70%,
+    color-mix(in srgb, var(--accent) 30%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000, #000) content-box,
+    linear-gradient(#000, #000);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ── HUD Corners ──────────────────────────────────── *
+ * Used by <HudCorners /> to bracket a region with 4 corner ticks.
+ */
+
+.hud-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.hud-corner.tl { top: 14px; left: 14px;  border-right: none; border-bottom: none; }
+.hud-corner.tr { top: 14px; right: 14px; border-left: none;  border-bottom: none; }
+.hud-corner.bl { bottom: 14px; left: 14px;  border-right: none; border-top: none; }
+.hud-corner.br { bottom: 14px; right: 14px; border-left: none;  border-top: none; }
+
+/* ── Live Dot Pulse ───────────────────────────────── */
+
+@keyframes live-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* ── Mic Ping (voice footer) ──────────────────────── */
+
+@keyframes mic-ping {
+  0%   { transform: scale(0.9); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
 /* ── Scrollbar ────────────────────────────────────── */
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 .solar-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-.solar-scrollbar::-webkit-scrollbar-track { background: #000000; }
-.solar-scrollbar::-webkit-scrollbar-thumb { background: #484847; }
-.solar-scrollbar::-webkit-scrollbar-thumb:hover { background: #666666; }
+.solar-scrollbar::-webkit-scrollbar-track { background: var(--surface-lo); }
+.solar-scrollbar::-webkit-scrollbar-thumb { background: var(--line-hi); }
+.solar-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--fg-3); }

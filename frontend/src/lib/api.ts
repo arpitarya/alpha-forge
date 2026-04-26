@@ -44,6 +44,22 @@ export const portfolioApi = {
   getSummary: () => api.get("/portfolio/summary"),
   getPositions: () => api.get("/portfolio/positions"),
   getOrders: () => api.get("/portfolio/orders"),
+  getHoldings: (source?: string) =>
+    api.get("/portfolio/holdings", { params: source ? { source } : {} }),
+  getTreemap: (source?: string) =>
+    api.get("/portfolio/treemap", { params: source ? { source } : {} }),
+  getRebalance: () => api.get("/portfolio/rebalance"),
+  listSources: () => api.get("/portfolio/sources"),
+  getSource: (slug: string) => api.get(`/portfolio/sources/${slug}`),
+  uploadCsv: (slug: string, file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return api.post(`/portfolio/sources/${slug}/upload`, fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  syncSource: (slug: string) => api.post(`/portfolio/sources/${slug}/sync`),
+  resetSource: (slug: string) => api.post(`/portfolio/sources/${slug}/reset`),
 };
 
 // ── AI ──────────────────────────────────────────
@@ -79,6 +95,15 @@ export const authApi = {
     api.post("/auth/register", data),
   login: (data: { email: string; password: string }) => api.post("/auth/login", data),
 };
+// ── Dashboard (terminal home screen) ─────────────
+export const dashboardApi = {
+  getTicker: () => api.get("/dashboard/ticker"),
+  getWatchlist: () => api.get("/dashboard/watchlist"),
+  getRisk: () => api.get("/dashboard/risk"),
+  getBrief: () => api.get("/dashboard/brief"),
+  getStats: () => api.get("/dashboard/stats"),
+};
+
 // ── LLM Gateway ─────────────────────────────
 export const llmApi = {
   complete: (queryType: string, messages: { role: string; content: string }[]) =>

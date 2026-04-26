@@ -288,13 +288,13 @@ cd backend && pdm run dev             # uvicorn --reload at :8000
 cd frontend && pnpm dev               # Next.js at :3000
 
 # Or start both at once:
-make dev-local                        # Uses overmind/honcho + Procfile
+just dev-local                        # Uses overmind/honcho + Procfile
 
 # 6. Run tests
-make test
+just test
 
 # 7. Create new migration after model changes
-make db-revision msg="add watchlist table"
+just db-revision msg="add watchlist table"
 ```
 
 ### Container (OrbStack or Docker)

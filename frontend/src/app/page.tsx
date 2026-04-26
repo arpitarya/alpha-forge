@@ -1,58 +1,48 @@
-import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { AppShell } from "@alphaforge/solar-orb-ui";
 import {
-  Allocation,
-  AlphaBrief,
-  NetWorth,
-  RiskAnalysis,
-  ScreenerPicks,
-  SolarOrb,
-  TerminalWatchlist,
-  VoiceFooter,
+  AlphaBriefCard,
+  OrbStage,
+  ScreenerPanel,
+  TerminalRail,
+  TerminalStats,
+  TerminalTicker,
+  TerminalTopBar,
+  TerminalVoice,
+  WatchlistCard,
 } from "@/components/terminal";
 
 export default function Home() {
   return (
-    <div className="flex h-screen flex-col bg-black overflow-hidden">
-      <Header />
-      <Sidebar />
-
-      {/* Main Dashboard Grid */}
-      <main className="flex-1 mt-20 ml-32 mr-8 mb-32 p-8 grid grid-cols-12 grid-rows-6 gap-8 relative">
-        {/* Ambient background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
-
-        {/* Alpha Brief — top-left */}
-        <div className="col-span-3 row-span-3">
-          <AlphaBrief />
+    <AppShell
+      header={<TerminalTopBar />}
+      ticker={<TerminalTicker />}
+      rail={<TerminalRail />}
+      footer={<TerminalVoice />}
+    >
+      <div className="grid h-full grid-cols-12 grid-rows-[1fr_auto] gap-3 min-h-0">
+        {/* Left: Alpha Brief */}
+        <div className="col-span-3 row-span-2 min-h-0">
+          <AlphaBriefCard />
         </div>
 
-        {/* Central Neural Interaction — hero area */}
-        <section className="col-span-6 col-start-4 row-span-4 flex flex-col items-center justify-center gap-16">
-          <SolarOrb />
-          <div className="flex gap-10 w-full justify-center">
-            <NetWorth />
-            <Allocation />
+        {/* Center: Orb + stats */}
+        <section className="col-span-6 flex min-h-0 flex-col gap-3">
+          <div className="flex-1 min-h-0">
+            <OrbStage />
           </div>
+          <TerminalStats />
         </section>
 
-        {/* Watchlist — top-right */}
-        <div className="col-span-3 col-start-10 row-span-4">
-          <TerminalWatchlist />
+        {/* Right: Watchlist + Risk Meter */}
+        <div className="col-span-3 row-span-2 min-h-0">
+          <WatchlistCard />
         </div>
 
-        {/* Risk Analysis — bottom-left */}
-        <div className="col-span-3 row-start-5 row-span-2">
-          <RiskAnalysis />
+        {/* Bottom-center: Screener */}
+        <div className="col-span-6 col-start-4 min-h-0 max-h-[260px]">
+          <ScreenerPanel />
         </div>
-
-        {/* Screener Picks — bottom-center */}
-        <div className="col-span-6 col-start-4 row-start-5 row-span-2">
-          <ScreenerPicks />
-        </div>
-      </main>
-
-      <VoiceFooter />
-    </div>
+      </div>
+    </AppShell>
   );
 }

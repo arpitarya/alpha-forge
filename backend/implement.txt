@@ -1,0 +1,143 @@
+backend — Implementation Log
+============================
+
+2026-04-26 — Portfolio module: brokers, aggregator, routes, tests, docs
+-----------------------------------------------------------------------
+
+Goal: aggregate holdings across Zerodha, Zerodha Coin, Groww, Dezerv,
+Wint Wealth (CSV exports — only legal/free path) + Angel One SmartAPI
+(genuinely free REST). All under one pluggable BrokerSource ABC so
+future paid integrations slot in without touching routes or frontend.
+
+New broker stack — backend/app/services/brokers/
+------------------------------------------------
+- base.py
+    BrokerSource ABC + Holding (Pydantic) + AssetClass / SourceKind /
+    SourceStatus enums + SourceInfo. Two sub-paths: API → fetch(),
+    CSV → parse(stream, filename). Common sync()/ingest_csv()/info()
+    lifecycle. In-memory cache, status, last_synced_at, error.
+
+- csv_sources.py
+    Five tolerant parsers — ZerodhaCSVSource, ZerodhaCoinCSVSource,
+    GrowwCSVSource (auto-detects stocks vs MF via columns/filename),
+    DezervCSVSource (asset class column), WintWealthCSVSource (bonds).
+    Helpers: _to_float() forgiving on currency symbols + commas + ₹/$,
+    _read_csv() utf-8-sig + skips empty rows + trims, _pick() takes
+    first non-empty header alias case-insensitively. Tolerance is
+    intentional — broker CSVs change column shapes between exports.
+
+- angel_one.py
+    SmartAPI client. POST /loginByPassword (clientcode + password +
+    TOTP) → jwt → GET /portfolio/v1/getHolding. pyotp lazy-imported
+    so the package boots without it. Reads ANGEL_ONE_API_KEY /
+    CLIENT_CODE / PASSWORD / TOTP_SECRET from env. Status auto-set to
+    READY when all four creds are present at construction.
+
+- aggregator.py
+    HoldingsAggregator — stateless read-side: all_holdings(source?),
+    totals, allocation (by asset_class, % sums to 100), treemap (uses
+    home-rolled _squarify layout — good enough for ≤24 cells), and
+    rebalance against DEFAULT_TARGETS (60/15/15/5/3/2 = equity/MF/
+    bond/gold/crypto/cash). Suggestions fire above ±5% drift.
+
+- registry.py
+    Process-wide SOURCES dict — one BrokerSource instance per slug.
+
+- __init__.py
+    Public barrel re-exporting all of the above.
+
+New routes — backend/app/routes/portfolio.py
+--------------------------------------------
+GET    /portfolio/holdings?source=<slug>   aggregated + totals + alloc
+GET    /portfolio/treemap?source=<slug>    pre-computed cell layout
+GET    /portfolio/rebalance                drift + suggestions + targets
+GET    /portfolio/sources                  list 6 sources + status
+GET    /portfolio/sources/{slug}           single source info
+POST   /portfolio/sources/{slug}/upload    CSV ingest (multipart)
+POST   /portfolio/sources/{slug}/sync      API pull (Angel One only)
+POST   /portfolio/sources/{slug}/reset     clear cached holdings
+GET    /portfolio/summary                  legacy short shape (kept)
+
+Cross-source rules: 400 if you POST upload to an API source or sync to
+a CSV source. Every read payload includes the SEBI disclaimer.
+
+Test suite — backend/tests/test_brokers.py + fixtures/broker_csvs/*
+-------------------------------------------------------------------
+- 6 fixture CSVs that mirror real broker exports (Zerodha equities,
+  Coin MF, Groww stocks + MF, Dezerv mixed-class, Wint Wealth bonds).
+- 25 tests across 8 classes:
+    TestZerodhaParser            (2)
+    TestZerodhaCoinParser        (1)
+    TestGrowwParser              (2 — stocks + MF auto-detect)
+    TestDezervParser             (1)
+    TestWintWealthParser         (1)
+    TestAggregator               (4 — totals, alloc sums to 100,
+                                       treemap fits unit box, rebalance)
+    TestPortfolioRoutes          (7 — list, upload, treemap, rebalance,
+                                       cross-source 400s, reset)
+    TestSourceMetadata           (6 — parametrized kind check per source)
+    + 1 bare _squarify unit test
+- All 25 pass in 0.6s. Pytest installed via `pdm add -dG test pytest
+  pytest-asyncio httpx`.
+
+Dev kit — CLI + notebook + docs
+-------------------------------
+- backend/scripts/dev_brokers.py
+    httpx-based CLI: sources / upload / upload-all / sync / holdings /
+    treemap / rebalance / reset. Override base via AF_API env var.
+    Pretty-prints JSON, fail-fast on file-not-found.
+
+- backend/notebooks/portfolio_dev.ipynb
+    Dual-mode (in_process / http) playground. Toggle MODE at the top
+    to swap between TestClient and a live server. Cells walk through
+    list-sources → upload-all → holdings → treemap → rebalance → sync
+    angel-one → reset. Useful for parser debugging (in-process) vs
+    CORS / frontend integration (http).
+
+- backend/docs/BROKERS.md
+    Per-source setup table (where to download each CSV, free-tier API
+    notes). Step-by-step Angel One SmartAPI setup. Endpoint reference.
+    Unified Holding shape. Three dev workflows (pytest / CLI / Jupyter).
+    "Adding a new source" 4-step guide.
+
+Honest free-tier reality
+------------------------
+Of the six requested brokers, only Angel One has a genuinely free
+REST API (SmartAPI, free with API key + TOTP). The other five offer
+no free public API. We chose CSV upload — the only legal + reliable
+free path — over reverse-engineered/scraped private endpoints.
+
+Frontend portfolio tab — frontend/src/app/portfolio/page.tsx
+------------------------------------------------------------
+- AppShell (TopBar / TerminalRail / TerminalTicker / TerminalVoice)
+  + 4-quadrant grid: PortfolioHeader (4 stat cards + Treemap/Ledger
+  toggle) on top; Treemap or Ledger left; RebalanceRail right;
+  SourcesPanel bottom.
+- TerminalTopBar + TerminalRail rewired to Next router (usePathname +
+  push) so /terminal ↔ /portfolio nav works from header + sidebar.
+- New components in frontend/src/components/portfolio/:
+    PortfolioHeader, Treemap (uses TreemapCell from solar-orb-ui),
+    Ledger (sortable table, source/class columns, +/− tone), RebalanceRail
+    (drift bidirectional bars + suggestion chips + Deploy CTA),
+    SourcesPanel (per-source row with upload/sync/reset, toast errors).
+- New hooks in frontend/src/lib/queries.ts: useHoldings, useTreemap,
+  useRebalance, useSources, useUploadCsv, useSyncSource, useResetSource.
+  Full DTO types mirror backend Pydantic models.
+- Fixed pre-existing ts-ignore lint error blocking Next prod build.
+
+Verification
+------------
+- pdm run pytest tests/test_brokers.py -v   →  25 passed in 0.61s
+- pnpm type-check (frontend)                 →  clean
+- pnpm build (frontend)
+    Route /            213 B   First-Load 154 kB
+    Route /portfolio   3.69 kB First-Load 158 kB
+
+Next
+----
+- Persist source caches across restarts (currently in-memory).
+- Push uploaded CSVs to data/holdings_uploads/ for audit.
+- Add /portfolio/holdings/{symbol} drill-down endpoint + drawer.
+- Replace bond `pnl` (currently mark-to-market diff) with YTM-aware
+  return once we plug in NSE bond prices.
+- Wire Deploy button to llmApi.complete(QueryType.PORTFOLIO_BRIEF).

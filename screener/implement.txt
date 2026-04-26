@@ -411,7 +411,7 @@ SETUP SCRIPT                                                       [COMPLETED]
       * --scan        Run daily live scan (incremental OHLCV + predict + explain + drift)
       * --help        Show usage
     - Prerequisites checked:
-      * Repo-root .venv (created by 'make venv')
+      * Repo-root .venv (created by 'just venv')
       * libomp on macOS (prompts to install via Homebrew if missing)
     - Directory creation: all 11 required dirs (ohlcv, indices, nse_supplementary,
       features, dataset/output, models/saved/{lightgbm,xgboost}, backtest,

@@ -11,6 +11,9 @@ importers:
       '@alphaforge/logger':
         specifier: workspace:*
         version: link:../packages/logger-node
+      '@alphaforge/solar-orb-ball':
+        specifier: workspace:*
+        version: link:../packages/solar-orb-ball
       '@alphaforge/solar-orb-ui':
         specifier: workspace:*
         version: link:../packages/solar-orb-ui

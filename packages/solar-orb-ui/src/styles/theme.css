@@ -1,28 +1,49 @@
 /*
  * Solar Orb UI — Theme Tokens
  *
- * Two layers:
- *   1. Tailwind v4 @theme tokens — register palette/typography/etc. with Tailwind so
- *      utility classes like `bg-primary`, `text-on-surface` work.
- *   2. Semantic CSS variables (--bg, --fg, --accent, --line, …) under :root +
- *      [data-theme] / [data-accent] selectors. These power runtime theme + accent
- *      switching (dark↔light, amber/ion/signal/violet) used by the Hi-Fi mock.
+ * Two layers, in this order:
  *
- * Components should prefer the semantic vars (var(--accent), var(--fg-2), …) over
- * hardcoded Tailwind colors so they re-skin instantly when theme/accent flips.
+ *   1. Tailwind v4 @theme tokens — register colours / fonts / radii / shadows
+ *      with Tailwind so utility classes (`bg-primary`, `text-on-surface`,
+ *      `font-body`, `rounded-md`, …) are generated. Token names follow the
+ *      v4 namespace convention exactly:
+ *
+ *        --color-*        → bg-/text-/border-/fill-/stroke-/ring-/etc
+ *        --font-*         → font-{name}    (font-family)
+ *        --text-*         → text-{name}    (font-size + optional line-height pair)
+ *        --leading-*      → leading-{name}
+ *        --tracking-*     → tracking-{name}
+ *        --radius-*       → rounded-{name}
+ *        --shadow-*       → shadow-{name}
+ *        --ease-*         → ease-{name}
+ *        --animate-*      → animate-{name}
+ *        --breakpoint-*   → screens
+ *
+ *      Using the wrong prefix (e.g. `--font-family-body`) makes Tailwind
+ *      silently skip the token, so utilities won't render — that's the
+ *      class of bug this layer prevents.
+ *
+ *   2. Semantic CSS variables (--bg, --fg, --accent, --line, …) keyed off
+ *      :root + [data-theme] / [data-accent]. Powers runtime theme + accent
+ *      switching at the document level (dark↔light, amber/ion/signal/violet)
+ *      via <ThemeProvider/>. Components reference these for theme-aware
+ *      styling that survives accent flips.
  *
  * Usage in your app's globals.css:
- *   @import "@alphaforge/solar-orb-ui/theme";
+ *
  *   @import "tailwindcss";
+ *   @import "@alphaforge/solar-orb-ui/theme";
+ *
+ * (Tailwind first, then theme — so v4 picks up the @theme registrations.)
  */
 
 @theme {
-  /* ── Brand ─────────────────────────────────── */
+  /* ── Brand palette ─────────────────────────── */
   --color-primary: #ff8f00;
   --color-primary-light: #ffa44f;
   --color-primary-dark: #cc7200;
 
-  /* ── Surfaces ──────────────────────────────── */
+  /* ── Surface ramp ──────────────────────────── */
   --color-surface-lowest: #000000;
   --color-surface: #0e0e0e;
   --color-surface-low: #131313;
@@ -30,8 +51,9 @@
   --color-surface-container-high: #222222;
   --color-surface-container-highest: #282828;
   --color-surface-bright: #2c2c2c;
+  --color-surface-hi: #1b1b1b;
 
-  /* ── On-Surface (text) ─────────────────────── */
+  /* ── On-surface (text) ─────────────────────── */
   --color-on-surface: #ffffff;
   --color-on-surface-variant: #adaaaa;
   --color-on-surface-muted: #666666;
@@ -40,39 +62,42 @@
   --color-outline: #484847;
   --color-outline-variant: #484847;
 
-  /* ── Semantic ──────────────────────────────── */
+  /* ── Semantic accents ──────────────────────── */
   --color-af-green: #34d399;
   --color-af-red: #f87171;
   --color-af-orange: #f59e0b;
   --color-af-purple: #a855f7;
   --color-af-blue: #3b82f6;
 
-  /* ── Typography ────────────────────────────── */
-  --font-family-headline: "Space Grotesk", sans-serif;
-  --font-family-body: "Space Grotesk", sans-serif;
-  --font-family-mono: "Space Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
+  /* ── Typography — families (generates font-{name}) ── */
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-mono: "Space Mono", "JetBrains Mono", "SF Mono", ui-monospace, monospace;
 
-  --font-size-display-lg: 3.5rem;
-  --font-size-display: 2.25rem;
-  --font-size-title: 1.25rem;
-  --font-size-body: 0.875rem;
-  --font-size-body-sm: 0.75rem;
-  --font-size-label: 0.625rem;
-  --font-size-label-sm: 0.6875rem;
-  --font-size-mono-data: 0.8125rem;
+  /* ── Typography — sizes (generates text-{name}) ───── */
+  --text-display-lg: 3.5rem;
+  --text-display: 2.25rem;
+  --text-title: 1.25rem;
+  --text-body: 0.875rem;
+  --text-body-sm: 0.75rem;
+  --text-label: 0.625rem;
+  --text-label-sm: 0.6875rem;
+  --text-mono-data: 0.8125rem;
 
-  --line-height-tight: 1.1;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.7;
+  /* ── Typography — line-heights (generates leading-{name}) ── */
+  --leading-tight: 1.1;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
 
-  --letter-spacing-tighter: -0.05em;
-  --letter-spacing-wide: 0.15em;
-  --letter-spacing-wider: 0.2em;
-  --letter-spacing-tight: -0.04em;
-  --letter-spacing-terminal: 0.1em;
-  --letter-spacing-widest: 0.3em;
+  /* ── Typography — letter-spacing (generates tracking-{name}) ── */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.04em;
+  --tracking-terminal: 0.1em;
+  --tracking-wide: 0.15em;
+  --tracking-wider: 0.2em;
+  --tracking-widest: 0.3em;
 
-  /* ── Border Radius ────────────────────────────── */
+  /* ── Border radius ─────────────────────────── */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 1rem;
@@ -92,19 +117,14 @@
   --shadow-glow-red: 0 0 12px rgba(248, 113, 113, 0.2);
 
   /* ── Animation ─────────────────────────────── */
-  --animate-duration-fast: 150ms;
-  --animate-duration-normal: 300ms;
-  --animate-duration-slow: 700ms;
-  --animate-duration-pulse: 8s;
-
   --ease-default: ease;
   --ease-in-out: ease-in-out;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ── Semantic Theme Layer ─────────────────────────────────────────────────────
- * These are the runtime-switchable vars. Components reference these so the same
- * markup re-skins when [data-theme] or [data-accent] flips.
+ * Runtime-switchable vars. Components reference these so the same markup
+ * re-skins when [data-theme] or [data-accent] flips on <html>.
  */
 
 :root,
@@ -137,6 +157,9 @@ html[data-theme="light"] {
   --fg-2: #4e4a41;
   --fg-3: #8a8478;
   --fg-4: #c5bfb0;
+
+  --green: #15803d;
+  --red: #b91c1c;
 }
 
 /* Accent palettes — default to amber when no [data-accent] is set */

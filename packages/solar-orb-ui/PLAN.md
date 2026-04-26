@@ -115,22 +115,25 @@ Page-level grids stay in `frontend/`; **all visual primitives ship from `@alphaf
 
 ## Phases
 
-**Phase 1 — Token + atom expansion (closes the gap to render Hi-Fi terminal screen accurately)**
-1. Extend `theme.css` with semantic tokens + light/accent variants; add Space Mono to `fonts.css`.
-2. Upgrade `Text` (mono, tag), `Card` (glow + Header slot), `Chip` (bordered), `Button` (deploy).
-3. New atoms: `Kbd`, `LiveDot`, `HudCorners`, `Sparkline`, `CountUp`.
+**Phase 1 — Token + atom expansion ✅ DONE**
+1. ✅ Extend `theme.css` with semantic tokens + light/accent variants; add Space Mono to `fonts.css`.
+2. ✅ Upgrade `Text` (mono, tag), `Card` (glow + Header slot), `Chip` (bordered), `Button` (deploy).
+3. ✅ New atoms: `Kbd`, `LiveDot`, `HudCorners`, `Sparkline`, `CountUp`.
 
-**Phase 2 — Molecules for terminal screen**
-4. `Stat`, `WatchRow`, `RiskBars`, `Ticker`, `MicIndicator`, `Waveform`.
-5. Layout shells: `AppShell`, `TopBar`, `IconRail`, `VoiceDock`.
-6. Refactor `frontend/src/app/page.tsx` + terminal components onto the new primitives. Delete duplicated styles.
+**Phase 2 — Molecules + shells ✅ DONE (component side)**
+4. ✅ `Stat`, `WatchRow`, `RiskBars`, `Ticker`, `MicIndicator`, `Waveform`.
+5. ✅ Layout shells: `AppShell`, `TopBar`, `IconRail`, `VoiceDock`.
+6. ⏳ Refactor `frontend/src/app/page.tsx` + terminal components onto the new primitives — deferred to a separate frontend pass; components are ready and consumable today.
 
-**Phase 3 — Portfolio + boot**
-7. `SegmentedControl`, `Swatches`, `BootStep`, `TreemapCell`.
-8. Build `/portfolio` and `/boot` routes against the same primitives.
+**Phase 3 — Portfolio + boot ✅ DONE (component side)**
+7. ✅ `SegmentedControl`, `Swatches`, `BootStep`, `TreemapCell`.
+8. ⏳ Build `/portfolio` and `/boot` routes — deferred (frontend wiring), library primitives ready.
 
-**Phase 4 — Theming runtime**
-9. `ThemeProvider` (sets `data-theme`/`data-accent` on `<html>`, persists to localStorage). Surface the segmented control + swatches in a settings popover.
+**Phase 4 — Theming runtime ✅ DONE**
+9. ✅ `ThemeProvider` + `useTheme` hook (sets `data-theme`/`data-accent` on `<html>`, persists to localStorage; safe for SSR — only mutates `document` after mount). Pair with `<SegmentedControl />` (theme) and `<Swatches />` (accent) to expose runtime switching.
+
+**Companion package — `@alphaforge/solar-orb-ball`**
+- Standalone publishable package containing only the central animated orb. Has its own Vite dev server with a sliders + accent + size + pulse playground for fast iteration. See [packages/solar-orb-ball/PLAN.md](../solar-orb-ball/PLAN.md).
 
 ## Out of scope (for now)
 

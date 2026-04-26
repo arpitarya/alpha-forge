@@ -70,7 +70,7 @@ OLLAMA_BASE_URL=      # Default: http://localhost:11434
 pip install -e ./llm-gateway
 
 # Or via Makefile
-make llm-gateway-install
+just llm-gateway-install
 ```
 
 ## Architecture

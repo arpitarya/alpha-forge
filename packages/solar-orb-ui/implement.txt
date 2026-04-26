@@ -65,9 +65,73 @@ Verification
   (data type from useScreenerPicks not annotated upstream) and not
   introduced by Phase 1.
 
-Next (Phase 2)
---------------
-- Molecules: Stat, WatchRow, RiskBars, Ticker, MicIndicator, Waveform.
-- Layout shells: AppShell, TopBar, IconRail, VoiceDock.
-- Refactor frontend/src/app/page.tsx + terminal/* onto the new primitives;
-  delete duplicated `floating-shard` + ad-hoc colour styling.
+Phase 2 — Molecules + layout shells  (2026-04-26, complete)
+-----------------------------------------------------------
+
+Molecules
+- Stat: label · value · delta · optional Sparkline; Hi-Fi top-left
+  accent corner ticks rendered via two absolute spans.
+- WatchRow: icon-square + symbol/sub + price + change. Click handler
+  promotes root to <button>; non-interactive renders as <div>.
+- RiskBars: N vertical fills with one accent-glowing active bar; values
+  in 0..100, height in px.
+- Ticker (client): horizontal marquee, doubles the item list inline so
+  CSS animation can translate -50% for seamless loop. No JS interval.
+- MicIndicator: circular accent chip + 2 staggered ping rings (uses
+  base.css `mic-ping` keyframes).
+- Waveform: 8-bar audio meter with per-bar staggered animation-delay;
+  decorative only.
+
+Layout shells
+- AppShell: header / ticker / rail / main / footer slots; provides the
+  radial-gradient ambient background and uses semantic --bg / --glow vars
+  so it re-skins on data-theme/data-accent flip.
+- TopBar: brand + nav (active gets underline glow) + right slot. Bottom
+  hairline rendered via ::after gradient.
+- IconRail: 52px-wide vertical rail of icon buttons; active item gets
+  accent border, tinted bg, inner glow.
+- VoiceDock: footer with left accent stripe (::before gradient); slots
+  for mic, center (waveform + transcript), cta.
+
+Phase 3 — Portfolio + boot atoms  (2026-04-26, complete)
+--------------------------------------------------------
+- SegmentedControl<T> (client): generic radiogroup; active segment
+  fills with accent. Used by theme switcher + portfolio Treemap/Ledger
+  toggle.
+- Swatches (client): 4 colored circles (amber/ion/signal/violet) with
+  outline-focused active state. Exports `AccentName` type.
+- BootStep: one row of the boot list (queued/now/ok states drive icon
+  glyph + colour; `now` spins via local @keyframes boot-spin).
+- TreemapCell: absolute-positioned cell; bg auto-tints by pnlPct via
+  color-mix(--green/--red, intensity). Optional decoration slot for
+  inline sparklines.
+
+Phase 4 — Theme runtime  (2026-04-26, complete)
+-----------------------------------------------
+- ThemeProvider + useTheme(): sets data-theme + data-accent on
+  <html>, persists to localStorage under "solar-orb-theme". Hydrates
+  from storage in a post-mount effect (SSR-safe). Optional `ephemeral`
+  prop disables persistence for screenshot/SSR-only renders.
+- useTheme throws if used outside provider — fail loud rather than
+  silently fall back, since wiring it up is a one-liner.
+
+Barrel + verification
+---------------------
+- src/index.ts re-exports all 28 components + types + tokens.
+- `pnpm build` clean: ESM 49.7 KB / CJS 52.8 KB / DTS 26.6 KB.
+- `pnpm type-check` clean.
+- IDE Biome `useSortedKeys` info on barrel grouping is intentional
+  (atoms/molecules/shells grouped by category, alpha within each).
+
+Companion package
+-----------------
+- Spun out the central Solar Orb into @alphaforge/solar-orb-ball (own
+  Vite dev server + playground). See packages/solar-orb-ball/implement.txt.
+
+Next
+----
+- Refactor frontend/src/app/page.tsx + terminal/* onto the new
+  primitives (delete `floating-shard` ad-hoc styling).
+- Build /portfolio and /boot routes against TreemapCell + BootStep.
+- Wire ThemeProvider into root layout + add a settings popover that
+  combines SegmentedControl (theme) + Swatches (accent).

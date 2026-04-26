@@ -1,0 +1,74 @@
+solar-orb-ball — Implementation Log
+====================================
+
+Phase 1 — Standalone component + Vite playground  (2026-04-26, complete)
+------------------------------------------------------------------------
+
+Goal: extract the central Solar Orb from solar-orb-ui into a publishable
+package with its own dev server, so motion / glow / color iterations don't
+require a frontend rebuild.
+
+Package
+-------
+- packages/solar-orb-ball/package.json: ESM + CJS exports, declares
+  ./styles export pointing at dist/solar-orb-ball.css. Dev deps:
+  vite ^6.0.7, @vitejs/plugin-react ^4.3.4, typescript, react/react-dom 19.
+- pnpm-workspace.yaml already globs `packages/*`, so the new package is
+  auto-discovered. `pnpm install` from repo root installed 41 fresh
+  packages (vite + transitive) into the workspace.
+
+Build chain
+-----------
+- vite.config.ts is dual-mode:
+    pnpm dev          → vite dev server, root=`.`, opens /playground/
+    pnpm build        → lib mode → dist/solar-orb-ball.{js,cjs,css} +
+                        sourcemaps; tsc --emitDeclarationOnly produces
+                        dist/index.d.ts.
+    pnpm build:demo   → bundles playground as static site → dist-demo/
+- Lib build externalises react / react-dom / react/jsx-runtime; output
+  filename is forced to `solar-orb-ball.css` so the ./styles export
+  resolves regardless of Vite's hashing.
+- tsconfig.json (dev, noEmit) and tsconfig.build.json (declarations only)
+  are split so type-check stays fast and build keeps a single source of
+  truth.
+
+Component
+---------
+- src/SolarOrb.tsx — single component. All --orb-* CSS vars are written
+  via inline style on the root element, scoped to .solar-orb-ball, so
+  multiple orbs on the same page can render with independent accents.
+- src/SolarOrb.css — keyframes (pulse, ring expansion, scanline drift,
+  star twinkle), HUD corner brackets, specular highlight. No reliance on
+  any global theme.
+- Props: size, accent/accentSoft/accentDim, hud, rings, starPreset
+  (constellation | minimal | none), pulseSeconds, caption.
+- Internal helper hexToGlow() converts the `accent` hex to a 0.18-alpha
+  rgba for the box-shadow glow without forcing the consumer to compute it.
+
+Playground
+----------
+- playground/Playground.tsx mounts the orb with live controls: 4 accent
+  presets (Amber / Ion / Signal / Violet), size slider 120-520, pulse
+  slider 0-8s, star preset toggle, HUD/rings/caption checkboxes, and a
+  background colour picker (so the orb can be auditioned on light surfaces
+  too).
+- playground/index.html loads Space Grotesk + Space Mono from Google
+  Fonts so the caption renders correctly out of the box.
+
+Verification
+------------
+- `pnpm install` (root)                  → 41 added, 0 errors.
+- `cd packages/solar-orb-ball && pnpm build`
+    Vite lib build: 4 modules transformed, dist/solar-orb-ball.js 4.45 KB,
+    dist/solar-orb-ball.css 3.11 KB, dist/solar-orb-ball.cjs 3.19 KB,
+    sourcemaps emitted, tsc declarations clean.
+- `pnpm type-check`                      → no errors.
+- solar-orb-ui re-built clean after the parallel Phase 2-4 work; CJS
+  52.8 KB / ESM 49.7 KB / DTS 26.6 KB.
+
+Next
+----
+- Phase 2: prefers-reduced-motion handling, idle/listening/thinking
+  state variants, denser "field" star preset.
+- Phase 3: click burst + hover magnetic highlight.
+- Phase 4: web-component wrapper for non-React consumers.

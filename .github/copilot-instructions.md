@@ -60,13 +60,13 @@ Monorepo (pnpm workspaces): Python/FastAPI backend + Next.js/TypeScript frontend
 docker compose -f infra/docker-compose.yml up -d                  # Container (OrbStack recommended)
 
 # Start dev servers
-make dev-local            # Backend + frontend via Procfile
+just dev-local            # Backend + frontend via Procfile
 # OR individually:
-make backend              # Backend only
-make frontend             # Frontend only
+just backend              # Backend only
+just frontend             # Frontend only
 
 # Copilot Browser Integration (Playwright MCP)
-make setup-mcp            # Install Playwright Chromium + configure .vscode/settings.json
+just setup-mcp            # Install Playwright Chromium + configure .vscode/settings.json
 
 # Screener pipeline
 ./setup.sh --pipeline     # Full data → train → backtest

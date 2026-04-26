@@ -58,10 +58,10 @@ cd alpha-forge
 ./setup.sh --db
 
 # Apply DB migrations
-make db-migrate
+just db-migrate
 
 # Start backend + frontend
-make dev-local
+just dev-local
 ```
 
 Frontend: http://localhost:3000  
@@ -90,29 +90,29 @@ docker compose -f infra/docker-compose.yml up --build
 
 ```bash
 # Development
-make dev-local
-make backend
-make frontend
+just dev-local
+just backend
+just frontend
 
 # Quality
-make test
-make lint
-make format
+just test
+just lint
+just format
 
 # Screener
 ./setup.sh --pipeline
 ./setup.sh --scan
-make screener-pipeline
-make screener-scan
+just screener-pipeline
+just screener-scan
 
 # LLM Gateway
-make llm-gateway-install
-make llm-providers
-make llm-benchmark
+just llm-gateway-install
+just llm-providers
+just llm-benchmark
 python -m alphaforge_llm_gateway chat
 
 # Copilot browser integration
-make setup-mcp
+just setup-mcp
 ```
 
 ---

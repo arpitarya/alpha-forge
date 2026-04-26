@@ -1,26 +1,17 @@
-/* Solar Orb UI — design system fonts, tokens, and base styles */
-@import "@alphaforge/solar-orb-ui/src/styles/fonts.css";
-@import "@alphaforge/solar-orb-ui/src/styles/base.css";
-@import "@alphaforge/solar-orb-ui/src/styles/theme.css";
+/*
+ * Frontend global stylesheet
+ *
+ * Order matters — Tailwind v4 must be first so its @theme processor sees the
+ * design-system theme tokens that follow. Then design-system fonts / theme /
+ * base, then the standalone solar-orb-ball styles, then app-specific resets.
+ */
+
 @import "tailwindcss";
 
-:root {
-  /* Legacy vars for backwards compat */
-  --af-bg-primary: #000000;
-  --af-bg-secondary: #0e0e0e;
-  --af-bg-tertiary: #1a1a1a;
-  --af-bg-card: #131313;
-  --af-border: #484847;
-  --af-text-primary: #ffffff;
-  --af-text-secondary: #adaaaa;
-  --af-text-muted: #666666;
-  --af-accent-blue: #ff8f00;
-  --af-accent-cyan: #ffa44f;
-  --af-green: #34d399;
-  --af-red: #f87171;
-  --af-orange: #ff8f00;
-  --af-purple: #a855f7;
-}
+@import "@alphaforge/solar-orb-ui/src/styles/fonts.css";
+@import "@alphaforge/solar-orb-ui/src/styles/theme.css";
+@import "@alphaforge/solar-orb-ui/src/styles/base.css";
+@import "@alphaforge/solar-orb-ball/styles";
 
 * {
   box-sizing: border-box;
@@ -30,32 +21,37 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  background-color: #000000;
-  color: #ffffff;
-  font-family: "Space Grotesk", sans-serif;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body, "Space Grotesk", sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* App-level scrollbar (uses design system base for custom scrollbars) */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #000000;
-}
-::-webkit-scrollbar-thumb {
-  background: #484847;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #666666;
+#__next,
+body > div:first-of-type {
+  height: 100%;
 }
 
-/* Utility classes */
-.text-green { color: var(--af-green); }
-.text-red { color: var(--af-red); }
-.text-muted { color: var(--af-text-muted); }
-.bg-card { background-color: var(--af-bg-card); }
-.border-subtle { border-color: var(--af-border); }
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* Page-level scrollbar — uses runtime theme vars so it re-skins on theme flip */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line-hi); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--fg-3); }
+
+/* Reduced-motion — respect OS pref by killing the heaviest animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

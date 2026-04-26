@@ -159,7 +159,7 @@ cd packages/solar-orb-ui && pnpm build   # Build ESM + CJS + DTS
 cd packages/solar-orb-ui && pnpm dev     # Watch mode
 
 # Copilot Browser Integration
-make setup-mcp                           # Install Playwright Chromium + MCP config
+just setup-mcp                           # Install Playwright Chromium + MCP config
 
 # Infrastructure
 ./setup.sh --db                                                 # macOS native (Homebrew)
@@ -182,9 +182,9 @@ cd backend && pdm run alembic revision --autogenerate -m "description"
 ./clean.sh --all          # Nuclear clean — removes everything (run setup.sh to restore)
 
 # LLM Gateway
-make llm-gateway-install                                        # Install package into .venv
-make llm-providers                                              # Show provider health + quota
-make llm-benchmark                                              # Benchmark all providers
+just llm-gateway-install                                        # Install package into .venv
+just llm-providers                                              # Show provider health + quota
+just llm-benchmark                                              # Benchmark all providers
 python -m alphaforge_llm_gateway chat                           # Interactive chat
 python -m alphaforge_llm_gateway analyze-screener -f picks.txt  # Analyze screener output
 
@@ -205,6 +205,7 @@ alphaforge-repo-context-mcp                                     # Same server (a
 - Broker tokens encrypted at rest
 - CORS restricted to frontend origin only
 - No guaranteed return claims anywhere in code or UI
+- Follow the file layout + naming rules in [structure/](structure/README.md). Each top-level module has its own `files.md` and `variables.md`; consult them before creating a new file or naming a new symbol.
 
 ## graphify
 

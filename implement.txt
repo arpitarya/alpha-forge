@@ -10,4 +10,11 @@ Central index of all module-level implementation logs. Each module maintains its
 | **LLM Gateway** | [llm-gateway/implement.txt](llm-gateway/implement.txt) | Phase 1-12 Complete |
 | **Vector DB / Memory Lake** | [backend/implement_memory.txt](backend/implement_memory.txt) | Complete |
 | **Repo Context MCP** | [repo-context-mcp/implement.txt](repo-context-mcp/implement.txt) | v0.1 Complete |
-| **Solar Orb UI** | [packages/solar-orb-ui/implement.txt](packages/solar-orb-ui/implement.txt) | Phase 1 Complete |
+| **Solar Orb UI** | [packages/solar-orb-ui/implement.txt](packages/solar-orb-ui/implement.txt) | Phases 1-4 Complete |
+| **Solar Orb Ball** | [packages/solar-orb-ball/implement.txt](packages/solar-orb-ball/implement.txt) | Phase 1 Complete |
+| **Frontend (Terminal screen)** | [frontend/implement.txt](frontend/implement.txt) | Hi-Fi mock wired end-to-end |
+| **Backend (Portfolio + brokers)** | [backend/implement.txt](backend/implement.txt) | 6 broker sources + aggregator + 25 tests |
+
+## Conventions
+
+File layout + naming rules per module: see [structure/README.md](structure/README.md).

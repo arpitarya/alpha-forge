@@ -40,16 +40,16 @@ cd alpha-forge
 
 # 3. Setup PostgreSQL & Redis via Homebrew
 ./setup.sh --db
-# OR: make db-local
+# OR: just db-local
 
 # 4. Review & update environment files
 # Edit backend/.env and frontend/.env.local with your credentials
 
 # 5. Run database migrations
-make db-migrate
+just db-migrate
 
 # 6. Start development servers
-make dev-local              # Backend + frontend via Procfile
+just dev-local              # Backend + frontend via Procfile
 ```
 
 **Or step-by-step if you prefer granular control:**
@@ -67,7 +67,7 @@ make dev-local              # Backend + frontend via Procfile
 **Start everything at once** with a process manager:
 ```bash
 brew install overmind       # or: pip install honcho
-make dev-local              # Starts backend + frontend from Procfile
+just dev-local              # Starts backend + frontend from Procfile
 ```
 
 ---
@@ -165,31 +165,31 @@ KITE_API_SECRET=your_secret
 ./setup.sh --help          # Show all setup.sh options
 
 # ── Development ──────────────────────────────────
-make help                  # Show all available Makefile commands
-make dev-local             # Start backend + frontend via Procfile
-make dev-docker            # Start everything with Docker/OrbStack
-make backend               # Run backend locally (pdm run dev)
-make frontend              # Run frontend locally (pnpm dev)
+just help                  # Show all available Makefile commands
+just dev-local             # Start backend + frontend via Procfile
+just dev-docker            # Start everything with Docker/OrbStack
+just backend               # Run backend locally (pdm run dev)
+just frontend              # Run frontend locally (pnpm dev)
 
 # ── Testing & Quality ────────────────────────────
-make test                  # Run all tests
-make lint                  # Lint backend + frontend
-make format                # Auto-format backend code
+just test                  # Run all tests
+just lint                  # Lint backend + frontend
+just format                # Auto-format backend code
 
 # ── Database ─────────────────────────────────────
-make db-local              # Setup PostgreSQL + Redis via Homebrew
-make db-up                 # Start PostgreSQL + Redis via Docker
-make db-migrate            # Apply pending migrations
-make db-revision msg="description"  # Create new migration
+just db-local              # Setup PostgreSQL + Redis via Homebrew
+just db-up                 # Start PostgreSQL + Redis via Docker
+just db-migrate            # Apply pending migrations
+just db-revision msg="description"  # Create new migration
 
 # ── Screener Pipeline ────────────────────────────
 ./setup.sh --pipeline      # Run full data → train → backtest pipeline
 ./setup.sh --scan          # Run daily live scan
-make screener-pipeline     # Same as above, via Makefile
-make screener-scan         # Same as above, via Makefile
+just screener-pipeline     # Same as above, via Makefile
+just screener-scan         # Same as above, via Makefile
 
 # ── Misc ─────────────────────────────────────────
-make setup-mcp             # Install Playwright MCP for Copilot browser integration
+just setup-mcp             # Install Playwright MCP for Copilot browser integration
 ```
 
 ---
@@ -283,7 +283,7 @@ infra/
 | PostgreSQL won't start (brew) | `brew services restart postgresql@16` |
 | `ta-lib` install fails | Install system lib: `brew install ta-lib` |
 | Frontend can't reach backend | Check CORS config in `.env` and Next.js rewrite proxy |
-| Alembic migration fails | Ensure DB is running: `brew services list` or `make db-up` |
+| Alembic migration fails | Ensure DB is running: `brew services list` or `just db-up` |
 | Docker too heavy on macOS | Use native setup: `bash infra/setup-local.sh` or install OrbStack |
 
 ---
@@ -293,7 +293,7 @@ infra/
 Copilot can connect to Chrome to review mockups, screenshot live pages, and iterate on UI:
 
 ```bash
-make setup-mcp          # Install Playwright Chromium + configure MCP
+just setup-mcp          # Install Playwright Chromium + configure MCP
 ```
 
 This installs the Playwright Chromium browser and configures the MCP server in `.vscode/settings.json`. After installation:
@@ -325,7 +325,7 @@ Once the base setup is running:
 1. **Explore the API** at http://localhost:8000/docs
 2. **Try the AI chat** (once you add an OpenAI key)
 3. **Connect a broker** (get Zerodha Kite API key from developers.kite.trade)
-4. **Set up Copilot browser integration** — `make setup-mcp` (see above)
+4. **Set up Copilot browser integration** — `just setup-mcp` (see above)
 5. **Check the roadmap** in [WHAT.md](WHAT.md) for upcoming features
 6. **Open in Codespaces** for zero-setup cloud development
 7. **Contribute** — pick an issue, create a PR!

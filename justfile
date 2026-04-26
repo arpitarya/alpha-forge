@@ -124,6 +124,22 @@ llm-benchmark: venv
 db-local:
     bash setup.sh --db
 
+# Start PostgreSQL & Redis (Homebrew)
+db-start:
+    bash database/db.sh start
+
+# Stop PostgreSQL & Redis (Homebrew)
+db-stop:
+    bash database/db.sh stop
+
+# Restart PostgreSQL & Redis (Homebrew)
+db-restart:
+    bash database/db.sh restart
+
+# Show PostgreSQL & Redis status
+db-status:
+    bash database/db.sh status
+
 # Start PostgreSQL & Redis via Docker/OrbStack
 db-up:
     docker compose -f infra/docker-compose.yml up postgres redis -d

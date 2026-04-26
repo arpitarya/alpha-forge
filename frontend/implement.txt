@@ -1,0 +1,130 @@
+frontend — Implementation Log
+==============================
+
+2026-04-26 — Hi-Fi terminal screen wired end-to-end
+---------------------------------------------------
+
+Goal: rebuild the home page from the Solar Terminal Hi-Fi mock using the
+new @alphaforge/solar-orb-ui primitives and the standalone Solar Orb from
+@alphaforge/solar-orb-ball. All copy/data sourced from new backend
+/dashboard/* endpoints.
+
+Frontend changes
+----------------
+- src/app/layout.tsx: wrapped <ThemeProvider/> from solar-orb-ui;
+  inlined a tiny pre-hydration script that reads localStorage and sets
+  data-theme/data-accent on <html> before React hydrates (no theme
+  flash). biome-ignore noted on dangerouslySetInnerHTML.
+- src/app/globals.css: imports solar-orb-ui (fonts → theme → base) and
+  solar-orb-ball/styles, then tailwindcss. Uses semantic --bg / --fg vars
+  for body so the page re-skins when the theme flips.
+- src/app/page.tsx: composes <AppShell/> + <TerminalTopBar/> +
+  <TerminalRail/> + <TerminalTicker/> + <TerminalVoice/> with the
+  4-quadrant grid (AlphaBriefCard · OrbStage+Stats · WatchlistCard ·
+  ScreenerPanel). Pure server component — every interactive piece is
+  marked "use client" inside its own component file.
+- src/components/terminal/* (rebuilt):
+    AlphaBriefCard, OrbStage, ScreenerPanel, TerminalRail, TerminalStats,
+    TerminalTicker, TerminalTopBar, TerminalVoice, WatchlistCard.
+  All compose only solar-orb-ui + solar-orb-ball primitives, no inline
+  ad-hoc styling beyond layout.
+- src/components/layout/{Header,Sidebar}.tsx removed; that role is now
+  played by <TopBar/> and <IconRail/> in the library.
+- src/lib/api.ts: added dashboardApi (ticker / watchlist / risk / brief
+  / stats).
+- src/lib/queries.ts: added DTOs + 5 React Query hooks
+  (useDashboardTicker / Watchlist / Risk / Brief / Stats); refetchInterval
+  set per signal (5-30s) so the UI stays "live" without manual polling.
+  Fixed ScreenerPick.SYMBOL → symbol and added explicit ScreenerPicksResponse
+  generic on useScreenerPicks so type-check is clean.
+
+Backend changes
+---------------
+- backend/app/routes/dashboard.py (new) at /api/v1/dashboard/*:
+    GET  /ticker     → list[TickerItem]   (13 indices/FX/commodities)
+    GET  /watchlist  → list[WatchlistItem] (6 holdings)
+    GET  /risk       → RiskMeter           (5 jittered bars + confidence)
+    GET  /brief      → TerminalBrief       (3 alpha-brief blocks + cta)
+    GET  /stats      → DashboardStats      (net_worth / pnl_today / confidence)
+  Each payload includes the SEBI disclaimer. Data is deterministic mock
+  with small per-call jitter on /risk so the UI animates believably until
+  Zerodha + LLM Gateway integration lands.
+- backend/app/routes/__init__.py registers dashboard_router under
+  /api/v1/dashboard.
+
+Verification
+------------
+- pnpm type-check (frontend) → clean.
+- pnpm build (frontend, Next.js production):
+    Route /  31.7 kB · First-Load 152 kB · prerendered as static.
+- Backend smoke test (uvicorn :8765, then TestClient):
+    /api/v1/health                → 200 {"status":"healthy"}
+    /api/v1/dashboard/ticker      → 200
+    /api/v1/dashboard/stats       → 200 (full payload)
+    /api/v1/dashboard/risk        → 200
+    /api/v1/dashboard/brief       → 200
+    /api/v1/dashboard/watchlist   → 200
+
+Run locally
+-----------
+  # 1. Backend (terminal A)
+  cd backend
+  pdm run dev          # uvicorn on :8000
+
+  # 2. Frontend (terminal B)
+  cd frontend
+  pnpm dev             # next on :3000 → http://localhost:3000
+
+  # Optional: orb playground (terminal C)
+  cd packages/solar-orb-ball
+  pnpm dev             # vite on :5180
+
+The frontend proxies /api/* to the backend (see next.config.mjs rewrites),
+so no CORS dance during dev.
+
+Next
+----
+- Replace deterministic dashboard mocks with real data:
+    /stats     → portfolioApi (real holdings totals — already plumbed
+                 once a CSV is uploaded; just point the hook at it)
+    /watchlist → user-stored watchlist + live tick stream
+    /brief     → llmApi.complete() with portfolio context
+    /ticker    → marketApi.getIndices()
+    /risk      → portfolio risk service
+- Wire the ScreenerPanel "Deploy" button to llmApi.explainPicks().
+- Add /boot route against the same primitives.
+- Surface SegmentedControl (theme) + Swatches (accent) in a settings
+  popover that reaches into the ThemeProvider.
+
+2026-04-26 — Portfolio tab + nav routing
+----------------------------------------
+- New /portfolio page (frontend/src/app/portfolio/page.tsx) using
+  AppShell + the same TerminalTopBar / Rail / Ticker / Voice chrome
+  as /. 4-quadrant grid: PortfolioHeader → Treemap|Ledger toggle on
+  the left → RebalanceRail on the right → SourcesPanel below.
+- New components in frontend/src/components/portfolio/:
+    PortfolioHeader (4 stat cards + SegmentedControl Treemap/Ledger),
+    Treemap (TreemapCell from solar-orb-ui, absolute-positioned by %
+             from the backend's pre-computed layout),
+    Ledger (sortable table; per-row tone for +/− P&L),
+    RebalanceRail (drift bidirectional bars + suggestion chips +
+                   Deploy CTA),
+    SourcesPanel (per-source row with status badge, upload/sync/reset
+                  buttons, inline error surfacing).
+- TerminalTopBar + TerminalRail rewired from local state → Next router
+  (usePathname + router.push). Active state derives from pathname so
+  /portfolio + /portfolio/* both light up the right tab.
+- 7 new React Query hooks in src/lib/queries.ts:
+    useHoldings, useTreemap, useRebalance, useSources, useUploadCsv,
+    useSyncSource, useResetSource. Full DTO interfaces mirror the
+    backend's Pydantic models (HoldingDTO, AllocationSliceDTO,
+    TreemapCellDTO, RebalanceResponseDTO, SourceInfoDTO).
+- portfolioApi extended in src/lib/api.ts with multipart upload helper.
+- Fixed pre-existing ts-ignore lint blocker in queries.ts so Next
+  prod build passes (was failing on /screener/picks transformer).
+
+Verification
+------------
+- pnpm type-check  → clean
+- pnpm build       → /  213 B  (152 kB FL) · /portfolio  3.69 kB (158 kB FL)
+- backend pytest   → 25/25 passed for portfolio routes + parsers

@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
-from app.routes import api_router
+from app.modules import api_router
 
 logger = get_logger("app")
 
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info("AlphaForge starting up (env=%s)", settings.app_env)
 
-    from app.services.embedding import get_embedding_service
+    from app.modules.memory.embedding import get_embedding_service
     embed_svc = get_embedding_service()
     logger.info("Embedding service ready (model=%s)", settings.embedding_model)
 

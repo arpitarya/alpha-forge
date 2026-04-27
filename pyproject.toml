@@ -1,0 +1,43 @@
+[project]
+name = "alphaforge-monorepo"
+version = "0.0.0"
+description = "AlphaForge — workspace root (uv). Not a published package."
+requires-python = ">=3.14"
+license = { text = "MIT" }
+authors = [{ name = "Arpit Arya" }]
+
+# The root project has no runtime deps; member projects own their own.
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "backend",
+    "screener",
+    "llm-gateway",
+    "packages/logger-py",
+]
+
+# Local workspace deps resolve to the in-tree member, not PyPI.
+[tool.uv.sources]
+alphaforge-backend     = { workspace = true }
+alphaforge-screener    = { workspace = true }
+alphaforge-llm-gateway = { workspace = true }
+alphaforge-logger      = { workspace = true }
+
+# Pull every workspace member into `.venv` on `uv sync`.
+[tool.uv]
+default-groups = ["all"]
+
+[dependency-groups]
+all = [
+    "alphaforge-backend",
+    "alphaforge-screener",
+    "alphaforge-llm-gateway",
+    "alphaforge-logger",
+]
+dev = [
+    "ruff>=0.6.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ipython>=8.0",
+]

@@ -17,7 +17,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services.brokers import (
+from app.modules.brokers import (
     SOURCES,
     AssetClass,
     DezervCSVSource,
@@ -30,7 +30,7 @@ from app.services.brokers import (
     ZerodhaCSVSource,
     get_source,
 )
-from app.services.brokers.aggregator import _squarify
+from app.modules.brokers.aggregator import _squarify
 
 FIXTURES = Path(__file__).parent / "fixtures" / "broker_csvs"
 

@@ -41,9 +41,6 @@ export const marketApi = {
 
 // ── Portfolio ───────────────────────────────────
 export const portfolioApi = {
-  getSummary: () => api.get("/portfolio/summary"),
-  getPositions: () => api.get("/portfolio/positions"),
-  getOrders: () => api.get("/portfolio/orders"),
   getHoldings: (source?: string) =>
     api.get("/portfolio/holdings", { params: source ? { source } : {} }),
   getTreemap: (source?: string) =>
@@ -59,6 +56,10 @@ export const portfolioApi = {
     });
   },
   syncSource: (slug: string) => api.post(`/portfolio/sources/${slug}/sync`),
+  syncAll: () => api.post("/portfolio/sources/sync-all"),
+  startLogin: (slug: string) => api.post(`/portfolio/sources/${slug}/start-login`),
+  submitOtp: (slug: string, code: string) =>
+    api.post(`/portfolio/sources/${slug}/otp`, { code }),
   resetSource: (slug: string) => api.post(`/portfolio/sources/${slug}/reset`),
 };
 

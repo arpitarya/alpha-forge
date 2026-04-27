@@ -53,32 +53,6 @@ export function useHistory(
   });
 }
 
-// ── Portfolio ───────────────────────────────────
-
-export function usePortfolioSummary(options?: Partial<UseQueryOptions>) {
-  return useQuery({
-    queryKey: ["portfolio", "summary"],
-    queryFn: () => portfolioApi.getSummary().then((r) => r.data),
-    ...options,
-  });
-}
-
-export function usePositions(options?: Partial<UseQueryOptions>) {
-  return useQuery({
-    queryKey: ["portfolio", "positions"],
-    queryFn: () => portfolioApi.getPositions().then((r) => r.data),
-    ...options,
-  });
-}
-
-export function useOrders(options?: Partial<UseQueryOptions>) {
-  return useQuery({
-    queryKey: ["portfolio", "orders"],
-    queryFn: () => portfolioApi.getOrders().then((r) => r.data),
-    ...options,
-  });
-}
-
 // ── AI ──────────────────────────────────────────
 // NOTE: Everytime a message is typed or change is made into the code update the
 // documentation with the same.
@@ -330,6 +304,31 @@ export function useUploadCsv() {
 export function useSyncSource() {
   return useMutation({
     mutationFn: (slug: string) => portfolioApi.syncSource(slug).then((r) => r.data),
+  });
+}
+
+export interface SyncAllResultDTO {
+  results: Record<string, { ok: boolean; count?: number; error?: string }>;
+  totals: HoldingsResponseDTO["totals"];
+  disclaimer: string;
+}
+
+export function useSyncAll() {
+  return useMutation<SyncAllResultDTO>({
+    mutationFn: () => portfolioApi.syncAll().then((r) => r.data as SyncAllResultDTO),
+  });
+}
+
+export function useStartLogin() {
+  return useMutation({
+    mutationFn: (slug: string) => portfolioApi.startLogin(slug).then((r) => r.data),
+  });
+}
+
+export function useSubmitOtp() {
+  return useMutation({
+    mutationFn: (params: { slug: string; code: string }) =>
+      portfolioApi.submitOtp(params.slug, params.code).then((r) => r.data),
   });
 }
 

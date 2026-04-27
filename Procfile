@@ -9,5 +9,5 @@
 # just db-restart  # Restart both services
 # just db-status   # Check service status
 
-backend: cd backend && pdm run dev
+backend: cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 frontend: cd frontend && pnpm dev

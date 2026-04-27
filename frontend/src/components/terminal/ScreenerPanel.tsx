@@ -47,22 +47,22 @@ export function ScreenerPanel() {
       )}
 
       {data && data.picks.length > 0 && (
-        <div className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
-          {data.picks.slice(0, 8).map((pick, i) => {
+        <div className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
+          {data.picks.slice(0, 6).map((pick, i) => {
             const sym = pick.symbol.replace(".NS", "");
             return (
               <div
                 key={pick.symbol}
-                className="grid grid-cols-[24px_28px_1fr_140px] items-center gap-3 rounded-[var(--radius-sm)] px-1 py-1.5 transition-colors hover:bg-white/[0.03]"
+                className="grid grid-cols-[28px_36px_1fr_180px] items-center gap-3 rounded-[var(--radius-sm)] px-2 py-2 transition-colors hover:bg-white/[0.03]"
               >
-                <span className="font-mono text-[10px] tabular-nums text-[color:var(--fg-3)]">
-                  {i + 1}
+                <span className="font-mono text-[11px] tabular-nums text-[color:var(--fg-3)]">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-                <div className="grid h-7 w-7 place-items-center rounded-[var(--radius-sm)] bg-white/5">
+                <div className="grid h-9 w-9 place-items-center rounded-[var(--radius-sm)] bg-white/5">
                   <Icon name="trending_up" size="sm" className="text-[color:var(--accent)]" />
                 </div>
                 <div className="min-w-0">
-                  <Text className="block truncate text-xs font-bold tracking-tight">
+                  <Text className="block truncate text-sm font-bold tracking-tight">
                     {sym}
                   </Text>
                   {pick.rsi_14 != null && (

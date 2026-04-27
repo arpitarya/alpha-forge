@@ -54,11 +54,11 @@ Usage: $(basename "$0") [OPTION]
 
 Setup:
   (no args)       Full setup: prereqs, venv, all deps, env files, directories
-  --prereqs       Check/install system prerequisites (pyenv, nvm, pnpm, pdm, brew)
+  --prereqs       Check/install system prerequisites (pyenv, nvm, pnpm, uv, brew)
   --venv          Create repo-root Python venv (.venv/) from .python-version
-  --backend       Install backend Python dependencies (PDM → .venv)
+  --backend       Sync the uv workspace (installs all Python deps, then Playwright browsers)
   --frontend      Install frontend + workspace Node packages (pnpm)
-  --screener      Install screener ML dependencies into .venv
+  --screener      Alias for --backend (kept for backwards compat — uv sync covers it)
   --env           Scaffold .env files from .env.example templates (non-destructive)
   --dirs          Create required directories (logs, screener data, model dirs)
   --db            Setup local PostgreSQL 16 + Redis via Homebrew (macOS only)
@@ -75,7 +75,7 @@ Prerequisites:
   - pyenv (Python 3.14+ pinned in .python-version)
   - nvm (Node.js pinned in .nvmrc)
   - pnpm (workspace package manager)
-  - pdm (backend Python package manager)
+  - uv (Python package manager — workspace-aware)
   - Homebrew (for PostgreSQL, Redis, libomp)
 
 EOF
@@ -167,18 +167,18 @@ check_pnpm() {
     fi
 }
 
-check_pdm() {
-    if ! command -v pdm &>/dev/null; then
-        warn "pdm not found"
-        read -rp "Install pdm via Homebrew? [y/N] " ans
+check_uv() {
+    if ! command -v uv &>/dev/null; then
+        warn "uv not found"
+        read -rp "Install uv via Homebrew? [y/N] " ans
         if [[ "$ans" =~ ^[Yy]$ ]]; then
-            brew install pdm
-            ok "pdm installed"
+            brew install uv
+            ok "uv installed"
         else
-            fail "pdm is required. Install via: brew install pdm"
+            fail "uv is required. Install via: brew install uv"
         fi
     else
-        ok "pdm $(pdm --version | head -1) found"
+        ok "uv $(uv --version) found"
     fi
 }
 
@@ -208,35 +208,22 @@ check_all_prereqs() {
     check_pyenv
     check_nvm_and_node
     check_pnpm
-    check_pdm
+    check_uv
     check_macos_deps
 }
 
 # ── Python Venv ───────────────────────────────────────────────────────────────
 
 create_venv() {
-    section "Python Virtual Environment"
+    section "Python Virtual Environment (uv)"
 
     if [[ -x "$PYTHON" ]]; then
         ok "Venv already exists at $VENV_DIR ($($PYTHON --version))"
         return
     fi
 
-    local required_ver
-    required_ver=$(cat "$REPO_ROOT/.python-version" 2>/dev/null || echo "${REQUIRED_PYTHON_MAJOR}.${REQUIRED_PYTHON_MINOR}.2")
-    local pyenv_python
-    pyenv_python="$(pyenv root)/versions/$required_ver/bin/python"
-
-    if [[ -x "$pyenv_python" ]]; then
-        info "Creating venv with pyenv Python $required_ver..."
-        "$pyenv_python" -m venv "$VENV_DIR"
-    elif command -v "python$required_ver" &>/dev/null; then
-        info "Creating venv with python$required_ver..."
-        "python$required_ver" -m venv "$VENV_DIR"
-    else
-        fail "Python $required_ver not found. Run: pyenv install $required_ver"
-    fi
-
+    info "Creating venv via uv (reads .python-version)..."
+    cd "$REPO_ROOT" && uv venv
     ok "Venv created at $VENV_DIR ($($PYTHON --version))"
 }
 
@@ -314,17 +301,21 @@ create_dirs() {
     ok "All directories ready"
 }
 
-# ── Backend Dependencies ─────────────────────────────────────────────────────
+# ── Python Workspace Dependencies (uv) ────────────────────────────────────────
 
-install_backend() {
-    section "Backend Dependencies (PDM)"
+sync_workspace() {
+    section "Python Workspace (uv sync)"
 
-    check_venv
-    info "Installing backend Python dependencies via PDM..."
-    cd "$REPO_ROOT/backend" && pdm install
-    cd "$REPO_ROOT"
-    ok "Backend dependencies installed into $VENV_DIR"
+    info "Syncing all workspace members (backend, screener, llm-gateway, logger-py)..."
+    cd "$REPO_ROOT" && uv sync
+    ok "Workspace synced into $VENV_DIR"
+
+    install_headless_browser
 }
+
+# Back-compat shims — both flags now route to sync_workspace.
+install_backend()  { sync_workspace; }
+install_screener() { sync_workspace; }
 
 # ── Frontend / Workspace Dependencies ─────────────────────────────────────────
 
@@ -342,29 +333,16 @@ install_frontend() {
     ok "solar-orb-ui built"
 }
 
-# ── Screener Dependencies ────────────────────────────────────────────────────
+# ── Headless Browser Dependencies ─────────────────────────────────────────────────────
 
-install_screener() {
-    section "Screener Dependencies (pip → .venv)"
+install_headless_browser() {
+    section "Headless Browser Dependencies"
 
     check_venv
-    info "Installing screener Python dependencies into $VENV_DIR..."
-    "$PIP" install --quiet --upgrade pip
-
-    if [[ -f "$SCREENER_DIR/requirements.txt" ]]; then
-        "$PIP" install --quiet -r "$SCREENER_DIR/requirements.txt"
-        ok "Screener dependencies installed from requirements.txt"
-    else
-        fail "requirements.txt not found at $SCREENER_DIR/requirements.txt"
-    fi
-
-    # Verify critical imports
-    info "Verifying critical screener packages..."
-    "$PYTHON" -c "
-import yfinance, nselib, pandas, pyarrow, ta, numpy, requests
-import sklearn, lightgbm, xgboost
-print('All packages imported successfully')
-" && ok "All critical packages verified" || fail "Some packages failed to import"
+    # Install Playwright browser binaries (needed for Zerodha Kite web login)
+    info "Installing Playwright Chromium browser..."
+    "$PYTHON" -m playwright install chromium
+    ok "Playwright Chromium installed"
 }
 
 # ── Database Setup ────────────────────────────────────────────────────────────
@@ -401,7 +379,7 @@ full_setup() {
     install_backend
     install_frontend
     install_screener
-
+    install_headless_browser
     echo ""
     echo "╔══════════════════════════════════════════════╗"
     echo "║   Setup Complete!                            ║"

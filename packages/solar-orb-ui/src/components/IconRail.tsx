@@ -21,16 +21,17 @@ export interface IconRailProps {
 }
 
 /**
- * Hi-Fi `.sidebar` — vertical 52px-wide rail of icon buttons. Active item
- * gets accent border + tinted bg + inner glow.
+ * Hi-Fi `.sidebar` — vertical 64px-wide rail of icon buttons. Active item
+ * gets accent border + tinted bg + inner glow. Buttons are 44×44 for
+ * comfortable pointer + keyboard hit targets.
  */
-export function IconRail({ items, footer, width = 52, className }: IconRailProps) {
+export function IconRail({ items, footer, width = 64, className }: IconRailProps) {
   return (
     <aside
       style={{ width }}
       className={twMerge(
         clsx(
-          "flex flex-none flex-col items-center gap-2 py-3.5",
+          "flex flex-none flex-col items-center gap-2 py-4",
           "rounded-[var(--radius-sm)] border border-[color:var(--line)]",
           "bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)]",
           className,
@@ -45,7 +46,7 @@ export function IconRail({ items, footer, width = 52, className }: IconRailProps
           title={item.label}
           aria-label={item.label ?? item.id}
           className={clsx(
-            "grid h-10 w-10 place-items-center rounded-[var(--radius-sm)] border border-transparent transition-colors",
+            "grid h-11 w-11 place-items-center rounded-[var(--radius-sm)] border border-transparent transition-colors",
             item.active
               ? "border-[color:color-mix(in_srgb,var(--accent)_60%,transparent)] bg-[color:color-mix(in_srgb,var(--accent)_10%,transparent)] text-[color:var(--accent)] shadow-[inset_0_0_16px_color-mix(in_srgb,var(--accent)_16%,transparent)]"
               : "text-[color:var(--fg-3)] hover:bg-[color:color-mix(in_srgb,var(--accent)_4%,transparent)] hover:text-[color:var(--fg-2)]",

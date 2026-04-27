@@ -8,12 +8,12 @@ export function WatchlistCard() {
   const { data: risk } = useDashboardRisk();
 
   return (
-    <Card glow className="flex h-full flex-col overflow-auto">
+    <Card glow className="flex h-full flex-col gap-4 overflow-hidden">
       <Card.Header
         title="Watchlist"
         right={<Text variant="tag" tone="subtle">+ ADD</Text>}
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col divide-y divide-[color:var(--line)] divide-dashed">
         {items.map((it) => (
           <WatchRow
             key={it.symbol}
@@ -22,12 +22,12 @@ export function WatchlistCard() {
             price={it.price}
             change={it.change}
             changeTone={it.tone}
-            className="border-b border-dashed border-[color:var(--line-hi)] last:border-b-0"
+            className="!py-2.5"
           />
         ))}
       </div>
 
-      <hr className="my-3 h-px border-0 bg-[color:var(--line-hi)]" />
+      <hr className="my-2 h-px border-0 bg-[color:var(--line-hi)]" />
 
       <Card.Header
         title="Risk Meter"
@@ -36,10 +36,11 @@ export function WatchlistCard() {
             {risk ? `${risk.confidence.toFixed(1)}%` : "—"}
           </Text>
         }
+        className="mb-0"
       />
-      {risk && <RiskBars values={risk.bars} activeIndex={risk.active_index} height={64} />}
+      {risk && <RiskBars values={risk.bars} activeIndex={risk.active_index} height={56} />}
       {risk && (
-        <div className="mt-3 flex justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--fg-3)]">
+        <div className="flex justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-[color:var(--fg-3)]">
           <span>Confidence</span>
           <span className="text-[color:var(--accent)]">{risk.confidence.toFixed(1)} / 100</span>
         </div>

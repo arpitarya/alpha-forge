@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Icon,
+  Input,
   Text,
 } from "@alphaforge/solar-orb-ui";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,9 +14,14 @@ import {
   type SourceInfoDTO,
   useResetSource,
   useSources,
+  useStartLogin,
+  useSubmitOtp,
+  useSyncAll,
   useSyncSource,
   useUploadCsv,
 } from "@/lib/queries";
+
+const OTP_SLUGS = new Set(["wint-wealth"]);
 
 function formatTime(iso: string | null): string {
   if (!iso) return "never";
@@ -42,12 +48,24 @@ function statusVariant(status: SourceInfoDTO["status"]) {
   }
 }
 
+function readErr(e: unknown): string {
+  const detail = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+  return detail ?? (e as Error).message;
+}
+
 function SourceRow({ src, onAfter }: { src: SourceInfoDTO; onAfter: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const upload = useUploadCsv();
   const sync = useSyncSource();
   const reset = useResetSource();
+  const startLogin = useStartLogin();
+  const submitOtp = useSubmitOtp();
   const [error, setError] = useState<string | null>(null);
+  const [otpVisible, setOtpVisible] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpStatus, setOtpStatus] = useState<string | null>(null);
+
+  const isOtpSource = OTP_SLUGS.has(src.slug);
 
   async function handleUpload(file: File) {
     setError(null);
@@ -55,8 +73,50 @@ function SourceRow({ src, onAfter }: { src: SourceInfoDTO; onAfter: () => void }
       await upload.mutateAsync({ slug: src.slug, file });
       onAfter();
     } catch (e) {
-      const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setError(msg ?? (e as Error).message);
+      setError(readErr(e));
+    }
+  }
+
+  async function handleSync() {
+    setError(null);
+    try {
+      await sync.mutateAsync(src.slug);
+      onAfter();
+    } catch (e) {
+      setError(readErr(e));
+    }
+  }
+
+  async function handleStartLogin() {
+    setError(null);
+    setOtpStatus(null);
+    try {
+      const r = (await startLogin.mutateAsync(src.slug)) as {
+        sent?: boolean;
+        channel?: string;
+      };
+      setOtpStatus(`OTP sent via ${r.channel ?? "sms"} — enter code below`);
+      setOtpVisible(true);
+    } catch (e) {
+      setError(readErr(e));
+    }
+  }
+
+  async function handleSubmitOtp() {
+    setError(null);
+    if (!otpCode.trim()) {
+      setError("Enter the OTP code");
+      return;
+    }
+    try {
+      await submitOtp.mutateAsync({ slug: src.slug, code: otpCode.trim() });
+      setOtpStatus("Verified — syncing holdings");
+      setOtpCode("");
+      setOtpVisible(false);
+      await sync.mutateAsync(src.slug);
+      onAfter();
+    } catch (e) {
+      setError(readErr(e));
     }
   }
 
@@ -80,50 +140,63 @@ function SourceRow({ src, onAfter }: { src: SourceInfoDTO; onAfter: () => void }
       )}
 
       <div className="flex flex-wrap gap-2">
-        {src.kind === "csv" && (
-          <>
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".csv"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleUpload(f);
-                e.target.value = "";
-              }}
-            />
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => fileRef.current?.click()}
-              disabled={upload.isPending}
-            >
-              <Icon name="upload" size="sm" className="mr-1" />
-              {upload.isPending ? "Uploading…" : "Upload CSV"}
-            </Button>
-          </>
-        )}
-        {src.kind === "api" && (
+        {src.kind === "api" && !isOtpSource && (
           <Button
             size="sm"
             variant="secondary"
             disabled={sync.isPending}
-            onClick={async () => {
-              setError(null);
-              try {
-                await sync.mutateAsync(src.slug);
-                onAfter();
-              } catch (e) {
-                const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-                setError(msg ?? (e as Error).message);
-              }
-            }}
+            onClick={handleSync}
           >
             <Icon name="sync" size="sm" className="mr-1" />
             {sync.isPending ? "Syncing…" : "Sync now"}
           </Button>
         )}
+
+        {isOtpSource && src.status !== "ready" && (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={startLogin.isPending}
+            onClick={handleStartLogin}
+          >
+            <Icon name="key" size="sm" className="mr-1" />
+            {startLogin.isPending ? "Sending OTP…" : "Send OTP"}
+          </Button>
+        )}
+
+        {isOtpSource && src.status === "ready" && (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={sync.isPending}
+            onClick={handleSync}
+          >
+            <Icon name="sync" size="sm" className="mr-1" />
+            {sync.isPending ? "Syncing…" : "Sync now"}
+          </Button>
+        )}
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".csv"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleUpload(f);
+            e.target.value = "";
+          }}
+        />
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => fileRef.current?.click()}
+          disabled={upload.isPending}
+        >
+          <Icon name="upload" size="sm" className="mr-1" />
+          {upload.isPending ? "Uploading…" : src.kind === "csv" ? "Upload CSV" : "CSV fallback"}
+        </Button>
+
         {src.holdings_count > 0 && (
           <Button
             size="sm"
@@ -139,6 +212,43 @@ function SourceRow({ src, onAfter }: { src: SourceInfoDTO; onAfter: () => void }
         )}
       </div>
 
+      {otpVisible && (
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="Enter OTP"
+            inputMode="numeric"
+            maxLength={8}
+            className="max-w-[140px]"
+          />
+          <Button
+            size="sm"
+            disabled={submitOtp.isPending}
+            onClick={handleSubmitOtp}
+          >
+            {submitOtp.isPending ? "Verifying…" : "Verify"}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setOtpVisible(false);
+              setOtpCode("");
+              setOtpStatus(null);
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
+
+      {otpStatus && !error && (
+        <Text variant="caption" tone="subtle">
+          {otpStatus}
+        </Text>
+      )}
+
       {(error || src.error_message) && (
         <Text variant="caption" tone="dn">
           {error ?? src.error_message}
@@ -150,12 +260,32 @@ function SourceRow({ src, onAfter }: { src: SourceInfoDTO; onAfter: () => void }
 
 export function SourcesPanel() {
   const { data } = useSources();
+  const syncAll = useSyncAll();
   const qc = useQueryClient();
+  const [syncAllSummary, setSyncAllSummary] = useState<string | null>(null);
   const sources = data?.sources ?? [];
 
   const onAfter = () => {
     qc.invalidateQueries({ queryKey: ["portfolio"] });
   };
+
+  async function handleSyncAll() {
+    setSyncAllSummary(null);
+    try {
+      const r = await syncAll.mutateAsync();
+      const ok = Object.entries(r.results).filter(([, v]) => v.ok).length;
+      const failed = Object.entries(r.results).filter(([, v]) => !v.ok).length;
+      const total = Object.keys(r.results).length;
+      setSyncAllSummary(
+        failed
+          ? `${ok}/${total} synced, ${failed} failed`
+          : `All ${ok} sources synced`,
+      );
+      onAfter();
+    } catch (e) {
+      setSyncAllSummary(readErr(e));
+    }
+  }
 
   return (
     <Card glow className="flex h-full flex-col gap-3 overflow-auto">
@@ -165,6 +295,24 @@ export function SourcesPanel() {
             <Icon name="hub" size="sm" className="text-[color:var(--accent)]" />
             Sources
           </span>
+        }
+        right={
+          <div className="flex items-center gap-2">
+            {syncAllSummary && (
+              <Text variant="caption" tone="subtle">
+                {syncAllSummary}
+              </Text>
+            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={syncAll.isPending}
+              onClick={handleSyncAll}
+            >
+              <Icon name="sync" size="sm" className="mr-1" />
+              {syncAll.isPending ? "Syncing…" : "Sync all"}
+            </Button>
+          </div>
         }
       />
       <div className="flex flex-col gap-2">

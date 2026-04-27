@@ -1,0 +1,49 @@
+[project]
+name = "alphaforge-screener"
+version = "0.1.0"
+description = "AlphaForge stock screener — data pipeline, ML training, backtest, live scan"
+requires-python = ">=3.14"
+license = { text = "MIT" }
+authors = [{ name = "Arpit Arya" }]
+
+dependencies = [
+    # Phase 1: Data Pipeline
+    "yfinance>=0.2.36",
+    "nselib>=2.4",
+    "jugaad-data>=0.25",
+    "pandas>=2.2.0",
+    "pyarrow>=15.0.0",
+    "ta>=0.11.0",
+    "numpy>=1.26.0",
+    "requests>=2.31.0",
+    # Phase 4: Model Training
+    "scikit-learn>=1.4.0",
+    "lightgbm>=4.0.0",
+    "xgboost>=2.0.0",
+    "shap>=0.45.0",
+    # Phase 5: LLM analysis (workspace member, no PyPI lookup)
+    "alphaforge-llm-gateway",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# The pyproject sits inside the package dir (screener/__init__.py at root).
+# Map the relevant files into a `screener/` package inside the wheel.
+[tool.hatch.build.targets.wheel.force-include]
+"__init__.py" = "screener/__init__.py"
+"config.py"   = "screener/config.py"
+"data"        = "screener/data"
+"features"    = "screener/features"
+"dataset"     = "screener/dataset"
+"models"      = "screener/models"
+"backtest"    = "screener/backtest"
+"live"        = "screener/live"
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100

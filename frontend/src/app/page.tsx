@@ -37,11 +37,6 @@ export default function Home() {
         <div className="col-span-3 row-span-2 min-h-0">
           <WatchlistCard />
         </div>
-
-        {/* Bottom-center: Screener */}
-        <div className="col-span-6 col-start-4 min-h-0 max-h-[260px]">
-          <ScreenerPanel />
-        </div>
       </div>
     </AppShell>
   );

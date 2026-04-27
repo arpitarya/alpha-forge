@@ -2,8 +2,14 @@
  * Frontend global stylesheet
  *
  * Order matters — Tailwind v4 must be first so its @theme processor sees the
- * design-system theme tokens that follow. Then design-system fonts / theme /
- * base, then the standalone solar-orb-ball styles, then app-specific resets.
+ * design-system theme tokens that follow.
+ *
+ * IMPORTANT: do NOT add a `* { padding: 0; margin: 0 }` reset here. Tailwind
+ * v4's Preflight (included by `@import "tailwindcss"`) already normalises
+ * box-sizing + zeroes margins on the right elements (h1..h6, p, ul, …) inside
+ * @layer base. A bare `*` rule sits OUTSIDE any layer, which makes it beat
+ * every Tailwind padding/margin utility — that's how `px-4`, `gap-3`, and
+ * card `p-5` silently disappear from the rendered output.
  */
 
 @import "tailwindcss";
@@ -12,12 +18,6 @@
 @import "@alphaforge/solar-orb-ui/src/styles/theme.css";
 @import "@alphaforge/solar-orb-ui/src/styles/base.css";
 @import "@alphaforge/solar-orb-ball/styles";
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
 
 html,
 body {
@@ -29,11 +29,6 @@ body {
   font-family: var(--font-body, "Space Grotesk", sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-#__next,
-body > div:first-of-type {
-  height: 100%;
 }
 
 ::selection {

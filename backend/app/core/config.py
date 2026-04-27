@@ -4,10 +4,14 @@ from __future__ import annotations
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.env_loader import get_env_files, load_env_files
+
+_LOADED_ENV_FILES = load_env_files()
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(".env", ".env.cred"),
+        env_file=get_env_files(),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",

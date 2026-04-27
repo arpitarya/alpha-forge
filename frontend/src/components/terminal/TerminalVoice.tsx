@@ -26,18 +26,26 @@ export function TerminalVoice() {
 
   return (
     <VoiceDock
-      mic={<MicIndicator size={44} active />}
+      mic={<MicIndicator size={48} active />}
       center={
         <>
-          <div className="flex flex-col gap-0.5 min-w-[160px]">
-            <Text className="italic text-[color:var(--accent)]">Listening…</Text>
-            <Text variant="tag" tone="subtle">Neural Interface</Text>
+          <div className="flex min-w-[180px] flex-none flex-col gap-0.5">
+            <Text className="text-base italic text-[color:var(--accent)]">Listening…</Text>
+            <Text variant="tag" tone="subtle">
+              Neural Interface
+            </Text>
           </div>
-          <Waveform bars={8} height={24} />
-          <Text className="ml-2 truncate italic text-[color:var(--fg-2)]">{PROMPTS[idx]}</Text>
+          <Waveform bars={10} height={28} />
+          <Text className="ml-2 flex-1 truncate text-base italic text-[color:var(--fg-2)]">
+            {PROMPTS[idx]}
+          </Text>
         </>
       }
-      cta={<Button variant="deploy" size="lg">Deploy ▸</Button>}
+      cta={
+        <Button variant="deploy" size="lg">
+          Deploy ▸
+        </Button>
+      }
     />
   );
 }

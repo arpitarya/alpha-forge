@@ -10,10 +10,20 @@ Built for personal use — not a SaaS product. Self-hosted, open-source, MIT lic
 ```
 alpha-forge/
 ├── backend/          Python 3.14 + FastAPI + SQLAlchemy async
-│   ├── app/core/     Config (pydantic-settings), DB engine, JWT/bcrypt security
-│   ├── app/models/   SQLAlchemy ORM: User, Holding, Order, Watchlist
-│   ├── app/routes/   FastAPI routers: health, auth, market, portfolio, ai, trade
-│   ├── app/services/ Business logic: broker_base (ABC), broker_zerodha, ai_service, market_data
+│   ├── app/core/     Config (pydantic-settings), DB engine, JWT/bcrypt, env_loader
+│   ├── app/modules/  Feature modules — each owns its routes/service/models
+│   │   ├── health/      /api/v1/* health endpoint
+│   │   ├── auth/        routes + User ORM
+│   │   ├── market/      routes + market_data service
+│   │   ├── portfolio/   routes + Holding/Order/Watchlist ORM
+│   │   ├── brokers/     pluggable BrokerSource adapters (Zerodha Kite/Coin, Groww, Angel One, Wint, Dezerv) + aggregator + registry. Used by portfolio routes
+│   │   ├── memory/      EmbeddingService + MemoryService + ScreenerPickEmbedding/ConversationMemory ORM. Used by ai + screener
+│   │   ├── ai/          routes + AIService (RAG, sentiment, screener Q&A)
+│   │   ├── llm/         routes + LLMGateway thin wrapper
+│   │   ├── screener/    routes + ScreenerService
+│   │   ├── trade/       routes (paper/live trade endpoints)
+│   │   └── dashboard/   routes (cross-module aggregation)
+│   ├── app/main.py   FastAPI app factory; mounts api_router from app.modules
 │   ├── alembic/      Database migrations
 │   └── tests/        Pytest suite
 ├── packages/
@@ -45,7 +55,7 @@ alpha-forge/
 
 | Area | Choice | Notes |
 |------|--------|-------|
-| Python pkg mgr | PDM + uv | `pdm install` uses uv; installs into repo-root `.venv` (see `backend/pdm.toml`) |
+| Python pkg mgr | uv (workspace) | Single `uv.lock` at repo root; members declared in `[tool.uv.workspace]`. One `.venv/` shared across backend, screener, llm-gateway, logger-py |
 | Python version | pyenv | Pinned in `.python-version` (3.14.2) |
 | Node pkg mgr | pnpm | Lockfile: `pnpm-lock.yaml`; config in `.npmrc` |
 | Node version | nvm | Pinned in `.nvmrc` |
@@ -87,11 +97,15 @@ alpha-forge/
 - `backend/app/main.py` — FastAPI app factory
 - `backend/app/core/config.py` — All environment variables
 - `backend/app/core/logging.py` — Backend logging setup (wraps alphaforge-logger)
-- `backend/app/services/broker_base.py` — Abstract broker interface (implement this for new brokers)
-- `backend/app/services/screener.py` — Screener picks storage/retrieval service
-- `backend/app/services/llm_gateway.py` — LLM Gateway thin wrapper (wires to settings)
-- `backend/app/routes/screener.py` — Screener API endpoints (POST/GET picks, list dates)
-- `backend/app/routes/llm.py` — LLM Gateway API endpoints (complete, analyze, providers, benchmark)
+- `backend/app/modules/__init__.py` — registers every feature router under `/api/v1/*`
+- `backend/app/modules/brokers/base.py` — `BrokerSource` ABC; implement for new brokers
+- `backend/app/modules/brokers/registry.py` — broker source registry (slug → class)
+- `backend/app/modules/screener/service.py` — Screener picks storage/retrieval
+- `backend/app/modules/screener/routes.py` — Screener API endpoints
+- `backend/app/modules/llm/service.py` — LLM Gateway thin wrapper
+- `backend/app/modules/llm/routes.py` — LLM Gateway API endpoints
+- `backend/app/modules/memory/service.py` — `MemoryService` (RAG retrieval over picks + chats)
+- `backend/app/modules/memory/embedding.py` — `EmbeddingService` (Gemini text-embedding-004)
 - `screener/notebooks/screener_pipeline.ipynb` — Interactive Jupyter notebook for full screener pipeline
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/components/terminal/ScreenerPicks.tsx` — Screener picks display component (live data from backend)
@@ -118,8 +132,8 @@ alpha-forge/
 - `.python-version` — Python version for pyenv (3.14.2)
 - `.nvmrc` — Node.js version for nvm
 - `.npmrc` — pnpm/npm configuration (exact versions, engine-strict)
-- `backend/pdm.toml` — PDM project config (repo-root venv, uv backend)
-- `backend/pip.conf` — pip configuration (require-virtualenv)
+- `pyproject.toml` (repo root) — uv workspace definition + `[tool.uv.sources]` for local deps
+- `uv.lock` (repo root) — single lockfile for all Python workspace members
 - `pnpm-workspace.yaml` — Workspace root definition
 - `.env.port` — All service ports in one file
 - `.vscode/settings.json` — VS Code workspace settings (MCP server config for Playwright)
@@ -135,19 +149,32 @@ alpha-forge/
 ./setup.sh --help         # Show all setup.sh options
 
 # Setup — granular
-./setup.sh --prereqs      # Check/install pyenv, nvm, pnpm, pdm
-./setup.sh --venv         # Create .venv from .python-version
-./setup.sh --backend      # Backend deps (PDM → .venv)
+./setup.sh --prereqs      # Check/install pyenv, nvm, pnpm, uv
+./setup.sh --venv         # Create .venv via `uv venv` (reads .python-version)
+./setup.sh --backend      # Sync the entire Python workspace (uv sync) + Playwright browsers
 ./setup.sh --frontend     # Frontend + workspace deps (pnpm) + build solar-orb-ui
-./setup.sh --screener     # Screener ML deps (pip → .venv)
+./setup.sh --screener     # Alias for --backend (screener is a workspace member now)
 ./setup.sh --env          # Scaffold .env files from examples
 ./setup.sh --dirs         # Create log/data/model directories
 ./setup.sh --db           # Setup local PostgreSQL + Redis (macOS Homebrew)
 
+# Python Workspace (uv)
+uv sync                              # Install/refresh every workspace member into .venv
+uv lock                              # Refresh uv.lock without installing
+uv add httpx --package alphaforge-backend   # Add a dep to a specific member
+just sync                            # Same as `uv sync` (justfile shortcut)
+
 # Backend
-cd backend && pdm run dev           # Start server (uvicorn --reload)
-cd backend && pdm run pytest -v     # Tests
-cd backend && pdm run ruff check .  # Lint
+cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd backend && uv run pytest -v
+uv run ruff check .
+
+# Backend Debugging (VS Code)
+# Option A — launch directly: pick "Backend: FastAPI (uvicorn, debug)" in the Run & Debug panel (F5)
+# Option B — attach to a running process:
+just backend-debug                  # Starts uvicorn under debugpy (waits on :5678)
+                                    # Then pick "Backend: Attach (debugpy on :5678)" in VS Code
+# Option C — debug current pytest file: open a test file → "Backend: Pytest (current file)"
 
 # Frontend
 cd frontend && pnpm dev             # Dev server
@@ -166,8 +193,8 @@ just setup-mcp                           # Install Playwright Chromium + MCP con
 # OR: docker compose -f infra/docker-compose.yml up -d          # via OrbStack
 
 # Migrations
-cd backend && pdm run alembic upgrade head
-cd backend && pdm run alembic revision --autogenerate -m "description"
+cd backend && uv run alembic upgrade head
+cd backend && uv run alembic revision --autogenerate -m "description"
 
 # Screener pipeline
 ./setup.sh --pipeline     # Full data → train → backtest

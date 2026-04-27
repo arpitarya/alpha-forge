@@ -14,16 +14,11 @@ venv:
     bash setup.sh --venv
 
 # Full repo setup (prereqs, venv, all deps, env files, dirs)
-setup-full:
+setup:
     bash setup.sh
-
-# Install all project dependencies into local venv + node_modules
-setup: venv
-    bash setup.sh --backend
-    bash setup.sh --frontend
     @echo "✅ Setup complete"
 
-# Check/install system prerequisites (pyenv, nvm, pnpm, pdm)
+# Check/install system prerequisites (pyenv, nvm, pnpm, uv)
 setup-prereqs:
     bash setup.sh --prereqs
 
@@ -66,14 +61,34 @@ dev-docker:
 down:
     docker compose -f infra/docker-compose.yml down
 
+# ── Python Workspace (uv) ────────────────────────
+
+# Sync the entire Python workspace (backend + screener + llm-gateway + logger-py)
+sync:
+    uv sync
+
+# Add a dependency to a workspace member  (usage: just add backend httpx)
+add member pkg:
+    cd {{member}} && uv add {{pkg}}
+
+# Lock without installing (refresh uv.lock only)
+lock:
+    uv lock
+
 # ── Backend ──────────────────────────────────────
 
 # Run backend dev server
-backend: venv
-    cd backend && pdm run dev
+backend:
+    cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Install backend Python dependencies
-backend-install: venv
+# Run backend under debugpy (VS Code attaches via "Backend: Attach (debugpy on :5678)")
+backend-debug port="5678":
+    @echo "🐛 Backend waiting for debugger on 127.0.0.1:{{port}} — attach in VS Code"
+    cd backend && uv run python -m debugpy --listen 127.0.0.1:{{port}} --wait-for-client \
+        -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Install backend Python dependencies (alias — `just sync` is the primary entry point now)
+backend-install:
     bash setup.sh --backend
 
 # ── Frontend ─────────────────────────────────────
@@ -88,35 +103,31 @@ frontend-install:
 
 # ── Screener ─────────────────────────────────────
 
-# Install screener ML dependencies into .venv
-screener-install: venv
-    bash setup.sh --screener
+# (install handled by `just sync` — screener is a workspace member)
 
 # Run full screener pipeline (data → train → backtest)
-screener-pipeline: venv
+screener-pipeline:
     bash setup.sh --pipeline
 
 # Run daily screener live scan
-screener-scan: venv
+screener-scan:
     bash setup.sh --scan
 
 # ── LLM Gateway ──────────────────────────────────
 
-# Install llm-gateway package into .venv via PDM
-llm-gateway-install: venv
-    cd llm-gateway && {{python}} -m pip install -e .
+# (install handled by `just sync` — the workspace pulls llm-gateway as an editable member)
 
 # Run llm-gateway test suite
-llm-gateway-test: venv
-    cd llm-gateway && {{python}} -m pytest -v
+llm-gateway-test:
+    cd llm-gateway && uv run pytest -v
 
 # Show LLM provider health and remaining quota
-llm-providers: venv
-    {{python}} -m alphaforge_llm_gateway providers
+llm-providers:
+    uv run python -m alphaforge_llm_gateway providers
 
 # Run LLM benchmark across all providers
-llm-benchmark: venv
-    {{python}} -m alphaforge_llm_gateway benchmark
+llm-benchmark:
+    uv run python -m alphaforge_llm_gateway benchmark
 
 # ── Database / Infrastructure ────────────────────
 
@@ -146,11 +157,11 @@ db-up:
 
 # Run Alembic migrations (upgrade head)
 db-migrate:
-    cd backend && pdm run migrate
+    cd backend && uv run alembic upgrade head
 
 # Create a new migration  (usage: just db-revision "add users table")
 db-revision msg:
-    cd backend && pdm run revision "{{msg}}"
+    cd backend && uv run alembic revision --autogenerate -m "{{msg}}"
 
 # ── Testing ──────────────────────────────────────
 
@@ -159,7 +170,7 @@ test: test-backend test-frontend
 
 # Run backend tests (pytest)
 test-backend:
-    cd backend && pdm run test
+    cd backend && uv run pytest -v --tb=short
 
 # Run frontend lint + type-check
 test-frontend:
@@ -169,12 +180,12 @@ test-frontend:
 
 # Lint everything
 lint:
-    cd backend && pdm run lint
+    uv run ruff check .
     cd frontend && pnpm lint
 
 # Auto-format everything
 format:
-    cd backend && pdm run format
+    uv run ruff format .
 
 # ── Cleanup ──────────────────────────────────────
 

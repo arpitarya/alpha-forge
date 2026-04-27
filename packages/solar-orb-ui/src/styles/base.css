@@ -8,9 +8,32 @@
  *   @import "@alphaforge/solar-orb-ui/styles";
  */
 
-/* ── Material Symbols defaults ─────────────────────── */
+/* ── Material Symbols defaults ───────────────────────
+ * We declare every relevant property here so the icon class works even if
+ * the consuming app forgets to ship the Google Fonts <link> for the icon
+ * variable font. The font-family must match the literal Google emits; if
+ * the font hasn't loaded the slot is empty (display=block) rather than
+ * rendering the icon NAME as plain text.
+ */
 
 .material-symbols-outlined {
+  /* No generic fallback on purpose — for icon fonts a fallback would render
+     the icon NAME as plain text (e.g. "balance_wallet"). display=block on the
+     <link> holds the slot blank until the icon font loads. */
+  /* biome-ignore lint: icon font has no generic family peer; fallback would render names as text */
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
   font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
 }
 

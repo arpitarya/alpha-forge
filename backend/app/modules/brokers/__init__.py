@@ -29,13 +29,11 @@ from app.modules.brokers.base import (
     SourceKind,
     SourceStatus,
 )
-from app.modules.brokers.csv_sources import (
-    DezervCSVSource,
-    GrowwCSVSource,
-    WintWealthCSVSource,
-    ZerodhaCoinCSVSource,
-    ZerodhaCSVSource,
-)
+from app.modules.brokers.dezerv_csv import DezervCSVSource
+from app.modules.brokers.groww_csv import GrowwCSVSource
+from app.modules.brokers.wint_wealth_csv import WintWealthCSVSource
+from app.modules.brokers.zerodha_coin_csv import ZerodhaCoinCSVSource
+from app.modules.brokers.zerodha_csv import ZerodhaCSVSource
 from app.modules.brokers.groww import GrowwSource
 from app.modules.brokers.registry import SOURCES, get_source
 from app.modules.brokers.wint_wealth import WintWealthSource

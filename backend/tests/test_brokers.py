@@ -30,7 +30,7 @@ from app.modules.brokers import (
     ZerodhaCSVSource,
     get_source,
 )
-from app.modules.brokers.aggregator import _squarify
+from app.modules.brokers.treemap_helper import squarify as _squarify
 
 FIXTURES = Path(__file__).parent / "fixtures" / "broker_csvs"
 

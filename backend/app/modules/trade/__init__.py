@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from app.modules.trade.routes import router
+from app.modules.trade.trade_routes import router
 
 __all__ = ["router"]

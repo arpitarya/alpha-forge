@@ -9,13 +9,13 @@ import {
   RebalanceRail,
   SourcesPanel,
   Treemap,
-} from "@/components/portfolio";
+} from "@/modules/portfolio";
 import {
   TerminalRail,
   TerminalTicker,
   TerminalTopBar,
   TerminalVoice,
-} from "@/components/terminal";
+} from "@/modules/dashboard";
 
 export default function PortfolioPage() {
   const [view, setView] = useState<PortfolioView>("tree");

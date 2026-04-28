@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from app.modules.health.routes import router
+from app.modules.health.health_routes import router
 
 __all__ = ["router"]

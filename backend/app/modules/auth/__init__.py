@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from app.modules.auth.routes import router
+from app.modules.auth.auth_routes import router
 
 __all__ = ["router"]

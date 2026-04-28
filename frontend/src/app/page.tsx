@@ -2,14 +2,13 @@ import { AppShell } from "@alphaforge/solar-orb-ui";
 import {
   AlphaBriefCard,
   OrbStage,
-  ScreenerPanel,
   TerminalRail,
   TerminalStats,
   TerminalTicker,
   TerminalTopBar,
   TerminalVoice,
   WatchlistCard,
-} from "@/components/terminal";
+} from "@/modules/dashboard";
 
 export default function Home() {
   return (

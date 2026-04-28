@@ -11,9 +11,9 @@ from app.core.config import settings
 from app.core.database import Base
 
 # Import all models so Alembic can detect them
-from app.modules.auth.models import User  # noqa: F401
-from app.modules.portfolio.models import Holding, Order, Watchlist  # noqa: F401
-from app.modules.memory.models import ScreenerPickEmbedding, ConversationMemory  # noqa: F401
+from app.modules.auth.auth_models import User  # noqa: F401
+from app.modules.portfolio.portfolio_models import Holding, Order, Watchlist  # noqa: F401
+from app.modules.memory.memory_models import ScreenerPickEmbedding, ConversationMemory  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

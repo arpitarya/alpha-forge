@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     setup_logging()
     logger.info("AlphaForge starting up (env=%s)", settings.app_env)
 
-    from app.modules.memory.embedding import get_embedding_service
+    from app.modules.memory.embedding_service import get_embedding_service
     embed_svc = get_embedding_service()
     logger.info("Embedding service ready (model=%s)", settings.embedding_model)
 

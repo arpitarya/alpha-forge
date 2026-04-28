@@ -36,11 +36,16 @@ alpha-forge/
 │       └── src/styles/      fonts.css, theme.css, base.css (design tokens + base styles)
 ├── frontend/         Next.js 15 (App Router) + React 19 + TypeScript + Tailwind v4
 │   ├── src/app/      Pages and layouts (Solar Terminal theme)
-│   ├── src/components/  UI components (layout, terminal, dashboard, ai, solar-orb)
-│   │   ├── terminal/    Terminal landing page components (SolarOrb, AlphaBrief,
-│   │   │                TerminalWatchlist, PortfolioCards, RiskAnalysis, VoiceFooter)
-│   │   └── solar-orb/   Re-exports from @alphaforge/solar-orb-ui package
-│   └── src/lib/      API client (axios), Zustand store, React Query hooks
+│   ├── src/lib/      Cross-cutting infra: `api.ts` (axios client), `logger.ts`, `providers.tsx`, `store.ts`
+│   └── src/modules/  Feature modules — mirrors backend/app/modules layout
+│       ├── market/      market.api.ts + market.query.ts
+│       ├── portfolio/   portfolio.{api,query,types}.ts + components (Ledger, Treemap, SourcesPanel, ...)
+│       ├── ai/          ai.{api,query}.ts + AIChat
+│       ├── trade/       trade.{api,query}.ts
+│       ├── screener/    screener.{api,query,types,utils}.ts + ScreenerPanel
+│       ├── llm/         llm.{api,query,types}.ts
+│       ├── dashboard/   dashboard.{api,query,types}.ts + terminal-home components
+│       └── auth/        auth.api.ts
 ├── infra/            Infrastructure configs (docker-compose for services, devcontainer)
 ├── llm-gateway/      Publishable Python package (alphaforge-llm-gateway)
 │   ├── src/alphaforge_llm_gateway/  LLMGateway, providers, router, rate_limiter, cost_guard, CLI
@@ -75,6 +80,12 @@ alpha-forge/
 
 ## Coding Conventions
 
+**Read [convention/README.md](convention/README.md) first.** Hard rules:
+- Files ≤ **100 lines** (≤ **50** for `*_utils.py` / `*.utils.ts`)
+- Filenames: backend `<domain>_<role>.py` (e.g. `portfolio_routes.py`); frontend `<domain>.<role>.ts` (e.g. `portfolio.query.ts`)
+- Full role suffix list in [convention/python.md](convention/python.md) and [convention/typescript.md](convention/typescript.md)
+- Current legacy violations tracked in [convention/violations.md](convention/violations.md)
+
 ### Python
 - Async everywhere (routes, services, DB queries)
 - Absolute imports: `from app.core.config import settings`
@@ -100,16 +111,19 @@ alpha-forge/
 - `backend/app/modules/__init__.py` — registers every feature router under `/api/v1/*`
 - `backend/app/modules/brokers/base.py` — `BrokerSource` ABC; implement for new brokers
 - `backend/app/modules/brokers/registry.py` — broker source registry (slug → class)
-- `backend/app/modules/screener/service.py` — Screener picks storage/retrieval
-- `backend/app/modules/screener/routes.py` — Screener API endpoints
-- `backend/app/modules/llm/service.py` — LLM Gateway thin wrapper
-- `backend/app/modules/llm/routes.py` — LLM Gateway API endpoints
-- `backend/app/modules/memory/service.py` — `MemoryService` (RAG retrieval over picks + chats)
-- `backend/app/modules/memory/embedding.py` — `EmbeddingService` (Gemini text-embedding-004)
+- `backend/app/modules/screener/screener_service.py` — Screener picks storage/retrieval
+- `backend/app/modules/screener/screener_routes.py` — Screener API endpoints
+- `backend/app/modules/llm/llm_service.py` — LLM Gateway thin wrapper
+- `backend/app/modules/llm/llm_routes.py` — LLM Gateway API endpoints
+- `backend/app/modules/memory/memory_service.py` — `MemoryService` (RAG retrieval over picks + chats)
+- `backend/app/modules/memory/embedding_service.py` — `EmbeddingService` (Gemini text-embedding-004)
+- `convention/README.md` — code conventions (line caps, naming rules)
 - `screener/notebooks/screener_pipeline.ipynb` — Interactive Jupyter notebook for full screener pipeline
 - `frontend/src/app/page.tsx` — Terminal landing page (Solar Terminal dashboard)
 - `frontend/src/components/terminal/ScreenerPicks.tsx` — Screener picks display component (live data from backend)
-- `frontend/src/lib/api.ts` — Backend API client
+- `frontend/src/lib/api.ts` — Axios HTTP client (interceptors only; per-domain `*.api.ts` lives in each module)
+- `frontend/src/modules/<name>/<name>.api.ts` — Per-domain axios calls
+- `frontend/src/modules/<name>/<name>.query.ts` — Per-domain React Query hooks
 - `frontend/src/lib/logger.ts` — Frontend logging setup (wraps @alphaforge/logger)
 - `packages/logger-py/src/alphaforge_logger/logger.py` — Python logger package core
 - `packages/logger-node/src/logger.ts` — Node/TS logger package core

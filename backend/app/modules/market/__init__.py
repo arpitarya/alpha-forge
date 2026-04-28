@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from app.modules.market.routes import router
+from app.modules.market.market_routes import router
 
 __all__ = ["router"]

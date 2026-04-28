@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from app.modules.dashboard.routes import router
+from app.modules.dashboard.dashboard_routes import router
 
 __all__ = ["router"]

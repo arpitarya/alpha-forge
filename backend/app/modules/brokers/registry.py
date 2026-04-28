@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from app.modules.brokers.angel_one import AngelOneSource
 from app.modules.brokers.base import BrokerSource
-from app.modules.brokers.csv_sources import DezervCSVSource
+from app.modules.brokers.dezerv_csv import DezervCSVSource
 from app.modules.brokers.groww import GrowwSource
 from app.modules.brokers.wint_wealth import WintWealthSource
 from app.modules.brokers.zerodha_coin import ZerodhaCoinSource

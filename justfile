@@ -46,6 +46,18 @@ setup-config-keys:
 setup-dirs:
     bash setup.sh --dirs
 
+# Setup graphify for Claude, Codex, Copilot, git hooks, and graph output
+graphify-setup:
+    bash setup.sh --graphify
+
+# Refresh graphify-out after code changes
+graphify-update:
+    graphify update .
+
+# Check whether graphify needs a semantic refresh
+graphify-check:
+    graphify check-update .
+
 # Install Playwright MCP server for Copilot browser integration
 setup-mcp:
     @echo "🌐 Installing Playwright Chromium browser..."

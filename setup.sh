@@ -13,6 +13,7 @@
 #   ./setup.sh --screener       # Install screener Python dependencies only
 #   ./setup.sh --env            # Create .env files from examples (non-destructive)
 #   ./setup.sh --dirs           # Create all required directories
+#   ./setup.sh --graphify       # Setup graphify for Claude, Codex, Copilot, hooks, and graph
 #   ./setup.sh --db             # Setup local PostgreSQL + Redis (macOS Homebrew)
 #   ./setup.sh --pipeline       # Run full screener data → train → backtest pipeline
 #   ./setup.sh --scan           # Run daily live scan (requires trained models)
@@ -61,6 +62,7 @@ Setup:
   --screener      Alias for --backend (kept for backwards compat — uv sync covers it)
   --env           Scaffold .env files from .env.example templates (non-destructive)
   --dirs          Create required directories (logs, screener data, model dirs)
+  --graphify      Setup graphify for Claude, Codex, Copilot, hooks, and graph refresh
   --db            Setup local PostgreSQL 16 + Redis via Homebrew (macOS only)
 
 Screener Pipeline:
@@ -77,6 +79,7 @@ Prerequisites:
   - pnpm (workspace package manager)
   - uv (Python package manager — workspace-aware)
   - Homebrew (for PostgreSQL, Redis, libomp)
+  - graphify (optional knowledge graph helper; install via: uv tool install graphifyy)
 
 EOF
     exit 0
@@ -283,6 +286,45 @@ create_dirs() {
     ok "All directories ready"
 }
 
+# ── Graphify Knowledge Graph ──────────────────────────────────────────────────
+
+run_graphify_installer() {
+    local label="$1"
+    shift
+
+    info "Installing graphify for $label..."
+    if graphify "$@"; then
+        ok "graphify $label integration installed"
+    else
+        warn "graphify $label integration did not complete. Rerun './setup.sh --graphify' outside restricted sandboxes if needed."
+    fi
+}
+
+setup_graphify() {
+    section "Graphify Knowledge Graph"
+
+    if ! command -v graphify &>/dev/null; then
+        warn "graphify CLI not found."
+        echo "  Install it with: uv tool install graphifyy"
+        return
+    fi
+
+    ok "graphify found: $(command -v graphify)"
+
+    run_graphify_installer "Claude" claude install
+    run_graphify_installer "Codex" codex install
+    run_graphify_installer "VS Code Copilot Chat" vscode install
+    run_graphify_installer "GitHub Copilot CLI" copilot install
+
+    info "Installing graphify git hooks..."
+    graphify hook install
+    ok "graphify git hooks installed"
+
+    info "Refreshing graphify-out/ from the current repo..."
+    graphify update .
+    ok "graphify graph refreshed"
+}
+
 # ── Python Workspace Dependencies (uv) ────────────────────────────────────────
 
 sync_workspace() {
@@ -295,6 +337,15 @@ sync_workspace() {
     info "Installing nbstripout git filter (strips notebook outputs before commit)..."
     cd "$REPO_ROOT" && uv run nbstripout --install
     ok "nbstripout git filter active"
+
+    info "Wiring nbdime diff/merge drivers (full venv paths)..."
+    VENV_BIN="$REPO_ROOT/.venv/bin"
+    git -C "$REPO_ROOT" config diff.jupyternotebook.command         "$VENV_BIN/git-nbdiffdriver diff"
+    git -C "$REPO_ROOT" config merge.jupyternotebook.driver         "$VENV_BIN/git-nbmergedriver merge %O %A %B %L %P"
+    git -C "$REPO_ROOT" config merge.jupyternotebook.name           "jupyter notebook merge driver"
+    git -C "$REPO_ROOT" config difftool.nbdime.cmd                  "$VENV_BIN/git-nbdifftool diff \"\$LOCAL\" \"\$REMOTE\" \"\$BASE\""
+    git -C "$REPO_ROOT" config mergetool.nbdime.cmd                 "$VENV_BIN/git-nbmergetool merge \"\$BASE\" \"\$LOCAL\" \"\$REMOTE\" \"\$MERGED\""
+    ok "nbdime diff/merge drivers wired"
 
     install_headless_browser
 }
@@ -362,6 +413,7 @@ full_setup() {
     create_venv
     create_dirs
     scaffold_env_files
+    setup_graphify
     install_backend
     install_frontend
     install_screener
@@ -554,6 +606,7 @@ case "${1:-}" in
     --screener)     install_screener ;;
     --env)          scaffold_env_files ;;
     --dirs)         create_dirs ;;
+    --graphify)     setup_graphify ;;
     --db)           setup_db ;;
     --pipeline)     run_pipeline ;;
     --scan)         run_scan ;;

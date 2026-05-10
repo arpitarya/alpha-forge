@@ -1,1 +1,4 @@
-{}
+{
+  "notebook.diff.ignoreOutputs": true,
+  "notebook.diff.ignoreMetadata": true
+}

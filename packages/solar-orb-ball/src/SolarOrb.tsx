@@ -21,6 +21,8 @@ export interface SolarOrbProps {
   pulseSeconds?: number;
   /** Render the two outward pulse rings. */
   rings?: boolean;
+  /** Render the specular highlight on the orb's upper-left. */
+  shine?: boolean;
   /** Optional caption rendered beneath the orb (e.g. status + question). */
   caption?: { eyebrow?: string; text?: string };
   className?: string;
@@ -44,6 +46,7 @@ export function SolarOrb({
   starPreset = "constellation",
   pulseSeconds = 3.4,
   rings = true,
+  shine = true,
   caption,
   className,
   style,
@@ -109,7 +112,7 @@ export function SolarOrb({
         className="solar-orb-ball__core"
         style={pulseSeconds > 0 ? undefined : { animation: "none" }}
       >
-        <span aria-hidden className="solar-orb-ball__highlight" />
+        {shine && <span aria-hidden className="solar-orb-ball__highlight" />}
       </div>
 
       {caption && (

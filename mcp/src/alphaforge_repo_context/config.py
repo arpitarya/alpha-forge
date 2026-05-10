@@ -1,8 +1,8 @@
 """Configuration for the repo-context MCP server.
 
-Reads from environment (and the repo root `.env` / `.env.cred` files when
-present) so it shares the Gemini API key + database URL already configured
-for the rest of AlphaForge.
+Reads from environment (and the repo root `.env` / `.env.cred.example` /
+`.env.cred.local` files when present) so it shares the Gemini API key +
+database URL already configured for the rest of AlphaForge.
 """
 
 from __future__ import annotations
@@ -29,7 +29,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(
             str(REPO_ROOT / ".env"),
-            str(REPO_ROOT / ".env.cred"),
+            str(REPO_ROOT / ".env.cred.example"),
+            str(REPO_ROOT / ".env.cred.local"),
         ),
         env_file_encoding="utf-8",
         case_sensitive=False,

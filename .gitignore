@@ -34,9 +34,13 @@ out/
 *.pem
 *.key
 secrets/
-# dotenv environment variable files — root .env files are tracked (source of truth)
-# Only secrets and local overrides are ignored
+# dotenv environment variable files
+# Tracked: .env (config defaults only — NO secrets), .env.port (ports), .env.cred.example (template)
+# NEVER tracked — these may contain real credentials:
+.env.cred
+.env.local
 .env.*.local
+.env.*.cred
 
 # ---------- IDE ----------
 .idea/
@@ -73,6 +77,12 @@ models/*.onnx
 *.h5
 wandb/
 mlruns/
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+# nbdime conflict markers
+*.ipynb.orig
 
 # ---------- Misc ----------
 *.pid

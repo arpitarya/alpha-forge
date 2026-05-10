@@ -1,5 +1,9 @@
 ## justfile — common development commands
 
+# Load port numbers from .env.port (BACKEND_PORT, FRONTEND_PORT, ...)
+set dotenv-load := true
+set dotenv-filename := ".env.port"
+
 venv  := ".venv"
 python := venv / "bin/python"
 
@@ -25,6 +29,18 @@ setup-prereqs:
 # Scaffold .env files from .env.example templates (non-destructive)
 setup-env:
     bash setup.sh --env
+
+# Sync .env files from .env.example templates + auto-generate blank secrets (idempotent)
+setup-config:
+    bash setup-config.sh
+
+# Preview what setup-config would change without writing
+setup-config-check:
+    bash setup-config.sh --check
+
+# Sync env keys only — skip secret auto-generation
+setup-config-keys:
+    bash setup-config.sh --no-secrets
 
 # Create all required directories (logs, screener data, models)
 setup-dirs:
@@ -55,11 +71,11 @@ dev-local:
 
 # Start all services with Docker/OrbStack
 dev-docker:
-    docker compose -f infra/docker-compose.yml up --build
+    docker compose --env-file .env.port -f infra/docker-compose.yml up --build
 
 # Stop Docker services
 down:
-    docker compose -f infra/docker-compose.yml down
+    docker compose --env-file .env.port -f infra/docker-compose.yml down
 
 # ── Python Workspace (uv) ────────────────────────
 
@@ -79,13 +95,13 @@ lock:
 
 # Run backend dev server
 backend:
-    cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port ${BACKEND_PORT}
 
 # Run backend under debugpy (VS Code attaches via "Backend: Attach (debugpy on :5678)")
 backend-debug port="5678":
     @echo "🐛 Backend waiting for debugger on 127.0.0.1:{{port}} — attach in VS Code"
     cd backend && uv run python -m debugpy --listen 127.0.0.1:{{port}} --wait-for-client \
-        -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+        -m uvicorn app.main:app --reload --host 0.0.0.0 --port ${BACKEND_PORT}
 
 # Install backend Python dependencies (alias — `just sync` is the primary entry point now)
 backend-install:
@@ -112,6 +128,28 @@ screener-pipeline:
 # Run daily screener live scan
 screener-scan:
     bash setup.sh --scan
+
+# ── Brokers ──────────────────────────────────────
+
+# Launch Chrome with CDP debugging port for Zerodha login (one-time per session).
+# Log in to kite.zerodha.com inside this window, then run `just zerodha-dump`.
+zerodha-chrome:
+    @echo "🌐 Launching Chrome with CDP port 9299 (loopback only)..."
+    @mkdir -p "$HOME/.cache/alphaforge-chrome"
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        --remote-debugging-port=9299 \
+        --remote-debugging-address=127.0.0.1 \
+        --user-data-dir="$HOME/.cache/alphaforge-chrome" \
+        https://kite.zerodha.com/ &
+
+# Dump today's Zerodha holdings to ~/.alphaforge/portfolio-dumps/*.xlsx
+# (waits for manual login in the CDP-attached Chrome if no cached session).
+zerodha-dump:
+    cd backend && uv run python -m app.modules.brokers.zerodha_dump
+
+# Force fresh login (clears cached enctoken, then dumps).
+zerodha-dump-force:
+    cd backend && uv run python -m app.modules.brokers.zerodha_dump --force-login
 
 # ── LLM Gateway ──────────────────────────────────
 
@@ -153,7 +191,7 @@ db-status:
 
 # Start PostgreSQL & Redis via Docker/OrbStack
 db-up:
-    docker compose -f infra/docker-compose.yml up postgres redis -d
+    docker compose --env-file .env.port -f infra/docker-compose.yml up postgres redis -d
 
 # Run Alembic migrations (upgrade head)
 db-migrate:

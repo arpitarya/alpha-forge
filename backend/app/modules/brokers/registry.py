@@ -10,23 +10,13 @@ back to CSV upload (the new API sources also implement `parse()` so the
 
 from __future__ import annotations
 
-from app.modules.brokers.angel_one import AngelOneSource
 from app.modules.brokers.base import BrokerSource
-from app.modules.brokers.dezerv_csv import DezervCSVSource
-from app.modules.brokers.groww import GrowwSource
-from app.modules.brokers.wint_wealth import WintWealthSource
-from app.modules.brokers.zerodha_coin import ZerodhaCoinSource
 from app.modules.brokers.zerodha_kite import ZerodhaKiteSource
 
 
 def _build_sources() -> dict[str, BrokerSource]:
     instances: list[BrokerSource] = [
         ZerodhaKiteSource(),    # slug: zerodha
-        ZerodhaCoinSource(),    # slug: zerodha-coin
-        GrowwSource(),          # slug: groww
-        AngelOneSource(),       # slug: angel-one
-        WintWealthSource(),     # slug: wint-wealth
-        DezervCSVSource(),      # slug: dezerv  (CSV-only; no public API)
     ]
     return {s.slug: s for s in instances}
 

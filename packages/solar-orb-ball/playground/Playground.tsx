@@ -17,6 +17,7 @@ export function Playground() {
   const [pulseSeconds, setPulseSeconds] = useState(3.4);
   const [hud, setHud] = useState(true);
   const [rings, setRings] = useState(true);
+  const [shine, setShine] = useState(true);
   const [starPreset, setStarPreset] = useState<SolarOrbStarPreset>("constellation");
   const [bg, setBg] = useState("#000000");
   const [showCaption, setShowCaption] = useState(true);
@@ -38,6 +39,7 @@ export function Playground() {
           accentDim={preset.dim}
           hud={hud}
           rings={rings}
+          shine={shine}
           starPreset={starPreset}
           pulseSeconds={pulseSeconds}
           caption={
@@ -118,6 +120,14 @@ export function Playground() {
               onChange={(e) => setRings(e.target.checked)}
             />
             Pulse rings
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={shine}
+              onChange={(e) => setShine(e.target.checked)}
+            />
+            Shine
           </label>
           <label>
             <input

@@ -115,12 +115,12 @@ This repo includes a `.devcontainer/devcontainer.json` for instant cloud develop
 
 ### Required Environment Variables
 
-All ports are defined in [`.env.port`](../.env.port) at the repo root. Credentials live in `.env.cred` (see `.env.cred.example`). Copy the example files:
+All ports are defined in [`.env.port`](../.env.port) at the repo root. The credential template is `.env.cred.example` (tracked in git, blank values only); real secrets go in `.env.cred.local` (gitignored). Copy the example files:
 
 ```bash
-cp .env.example .env                 # Root env (used by docker-compose)
-cp .env.cred.example .env.cred       # Credentials (API keys, passwords, secrets)
-cp backend/.env.example backend/.env  # Backend
+cp .env.example .env                       # Root env (used by docker-compose)
+cp .env.cred.example .env.cred.local       # Credentials — fill in real secrets here (gitignored)
+cp backend/.env.example backend/.env       # Backend
 cp frontend/.env.example frontend/.env.local  # Frontend (Next.js uses .env.local)
 ```
 

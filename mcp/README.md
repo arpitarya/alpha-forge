@@ -45,7 +45,7 @@ pdm install
 
 ### 2. Environment
 
-The server reads from the repo-root `.env` / `.env.cred`. Required:
+The server reads from the repo-root `.env` / `.env.cred.example` / `.env.cred.local`. Required:
 
 ```
 GEMINI_API_KEY=...

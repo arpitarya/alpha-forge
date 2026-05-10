@@ -237,37 +237,19 @@ check_venv() {
 
 scaffold_env_files() {
     section "Environment Files"
-
-    local created=0
-
-    # Backend .env from example
-    if [[ ! -f "$REPO_ROOT/backend/.env" ]]; then
-        if [[ -f "$REPO_ROOT/backend/.env.example" ]]; then
-            cp "$REPO_ROOT/backend/.env.example" "$REPO_ROOT/backend/.env"
-            ok "Created backend/.env from .env.example"
-            ((created++))
-        else
-            warn "backend/.env.example not found — skipping"
-        fi
+    if [[ -x "$REPO_ROOT/setup-config.sh" ]]; then
+        "$REPO_ROOT/setup-config.sh"
     else
-        ok "backend/.env already exists"
-    fi
-
-    # Frontend .env.local from example
-    if [[ ! -f "$REPO_ROOT/frontend/.env.local" ]]; then
-        if [[ -f "$REPO_ROOT/frontend/.env.example" ]]; then
-            cp "$REPO_ROOT/frontend/.env.example" "$REPO_ROOT/frontend/.env.local"
-            ok "Created frontend/.env.local from .env.example"
-            ((created++))
-        else
-            warn "frontend/.env.example not found — skipping"
-        fi
-    else
-        ok "frontend/.env.local already exists"
-    fi
-
-    if ((created > 0)); then
-        warn "Review and update the new .env files with your credentials before running."
+        warn "setup-config.sh missing — falling back to legacy copy"
+        for pair in "backend/.env.example:backend/.env" \
+                    "frontend/.env.example:frontend/.env.local" \
+                    ".env.cred.example:.env.cred.local"; do
+            local src="${pair%%:*}" dst="${pair##*:}"
+            if [[ -f "$REPO_ROOT/$src" && ! -f "$REPO_ROOT/$dst" ]]; then
+                cp "$REPO_ROOT/$src" "$REPO_ROOT/$dst"
+                ok "Created $dst from $src"
+            fi
+        done
     fi
 }
 
@@ -309,6 +291,10 @@ sync_workspace() {
     info "Syncing all workspace members (backend, screener, llm-gateway, logger-py)..."
     cd "$REPO_ROOT" && uv sync
     ok "Workspace synced into $VENV_DIR"
+
+    info "Installing nbstripout git filter (strips notebook outputs before commit)..."
+    cd "$REPO_ROOT" && uv run nbstripout --install
+    ok "nbstripout git filter active"
 
     install_headless_browser
 }

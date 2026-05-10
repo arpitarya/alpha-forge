@@ -1,4 +1,4 @@
-"""Aggregated portfolio endpoints — holdings, treemap, rebalance, plus mounted source/OTP routers.
+"""Aggregated portfolio endpoints — holdings, treemap, rebalance, plus mounted source routes.
 
 Disclaimer: Not SEBI registered investment advice.
 """
@@ -8,7 +8,6 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, status
 
 from app.modules.brokers import SOURCES, HoldingsAggregator
-from app.modules.portfolio.otp_routes import router as otp_router
 from app.modules.portfolio.sources_routes import router as sources_router
 
 router = APIRouter()
@@ -50,4 +49,3 @@ async def get_rebalance():
 
 
 router.include_router(sources_router, prefix="/sources")
-router.include_router(otp_router, prefix="/sources")

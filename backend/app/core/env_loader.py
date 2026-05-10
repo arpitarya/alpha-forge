@@ -1,12 +1,21 @@
 """Resolve the ordered list of .env files to load.
 
-Mirrors Next.js convention with two extra defaults (`.env.cred*`, `.env.port`).
+Mirrors Next.js convention with extra defaults for credentials and ports.
 Later files override earlier ones.
+
+Tracked files (committed):
+    .env.port             — port numbers (no secrets)
+    .env                  — config defaults (no secrets)
+    .env.cred.example     — credential TEMPLATE (blank values, no secrets)
+
+Untracked files (real secrets live here):
+    .env.cred.local       — actual credential values, gitignored
+    .env.local            — local config overrides, gitignored
 
 Order (low → high priority):
     .env.port
     .env
-    .env.cred
+    .env.cred.example
     .env.{env}
     .env.local            (skipped when env == "test")
     .env.cred.local       (skipped when env == "test")
@@ -42,7 +51,7 @@ def get_env_files(
     candidates: list[str] = [
         ".env.port",
         ".env",
-        ".env.cred",
+        ".env.cred.example",
         f".env.{env}",
     ]
     if not is_test:

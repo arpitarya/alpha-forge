@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, UploadFile, status
-from pydantic import BaseModel
 
 from app.core.logging import get_logger
 from app.modules.brokers import SOURCES, SourceKind, get_source
@@ -11,10 +10,6 @@ from app.modules.portfolio.sources_helper import apply_uploaded, sync_all
 
 router = APIRouter()
 logger = get_logger("routes.portfolio.sources")
-
-
-class OTPSubmit(BaseModel):
-    code: str
 
 
 @router.get("")

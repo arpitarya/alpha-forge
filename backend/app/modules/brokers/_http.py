@@ -8,10 +8,14 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 
 import httpx
+from cryptography.fernet import Fernet, InvalidToken
+
+SESSION_TTL_SECONDS = int(os.getenv("BROKER_SESSION_TTL", "82800"))  # 23h default
 
 DEFAULT_TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 DEFAULT_HEADERS = {
@@ -45,25 +49,44 @@ def make_client(
 def _cache_root() -> Path:
     root = Path(os.getenv("BROKER_CACHE_DIR", ".cache/brokers")).resolve()
     root.mkdir(parents=True, exist_ok=True)
+    os.chmod(root, 0o700)
     return root
 
 
+def _fernet() -> Fernet:
+    key = os.getenv("BROKER_CACHE_KEY", "").strip()
+    if not key:
+        raise RuntimeError(
+            "BROKER_CACHE_KEY not set. Generate with: "
+            "python -c 'from cryptography.fernet import Fernet;"
+            " print(Fernet.generate_key().decode())'"
+        )
+    return Fernet(key.encode())
+
+
 def load_session(slug: str) -> dict[str, Any]:
-    f = _cache_root() / f"{slug}.json"
+    f = _cache_root() / f"{slug}.bin"
     if not f.exists():
         return {}
     try:
-        return json.loads(f.read_text())
-    except (OSError, json.JSONDecodeError):
+        decrypted = _fernet().decrypt(f.read_bytes())
+        data = json.loads(decrypted)
+    except (OSError, json.JSONDecodeError, InvalidToken):
         return {}
+    if time.time() - float(data.get("_saved_at", 0)) > SESSION_TTL_SECONDS:
+        return {}
+    data.pop("_saved_at", None)
+    return data
 
 
 def save_session(slug: str, data: dict[str, Any]) -> None:
-    f = _cache_root() / f"{slug}.json"
-    f.write_text(json.dumps(data, indent=2))
+    f = _cache_root() / f"{slug}.bin"
+    payload = {**data, "_saved_at": time.time()}
+    f.write_bytes(_fernet().encrypt(json.dumps(payload).encode()))
+    os.chmod(f, 0o600)
 
 
 def clear_session(slug: str) -> None:
-    f = _cache_root() / f"{slug}.json"
+    f = _cache_root() / f"{slug}.bin"
     if f.exists():
         f.unlink()

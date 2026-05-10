@@ -1,4 +1,12 @@
-"""Zerodha Kite — Playwright login + enctoken cache + holdings fetch."""
+"""Zerodha Kite — manual CDP login + enctoken cache + holdings fetch.
+
+Login flow: the user logs in to kite.zerodha.com inside a Chrome instance
+started with `--remote-debugging-port=9299` (loopback only, see _cdp.py).
+This helper attaches over CDP, reuses the enctoken cookie if already
+authenticated, otherwise waits up to ZERODHA_LOGIN_CDP_WAIT seconds for
+the user to complete login manually. No password / TOTP secret is ever
+stored or read by AlphaForge.
+"""
 
 from __future__ import annotations
 
@@ -8,61 +16,46 @@ from typing import Any
 import httpx
 
 from app.core.logging import get_logger
+from app.modules.brokers._cdp import connect_existing_chrome, cookie_value, find_or_open_page
 from app.modules.brokers._http import load_session, make_client, save_session
-from app.modules.brokers._otp import generate_totp
 
 logger = get_logger("brokers.zerodha_kite_helper")
 
 KITE_BASE = "https://kite.zerodha.com"
 HOLDINGS_PATH = "/oms/portfolio/holdings"
-REQUIRED_ENV = ("ZERODHA_USER_ID", "ZERODHA_APP_CODE", "ZERODHA_TOTP_SECRET")
+REQUIRED_ENV: tuple[str, ...] = ("ZERODHA_USER_ID",)
 
 _LOGIN_URL = "https://kite.zerodha.com/"
-_LOGIN_TIMEOUT_MS = 30_000
-_TOTP_SELECTOR = (
-    'input[label="External TOTP"], input[type="number"], '
-    'input[type="text"]:not([disabled])'
-)
-_HEADLESS = os.getenv("ZERODHA_LOGIN_HEADLESS", "true").lower() != "false"
+_CDP_WAIT_SECONDS = int(os.getenv("ZERODHA_LOGIN_CDP_WAIT", "180"))
 
 
 def env(key: str) -> str:
     return os.getenv(key, "").strip()
 
+async def cdp_login(wait_seconds: int = _CDP_WAIT_SECONDS) -> str:
+    """Acquire enctoken from an already-running Chrome (CDP, port 9299).
 
-async def playwright_login(user_id: str, app_code: str, totp_secret: str) -> str:
+    If the user is already logged in inside that Chrome, the enctoken cookie
+    is read directly. Otherwise we open kite.zerodha.com in that browser and
+    wait up to `wait_seconds` for the user to finish login manually.
+    """
+    pw, browser = await connect_existing_chrome()
     try:
-        from playwright.async_api import async_playwright
-    except ImportError as e:
-        raise RuntimeError("playwright not installed; run uv sync && playwright install chromium") from e
-
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=_HEADLESS)
-        try:
-            context = await browser.new_context()
-            page = await context.new_page()
-            page.set_default_timeout(_LOGIN_TIMEOUT_MS)
-            await page.goto(_LOGIN_URL, wait_until="domcontentloaded")
-            await page.wait_for_selector('input[type="text"]')
-            await page.fill('input[type="text"]', user_id)
-            await page.fill('input[type="password"]', app_code)
-            await page.click('button[type="submit"]')
-            await page.wait_for_selector(_TOTP_SELECTOR)
-            await page.locator(
-                'input[label="External TOTP"], input[type="number"], input#userid'
-            ).last.fill(generate_totp(totp_secret))
-            try:
-                await page.click('button[type="submit"]', timeout=2_000)
-            except Exception as e:
-                logger.debug("Zerodha: TOTP submit click skipped (%s)", e)
-            await page.wait_for_url("**/dashboard**")
-            cookies = await context.cookies()
-            enctoken = next((c["value"] for c in cookies if c["name"] == "enctoken"), None)
-            if not enctoken:
-                raise RuntimeError("Zerodha login succeeded but no enctoken cookie was set")
-            return enctoken
-        finally:
-            await browser.close()
+        page = await find_or_open_page(browser, _LOGIN_URL, "kite.zerodha.com")
+        ctx = page.context
+        token = await cookie_value(ctx, "enctoken", "kite.zerodha.com")
+        if token:
+            logger.info("Zerodha: reused enctoken from attached Chrome session")
+            return token
+        logger.info("Zerodha: waiting up to %ss for manual login in attached Chrome", wait_seconds)
+        await page.wait_for_url("**/dashboard**", timeout=wait_seconds * 1000)
+        token = await cookie_value(ctx, "enctoken", "kite.zerodha.com")
+        if not token:
+            raise RuntimeError("Zerodha login completed but no enctoken cookie was found")
+        return token
+    finally:
+        await browser.close()
+        await pw.stop()
 
 
 async def acquire_enctoken(force: bool = False) -> str:
@@ -70,25 +63,30 @@ async def acquire_enctoken(force: bool = False) -> str:
     if not force and cached.get("enctoken"):
         return str(cached["enctoken"])
 
-    missing = [k for k in REQUIRED_ENV if not env(k)]
-    if missing:
-        raise RuntimeError(f"Zerodha credentials missing: {', '.join(missing)}")
+    if not env("ZERODHA_USER_ID"):
+        raise RuntimeError(
+            "ZERODHA_USER_ID not set in .env.cred.local — fill it in before running."
+        )
 
-    enctoken = await playwright_login(
-        env("ZERODHA_USER_ID"), env("ZERODHA_APP_CODE"), env("ZERODHA_TOTP_SECRET")
-    )
+    enctoken = await cdp_login()
     save_session("zerodha", {"enctoken": enctoken, "user_id": env("ZERODHA_USER_ID")})
-    logger.info("Zerodha: acquired new enctoken via Playwright")
+    logger.info("Zerodha: acquired new enctoken via CDP-attached Chrome")
     return enctoken
 
 
 async def fetch_holdings_json(enctoken: str) -> list[dict[str, Any]]:
-    headers = {"Authorization": f"enctoken {enctoken}"}
+    headers = {
+        "Authorization": f"enctoken {enctoken}",
+        "X-Kite-Version": "3",
+    }
     async with make_client(base_url=KITE_BASE, headers=headers) as client:
         client.cookies.set("enctoken", enctoken, domain="kite.zerodha.com")
         res = await client.get(HOLDINGS_PATH)
-        if res.status_code == 401:
-            raise httpx.HTTPStatusError("enctoken expired", request=res.request, response=res)
+        if res.status_code in (401, 403):
+            # Zerodha returns 403 for expired/invalid tokens on the OMS path
+            raise httpx.HTTPStatusError(
+                f"enctoken rejected ({res.status_code})", request=res.request, response=res
+            )
         res.raise_for_status()
         payload: dict[str, Any] = res.json()
     if payload.get("status") != "success":

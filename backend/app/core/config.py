@@ -21,27 +21,15 @@ class Settings(BaseSettings):
     app_name: str = "AlphaForge"
     app_env: str = "development"
     debug: bool = True
-    secret_key: str = "change-me-in-production"
     api_v1_prefix: str = "/api/v1"
-
-    # ── Server ───────────────────────────────────
-    host: str = "0.0.0.0"
-    port: int = 8000
 
     # ── Database ─────────────────────────────────
     database_url: str = "postgresql+asyncpg://alphaforge:alphaforge@localhost:5432/alphaforge"
-
-    # ── Redis ────────────────────────────────────
-    redis_url: str = "redis://localhost:6379/0"
 
     # ── Auth / JWT ───────────────────────────────
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-
-    # ── AI / LLM ────────────────────────────────
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o"
 
     # ── LLM Gateway (free multi-provider) ────────
     gemini_api_key: str = ""
@@ -55,18 +43,9 @@ class Settings(BaseSettings):
     embedding_dimensions: int = 768
     memory_top_k: int = 5
     memory_max_age_days: int = 90
-    screener_embed_batch_size: int = 10
-
-    # ── Indian Broker: Zerodha Kite ──────────────
-    kite_api_key: str = ""
-    kite_api_secret: str = ""
 
     # ── CORS ─────────────────────────────────────
     cors_origins: list[str] = ["http://localhost:3000"]
-
-    # ── Celery ───────────────────────────────────
-    celery_broker_url: str = "redis://localhost:6379/1"
-    celery_result_backend: str = "redis://localhost:6379/2"
 
     # ── Logging ──────────────────────────────────
     log_level: str = "INFO"

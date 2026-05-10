@@ -1,0 +1,4 @@
+# Pair every .ipynb with a .py (percent format) side-by-side.
+# The .py file is the clean, diff-friendly copy; .ipynb is the live notebook.
+# Sync: jupytext --sync <notebook.ipynb>
+formats = "ipynb,py:percent"
